@@ -1,0 +1,77 @@
+@import './styles/normalize.less';
+@import './styles/variables.less';
+
+// 引入阿里巴巴普惠体
+@font-face {
+  font-family: AlibabaPuHuiTi;
+  src: url('./assets/font/AlibabaPuHuiTi-3-55-Regular.ttf') format('truetype');
+}
+
+body {
+  min-width: 800px;
+  font-family: @font-family;
+}
+
+div {
+  .scrollable-area();
+}
+
+// 单行文本溢出隐藏
+.single-line-text {
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 当文本溢出时显示省略号 */
+  white-space: nowrap; /* 禁止文本换行 */
+}
+
+// 多行文本溢出隐藏
+.multi-line-text {
+  display: box; /* 兼容WebKit内核浏览器，如Chrome和Safari */
+  -webkit-line-clamp: 2; /* 显示最大2行 */
+  -webkit-box-orient: vertical; /* 设置垂直方向上的排列方式 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 当文本溢出时显示省略号 */
+
+  /* 对于非WebKit内核浏览器，可以使用以下CSS Grid方案作为备用（但不会显示省略号） */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  max-height: 1em; /* 调整为所需的行高乘以最大行数 */
+
+  /* 为非WebKit内核浏览器添加省略号（仅在支持伪元素的浏览器中有效） */
+  &::after {
+    content: '...'; /* 添加省略号 */
+    position: absolute;
+    right: 0; /* 将省略号定位到右侧 */
+    bottom: 0; /* 将省略号定位到底部 */
+    background-color: white; /* 与背景色相同，覆盖可能的多余文本 */
+    width: 0.5em; /* 省略号宽度 */
+    height: 0.5em; /* 省略号高度 */
+    line-height: 0.5em; /* 保持省略号居中 */
+    text-align: center;
+  }
+}
+
+// 滚动条样式
+.scrollable-area {
+  /* 针对Webkit内核的浏览器 */
+  &::-webkit-scrollbar {
+    /* 设置滚动条的宽度 */
+    width: 8px;
+  }
+
+  /* 滚动条轨道 - 背景颜色/白底 */
+  &::-webkit-scrollbar-track {
+    background: #fff;
+    border-radius: 10px;
+  }
+
+  /* 滚动条的滑块部分 */
+  &::-webkit-scrollbar-thumb {
+    background: rgba(144, 147, 153, 20%);
+    border-radius: 10px;
+  }
+
+  /* 当鼠标悬停在滚动条滑块上时改变颜色 */
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(144, 147, 153, 40%);
+  }
+}

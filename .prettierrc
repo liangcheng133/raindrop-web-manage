@@ -1,0 +1,17 @@
+{
+  "tabWidth": 2,
+  "singleQuote": true,
+  "quoteProps": "as-needed",
+  "arrowParens": "always",
+  "semi": false,
+  "bracketSpacing": true,
+  "jsxSingleQuote": true,
+  "proseWrap": "preserve",
+  "jsxBracketSameLine": true,
+  "printWidth": 120,
+  "trailingComma": "none",
+  "htmlWhitespaceSensitivity": "ignore",
+  "bracketSameLine": false,
+  "overrides": [{ "files": ".prettierrc", "options": { "parser": "json" } }],
+  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-packagejson"]
+}
