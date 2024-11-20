@@ -4,6 +4,7 @@
   "scripts": {
     "build": "max build",
     "dev": "max dev",
+    "export": "node ./scripts/autoExport.mjs",
     "format": "prettier --cache --write .",
     "postinstall": "max setup",
     "prepare": "husky",
