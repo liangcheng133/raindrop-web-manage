@@ -62,7 +62,7 @@ hr {
  */
 
 pre {
-  font-family: monospace, monospace; /* 1 */
+  font-family: monospace; /* 1 */
   font-size: 1em; /* 2 */
 }
 
@@ -105,7 +105,7 @@ strong {
 code,
 kbd,
 samp {
-  font-family: monospace, monospace; /* 1 */
+  font-family: monospace; /* 1 */
   font-size: 1em; /* 2 */
 }
 
@@ -146,6 +146,7 @@ sup {
  */
 
 img {
+  display: block; // 处理成块级，避免高度溢出几px
   border-style: none;
 }
 
@@ -350,7 +351,9 @@ template {
   display: none;
 }
 
-ul, ol, li {
+ul,
+ol,
+li {
   list-style: none;
   margin: 0;
   padding: 0;
