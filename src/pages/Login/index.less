@@ -1,26 +1,51 @@
-.container {
-  position: fixed;
-  top: 130px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 440px;
-  padding: 0 24px;
+@import '~@/styles/variables.less';
 
-  .header {
-    width: auto;
+.container-wrapper {
+  background-color: #f9fafb;
 
-    .logo {
+  .container {
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 440px;
+    padding: 0 24px;
+
+    .header {
+      width: auto;
       margin-bottom: 24px;
 
-      img {
-        margin: 0 auto;
-        width: 48px;
-        height: 48px;
+      .logo {
+        margin-bottom: 24px;
+
+        img {
+          margin: 0 auto;
+          width: 48px;
+          height: 48px;
+        }
+      }
+
+      .title {
+        text-align: center;
+        color: @text-color-1;
+        font-size: 24px;
+        line-height: 32px;
       }
     }
 
-    .title {
-      text-align: center;
+    .body {
+      padding: 17px 24px 25px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+
+      .tabs {
+        :global {
+          .ant-tabs-nav {
+            margin: 0 0 24px;
+          }
+        }
+      }
     }
   }
 }
