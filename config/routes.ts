@@ -12,7 +12,8 @@ export default [
   {
     name: '首页',
     path: '/home',
-    component: './Home'
+    component: './Home',
+    hideInBreadcrumb: true // 隐藏面包屑
   },
   {
     name: '系统管理',
