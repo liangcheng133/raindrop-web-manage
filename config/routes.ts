@@ -1,4 +1,9 @@
 export default [
+  // {
+  //   path: '/',
+  //   component: '../layouts/BasicLayout',
+  //   layout: false,
+  //   routes: [
   {
     path: '/',
     redirect: '/home'
@@ -13,7 +18,8 @@ export default [
     name: '首页',
     path: '/home',
     component: './Home',
-    hideInBreadcrumb: true // 隐藏面包屑
+    hideInBreadcrumb: true, // 在面包屑隐藏
+    hideInMenu: true // 在菜单隐藏
   },
   {
     name: '系统管理',
@@ -29,5 +35,7 @@ export default [
         component: './User'
       }
     ]
+    //   }
+    // ]
   }
 ]

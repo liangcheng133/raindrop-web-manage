@@ -18,7 +18,7 @@ export const layout: RunTimeLayoutConfig = () => {
       locale: false // 关闭菜单国际化
     },
     breadcrumbRender: (routers: BreadcrumbProps[]) => {
-      console.log('[ routers ] >', routers)
+      // console.log('[ routers ] >', routers)
       return [{ path: '/', breadcrumbName: '首页' }, ...routers]
     }
   }
