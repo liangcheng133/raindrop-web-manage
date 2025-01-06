@@ -20,7 +20,8 @@ const UserList: React.FC = () => {
   return (
     <PageContainer ghost>
       <ProTable<API.SystemUser>
-        request={() => {
+        request={(params) => {
+          console.log('[ params ] >', params)
           return Promise.resolve({
             data: data,
             success: true
