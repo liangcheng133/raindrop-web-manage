@@ -17,9 +17,10 @@ export const layout: RunTimeLayoutConfig = () => {
     menu: {
       locale: false // 关闭菜单国际化
     },
+    layout: 'mix',
     breadcrumbRender: (routers: BreadcrumbProps[]) => {
       // console.log('[ routers ] >', routers)
       return [{ path: '/', breadcrumbName: '首页' }, ...routers]
-    }
+    },
   }
 }

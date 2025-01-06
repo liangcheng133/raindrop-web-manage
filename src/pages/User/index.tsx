@@ -27,6 +27,7 @@ const UserList: React.FC = () => {
           })
         }}
         columns={column}
+        rowKey="id"
       />
     </PageContainer>
   )
