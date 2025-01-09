@@ -1,8 +1,12 @@
 // 运行时配置
-
 import { RunTimeLayoutConfig } from '@umijs/max'
 import { BreadcrumbProps } from 'antd/lib'
+import type { RequestConfig, RequestOptions } from 'umi'
 import { DEFAULT_NAME } from './constants'
+import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
+
+// 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
+setupGlobalErrorHandling()
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
@@ -17,10 +21,27 @@ export const layout: RunTimeLayoutConfig = () => {
     menu: {
       locale: false // 关闭菜单国际化
     },
-    layout: 'mix',
+    layout: 'mix', // 混合菜单结构
     breadcrumbRender: (routers: BreadcrumbProps[]) => {
-      // console.log('[ routers ] >', routers)
       return [{ path: '/', breadcrumbName: '首页' }, ...routers]
-    },
+    }
   }
+}
+
+export const request: RequestConfig = {
+  timeout: 2000,
+  errorConfig: {
+    errorHandler() {},
+    errorThrower() {}
+  },
+  headers: { 'Content-Type': 'application/json' },
+  requestInterceptors: [
+    [
+      (config: RequestOptions) => {
+        config.baseURL = '/api'
+        return config
+      }
+    ]
+  ],
+  responseInterceptors: []
 }

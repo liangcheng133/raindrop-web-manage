@@ -1,3 +1,4 @@
+import useTable from '@/hooks/useTable'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PageContainer, ProTable } from '@ant-design/pro-components'
 import React from 'react'
@@ -17,18 +18,22 @@ const column = [
 ]
 
 const UserList: React.FC = () => {
+  const tableProps = useTable({
+    api: '/sys/user/list'
+  })
+  console.log('运行')
   return (
     <PageContainer ghost>
       <ProTable<API.SystemUser>
-        request={(params) => {
-          console.log('[ params ] >', params)
-          return Promise.resolve({
-            data: data,
-            success: true
-          })
-        }}
+        // request={(params) => {
+        //   console.log('[ params ] >', params)
+        //   return Promise.resolve({
+        //     data: data,
+        //     success: true
+        //   })
+        // }}
         columns={column}
-        rowKey="id"
+        rowKey='id'
       />
     </PageContainer>
   )

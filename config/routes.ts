@@ -25,10 +25,10 @@ export default [
     name: '系统管理',
     path: '/system',
     routes: [
-      {
-        path: '/system',
-        redirect: '/system/user'
-      },
+      // {
+      //   path: '/system',
+      //   redirect: '/system/user'
+      // },
       {
         name: '用户管理',
         path: '/system/user',

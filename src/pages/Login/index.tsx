@@ -17,6 +17,7 @@ const TAB_ITEMS: TabsProps['items'] = [
 
 const Login: React.FC = () => {
   const [tabKey, setTabKey] = useSafeState('account')
+  console.log('[ Login刷新 ] >')
 
   return (
     <div className={cx('container-wrapper')}>
