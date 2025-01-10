@@ -1,40 +1,30 @@
 import useTable from '@/hooks/useTable'
 import { classNameBind } from '@/utils/classnamesBind'
-import { PageContainer, ProTable } from '@ant-design/pro-components'
+import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components'
+import { Button } from 'antd'
 import React from 'react'
 import styles from './index.less'
 
 const cx = classNameBind(styles)
 
-const data: API.SystemUser[] = [
-  { id: '1', name: '张三' },
-  { id: '2', name: '李四' },
-  { id: '3', name: '王五' }
-]
-
-const column = [
-  { title: 'ID', dataIndex: 'id' },
-  { title: '名称', dataIndex: 'name' }
+const columns: ProColumns[] = [
+  { title: '名称', dataIndex: 'name' },
+  { title: '账号', dataIndex: 'account' },
+  { title: '手机号', dataIndex: 'phone' },
+  { title: '邮箱', dataIndex: 'email' },
+  { title: '创建时间', dataIndex: 'create_time' },
+  { title: '修改时间', dataIndex: 'update_time' }
 ]
 
 const UserList: React.FC = () => {
-  const tableProps = useTable({
-    api: '/sys/user/list'
+  const tableProps = useTable<API.SystemUser, API.SystemUserQuery>({
+    api: '/sys/user/list',
+    columns: columns
   })
-  console.log('运行')
+
   return (
     <PageContainer ghost>
-      <ProTable<API.SystemUser>
-        // request={(params) => {
-        //   console.log('[ params ] >', params)
-        //   return Promise.resolve({
-        //     data: data,
-        //     success: true
-        //   })
-        // }}
-        columns={column}
-        rowKey='id'
-      />
+      <ProTable<API.SystemUser> {...tableProps} />
     </PageContainer>
   )
 }

@@ -1,4 +1,8 @@
 declare namespace API {
+  export type BasicParams = {
+    current?: number
+    count?: number
+  }
   export type BasicFile = {
     create_user_id?: string
     create_user_name?: string
@@ -18,5 +22,8 @@ declare namespace API {
     role_number?: string
     status?: integer
     remark?: string
+  }
+  export type SystemUserQuery = BasicParams & {
+    name?: string
   }
 }

@@ -5,7 +5,9 @@ export default defineConfig({
   define: {
     'process.env': process.env
   },
-  antd: {},
+  antd: {
+    configProvider: {}
+  },
   access: {},
   model: {},
   clientLoader: {}, // 路由数据加载（数据预加载方案）

@@ -1,7 +1,7 @@
 // 运行时配置
-import { RunTimeLayoutConfig } from '@umijs/max'
+import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
 import { BreadcrumbProps } from 'antd/lib'
-import type { RequestConfig, RequestOptions } from 'umi'
+import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { DEFAULT_NAME } from './constants'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 
@@ -28,13 +28,22 @@ export const layout: RunTimeLayoutConfig = () => {
   }
 }
 
+export const antd: RuntimeAntdConfig = (memo) => {
+  memo.theme ??= {}
+  return memo
+}
+
 export const request: RequestConfig = {
   timeout: 2000,
-  errorConfig: {
-    errorHandler() {},
-    errorThrower() {}
-  },
   headers: { 'Content-Type': 'application/json' },
+  errorConfig: {
+    errorThrower: (res: any) => {
+      console.log('拦截错误>>>', res)
+    },
+    errorHandler: (error: any, opts: any) => {
+      console.log('处理错误>>>', { error, opts })
+    }
+  },
   requestInterceptors: [
     [
       (config: RequestOptions) => {
@@ -43,5 +52,10 @@ export const request: RequestConfig = {
       }
     ]
   ],
-  responseInterceptors: []
+  responseInterceptors: [
+    (response: AxiosResponse) => {
+      // console.log('responseInterceptors', response)
+      return response
+    }
+  ]
 }
