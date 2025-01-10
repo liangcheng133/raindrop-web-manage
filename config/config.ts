@@ -1,8 +1,10 @@
 import { defineConfig } from '@umijs/max'
-import proxy from './proxy'
 import routes from './routes'
 
 export default defineConfig({
+  define: {
+    'process.env': process.env
+  },
   antd: {},
   access: {},
   model: {},
@@ -11,6 +13,7 @@ export default defineConfig({
   request: {},
   layout: {},
   routes,
-  npmClient: 'npm',
-  proxy,
+  npmClient: 'npm'
 })
+
+console.log(`----当前的环境是：${process.env.UMI_ENV}----`)

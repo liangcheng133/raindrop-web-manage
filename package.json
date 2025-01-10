@@ -2,8 +2,9 @@
   "private": true,
   "author": "CLX <asin2002@163.com>",
   "scripts": {
-    "build": "max build",
-    "dev": "max dev",
+    "build": "cross-env UMI_ENV=production max build",
+    "dev": "cross-env UMI_ENV=develop max dev",
+    "mock": "cross-env UMI_ENV=mock max dev",
     "export": "node ./scripts/autoExport.mjs",
     "format": "prettier --cache --write .",
     "postinstall": "max setup",
@@ -20,12 +21,16 @@
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
     "es-toolkit": "^1.27.0",
+    "mockjs": "^1.1.0",
     "numeral": "^2.0.6",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/mockjs": "^1.0.10",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
+    "cross-env": "^7.0.3",
     "husky": "^9",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.7",

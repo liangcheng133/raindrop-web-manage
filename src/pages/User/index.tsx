@@ -6,7 +6,7 @@ import styles from './index.less'
 
 const cx = classNameBind(styles)
 
-const data: Array<API.SystemUser> = [
+const data: API.SystemUser[] = [
   { id: '1', name: '张三' },
   { id: '2', name: '李四' },
   { id: '3', name: '王五' }

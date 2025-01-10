@@ -1,7 +1,10 @@
 {
   "extends": "./src/.umi/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react"
+  },
   "paths": {
     "@/*": ["src/*"],
-    "@@/*": ["./src/.umi/*"] // 解决 umi 找不到部分模块的问题
+    "@@/*": ["./src/.umi/*"]
   }
 }
