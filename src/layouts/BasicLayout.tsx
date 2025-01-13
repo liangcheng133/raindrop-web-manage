@@ -1,12 +1,18 @@
+import { Outlet } from '@umijs/max'
 import React from 'react'
+import AntdAppLayout from './AntdAppLayout'
 
-export interface BasicLayoutProps {
-  children: React.ReactNode
+export interface ReactFcProps {
+  children?: React.ReactNode
 }
 
-const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
-  console.log('BasicLayout init')
-  return children
+const BasicLayout: React.FC<ReactFcProps> = ({ children, ...rest }) => {
+  return (
+    <>
+      <Outlet />
+      <AntdAppLayout>{children}</AntdAppLayout>
+    </>
+  )
 }
 
 export default BasicLayout

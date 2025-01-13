@@ -36,13 +36,17 @@ const TdCell = (props: any) => {
  * 封装 ProTable 常用的属性 与 请求方法
  */
 export default function useTable<T, U>(options: UseTableType<T, U>): ProTableProps<T, U> {
-  const { api, handleParams, columns: propsColumns, rowKey = DEFAULT_ROW_KEY, ...rest } = options
+  const defaultProps = {
+    virtual: true,
+    rowKey: DEFAULT_ROW_KEY,
+  }
+  const { api, handleParams, columns: propsColumns, ...rest } = options
   const oldResponse = useRef<ResponseType | null>(null)
   const columns = handleColumns(options)
 
   return {
+    ...defaultProps,
     ...rest,
-    rowKey,
     columns,
     components: {
       body: TdCell

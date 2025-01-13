@@ -21,7 +21,6 @@ const UserList: React.FC = () => {
     api: '/sys/user/list',
     columns: columns,
     scroll: { y: 300 },
-    virtual: true
   })
   return (
     <PageContainer ghost>

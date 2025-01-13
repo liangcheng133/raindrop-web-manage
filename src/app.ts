@@ -3,6 +3,8 @@ import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
 import { BreadcrumbProps } from 'antd/lib'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { DEFAULT_NAME } from './constants'
+import { antdUtil } from './utils/antdUtil'
+import { noAuthHandle } from './utils/auth'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 
 // 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
@@ -54,7 +56,22 @@ export const request: RequestConfig = {
   ],
   responseInterceptors: [
     (response: AxiosResponse) => {
-      // console.log('responseInterceptors', response)
+      const res = response.data
+      const onError = (msg: string) => {
+        // if (!hideMsg) {
+        // return ;
+        // }
+        antdUtil.message?.error(msg)
+      }
+      if (res.status !== 0) {
+        console.log('[  antdUtil?.notification ] >', antdUtil?.notification)
+        if (res.status === 1) {
+          onError(res.msg)
+        } else if (res.status === 401) {
+          noAuthHandle()
+        }
+      }
+      console.log('responseInterceptors', response)
       return response
     }
   ]

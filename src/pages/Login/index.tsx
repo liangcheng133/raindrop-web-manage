@@ -4,6 +4,7 @@ import { classNameBind } from '@/utils/classnamesBind'
 import { Helmet } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Tabs, TabsProps } from 'antd'
+import React from 'react'
 import AccountForm from './components/AccountForm'
 import EmailForm from './components/EmailForm'
 import style from './index.less'
@@ -17,7 +18,6 @@ const TAB_ITEMS: TabsProps['items'] = [
 
 const Login: React.FC = () => {
   const [tabKey, setTabKey] = useSafeState('account')
-  console.log('[ Login刷新 ] >')
 
   return (
     <div className={cx('container-wrapper')}>
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
           <title>登录 - {DEFAULT_NAME}</title>
         </Helmet>
         <div className={cx('header')}>
-          <div className={cx('logo')}>
+          <div className={cx('logo')}>``
             <img className={cx('logo')} src={LogoImage} />
           </div>
           <div className={cx('title')}>登录 {DEFAULT_NAME}</div>
