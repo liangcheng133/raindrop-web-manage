@@ -4,8 +4,8 @@ import mockjs from 'mockjs'
 // 拓展mockjs
 mockjs.Random.extend({
   phone: function () {
-    var phonePrefixs = ['132', '135', '189'] // 自己写前缀哈
-    return mockjs.Random.pick(phonePrefixs) + mockjs.mock(/\d{8}/) //Number()
+    var phonePrefixs = ['132', '135', '189'] // 手机号前缀
+    return mockjs.Random.pick(phonePrefixs) + mockjs.mock(/\d{8}/)
   }
 })
 
@@ -24,7 +24,7 @@ export default {
       total: 30,
       current: req.body.current,
       pageSize: req.body.pageSize,
-      data: Array(Math.min(req.body.pageSize, 30))
+      data: Array(Math.min(req.body.current * req.body.pageSize, 30))
         .fill(null)
         .map(() =>
           mockjs.mock({
