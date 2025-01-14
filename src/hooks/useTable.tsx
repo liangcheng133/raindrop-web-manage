@@ -1,21 +1,38 @@
+import { ProColumns } from '@ant-design/pro-components'
 import { ProTableProps } from '@ant-design/pro-table'
 import { request } from '@umijs/max'
 import React, { useRef } from 'react'
 
 // 泛用json [key: string]: string;
 
-/**
- * 请求返回的数据类型
- */
 export type ResponseType = {
+  /** 列数据 */
   data: any[]
+  /** 总数 */
   total: number
+  /** 是否成功 */
   success: boolean
 }
 
-/**
- * useTable 的通用属性
- */
+export type HandleOperationType<T> = {
+  label?: string
+  key?: string
+  icon?: React.ReactNode
+  disabled?: boolean
+  tooltip?: string
+  onClick?: (record: T) => void
+}
+
+export type UseTableColumnsType<T> = ProColumns & {
+  /**
+   * 列类型
+   * * operation: 操作列
+   */
+  type?: 'operation'
+  /** 操作列的按钮渲染函数 */
+  handleOperation?: (record: T) => HandleOperationType<T>[]
+}
+
 export type UseTableType<T, U> = ProTableProps<T, U> & {
   /** 接口地址 */
   api: string
@@ -32,13 +49,12 @@ const TdCell = (props: any) => {
   return <td {...restProps} />
 }
 
-/**
- * 封装 ProTable 常用的属性 与 请求方法
- */
+/** 封装 ProTable 常用的属性 与 请求方法 */
 export default function useTable<T, U>(options: UseTableType<T, U>): ProTableProps<T, U> {
   const defaultProps = {
-    virtual: true,
     rowKey: DEFAULT_ROW_KEY,
+    virtual: true,
+    scroll: { x: 1000, y: 300 }
   }
   const { api, handleParams, columns: propsColumns, ...rest } = options
   const oldResponse = useRef<ResponseType | null>(null)
@@ -87,7 +103,9 @@ function handleTableParams<T, U>(requestParams: U, { handleParams }: UseTableTyp
 
 /** 处理 columns */
 function handleColumns<T, U>({ columns: propsColumns }: UseTableType<T, U>) {
-  const baseColumns = {}
+  const baseColumns = {
+    width: 100
+  }
   const columns = propsColumns?.map((item) => {
     const newItem = { ...baseColumns, ...item }
     return newItem
