@@ -26,6 +26,10 @@ export default [
         path: '/system',
         routes: [
           {
+            path: '/system',
+            redirect: '/system/user'
+          },
+          {
             name: '用户管理',
             path: '/system/user',
             component: './User'
