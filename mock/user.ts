@@ -21,10 +21,10 @@ export default {
     res.status(200).json({
       status: 0,
       msg: null,
-      total: 30,
+      total: 500,
       current: req.body.current,
       pageSize: req.body.pageSize,
-      data: Array(Math.min(req.body.current * req.body.pageSize, 30))
+      data: Array(Math.min(req.body.current * req.body.pageSize, req.body.pageSize))
         .fill(null)
         .map(() =>
           mockjs.mock({

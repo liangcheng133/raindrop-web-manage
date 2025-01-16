@@ -71,7 +71,7 @@ export const request: RequestConfig = {
           noAuthHandle()
         }
       }
-      console.log('responseInterceptors', response)
+      console.log('请求Response拦截器', response)
       return response
     }
   ]

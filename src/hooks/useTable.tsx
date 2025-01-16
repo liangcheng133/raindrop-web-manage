@@ -1,13 +1,16 @@
-import { ProColumns } from '@ant-design/pro-components'
+import { ProColumns, TableDropdown } from '@ant-design/pro-components'
 import { ProTableProps, RequestData } from '@ant-design/pro-table'
+import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/index'
 import { request } from '@umijs/max'
-import { Space } from 'antd'
-import React, { ReactNode, useRef } from 'react'
+import React, { ReactNode, useRef, useState } from 'react'
+import 'react-resizable/css/styles.css' // 引入默认样式
 import {
+  ColumnOptions,
   RenderFunctionParams,
+  RequestFunctionParams,
   UseTableColumnsType as UseTableColumnsTypeProps,
   UseTableType as UseTableTypeProps
-} from './useTableTypes'
+} from './type'
 
 export type UseTableProps<T, U> = UseTableTypeProps<T, U>
 export type UseTableColumnsType<T> = UseTableColumnsTypeProps<T>
@@ -17,26 +20,26 @@ const DEFAULT_COLUMN_WIDTH = 120
 /** 默认表格配置 */
 const DEFAULT_PROPS = {
   rowKey: 'id',
-  virtual: true,
-  scroll: { x: 1000, y: 300 }
+  scroll: { x: 'max-content', y: 400 },
+  resizable: true
 }
 
 /** 封装 ProTable 常用的属性 与 请求方法 */
-export default function useTable<T, U>(options: UseTableProps<T, U>): ProTableProps<T, U> {
-  const { api, handleParams, columns: propsColumns, ...rest } = options
-  const columns = handleColumns(options)
+export default function useTable<T, U>(useTableProps: UseTableProps<T, U>): ProTableProps<T, U> {
+  const options = { ...DEFAULT_PROPS, ...useTableProps }
+  const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', ...rest } = options
+
+  const [columnOptions, setColumnOptions] = useState<ColumnOptions>({})
   const oldResponse = useRef<RequestData<T> | null>(null)
 
+  const columns = handleColumns(options, columnOptions, setColumnOptions)
+
   return {
-    ...DEFAULT_PROPS,
     ...rest,
     columns,
-    components: {
-      body: TdCell
-    },
-    request: async (requestParams) => {
-      const params = handleTableParams(requestParams, options)
-      console.log('[ params ] >', params)
+    components: {},
+    request: async (...args) => {
+      const params = handleTableParams(...args, options)
 
       try {
         const res = await request(api, { method: 'post', data: params })
@@ -61,35 +64,49 @@ export default function useTable<T, U>(options: UseTableProps<T, U>): ProTablePr
 }
 
 /** 处理请求参数 */
-function handleTableParams<T, U>(requestParams: U, { handleParams }: UseTableProps<T, U>) {
+function handleTableParams<T, U>(
+  params: RequestFunctionParams<T, U>[0],
+  sort: RequestFunctionParams<T, U>[1],
+  filter: RequestFunctionParams<T, U>[2],
+  { handleParams }: UseTableProps<T, U>
+) {
+  let requestParams = { ...params }
   if (handleParams) {
-    return handleParams(requestParams)
+    requestParams = handleParams(params, sort, filter)
   }
   return requestParams
 }
 
 /** 处理 columns */
-function handleColumns<T, U>({ columns: propsColumns }: UseTableProps<T, U>) {
-  const baseColumns = {
-    width: DEFAULT_COLUMN_WIDTH
-  }
+function handleColumns<T, U>(
+  { columns: propsColumns, resizable }: UseTableProps<T, U>,
+  columnOptions: ColumnOptions,
+  setColumnOptions: (value: ColumnOptions) => void
+) {
   const columns = propsColumns?.map((item) => {
-    const extra: ProColumns<T> = {}
+    const { type, ellipsis = true, onHeaderCell, ...rest } = item
+    const extra: ProColumns<T> = {
+      width: DEFAULT_COLUMN_WIDTH
+    }
 
-    if (item.type === 'operation') {
+    if (item.valueType === 'option') {
       Object.assign(extra, {
         title: '操作',
         fixed: 'right',
-        width: 120,
         render: (...args) => renderColumnOperation(item, ...args)
       } as ProColumns)
     }
+
+    if (resizable && !onHeaderCell) {
+      // extra.width = columnOptions[resizableKey]?.width ?? width
+    }
+
     return {
-      ...baseColumns,
       ...extra,
-      ...item
+      ...rest
     }
   })
+  console.log(columns?.map((item) => item.width))
   return columns
 }
 
@@ -106,20 +123,38 @@ function renderColumnOperation<T>(
   if (renderOperation) {
     const renderOperations = renderOperation(dom, record, index, action, schema)
     const buttonsRender: ReactNode[] = []
-    renderOperations.forEach((item) => {
-      const { label, key, icon, disabled, tooltip, onClick } = item
-      buttonsRender.push(
-        <a key={key} onClick={() => onClick?.(record)}>
-          {label}
-        </a>
-      )
-    })
-    return <Space>{buttonsRender}</Space>
-  }
-}
+    const dropdownItems: DropdownProps['menus'] = []
+    const operationMaxShowQuantity = column.operationMaxShowQuantity ?? 3
 
-const TdCell = (props: any) => {
-  // onMouseEnter, onMouseLeave在数据量多的时候，会严重阻塞表格单元格渲染，严重影响性能
-  const { onMouseEnter, onMouseLeave, ...restProps } = props
-  return <td {...restProps} />
+    renderOperations.forEach((rItem, rIndex) => {
+      const { name, key, hide, outside, onClick, ...rest } = rItem
+      const callClick = () => {
+        onClick?.()
+      }
+      if (hide !== true) {
+        if (buttonsRender.length < operationMaxShowQuantity - 1 || outside) {
+          buttonsRender.push(
+            <a key={key} onClick={callClick}>
+              {name}
+            </a>
+          )
+        } else {
+          dropdownItems.push({ key: key, name, ...rest })
+        }
+      }
+    })
+    const renders = [...buttonsRender]
+    if (dropdownItems.length > 0) {
+      renders.push(
+        <TableDropdown
+          key='actionGroup'
+          onSelect={(key) => {
+            renderOperations.find((item) => item.key === key)?.onClick?.()
+          }}
+          menus={dropdownItems}
+        />
+      )
+    }
+    return renders
+  }
 }
