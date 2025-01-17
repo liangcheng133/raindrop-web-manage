@@ -106,7 +106,6 @@ function handleColumns<T, U>(
       ...rest
     }
   })
-  console.log(columns?.map((item) => item.width))
   return columns
 }
 

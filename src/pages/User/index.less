@@ -1,10 +1,14 @@
 @import '~@/styles/variables.less';
 
-.container {
-  background-color: red;
-  .container-header {
-    width: 100px;
-    height: 100px;
-    background-color: blue;
+.user-list-container {
+  :global {
+    .organizational-container {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .user-table-container {
+      width: 1px;
+      flex: 1;
+    }
   }
 }
