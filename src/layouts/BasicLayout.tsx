@@ -2,11 +2,8 @@ import { Outlet } from '@umijs/max'
 import React from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
-export interface ReactFcProps {
-  children?: React.ReactNode
-}
 
-const BasicLayout: React.FC<ReactFcProps> = ({ children, ...rest }) => {
+const BasicLayout: React.FC<React.PropsWithChildren> = ({ children, ...rest }) => {
   return (
     <>
       <Outlet />

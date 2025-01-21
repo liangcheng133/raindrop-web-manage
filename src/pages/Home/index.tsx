@@ -2,6 +2,7 @@ import { classNameBind } from '@/utils/classnamesBind';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import styles from './index.less';
+import React from 'react';
 
 const cx = classNameBind(styles);
 

@@ -1,0 +1,33 @@
+@import '~@/styles/variables.less';
+.personal-center {
+  .card-container {
+    &:not(:last-child) {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+.security-setting-container {
+  .security-setting-item {
+    width: 100%;
+    .label {
+      color: #4e5969;
+      font-weight: 500;
+    }
+    .content {
+      width: 100%;
+      padding: 25px 0;
+      border-bottom: 1px solid #e5e6eb;
+      .text {
+        flex: 1;
+        width: 100%;
+        &.placeholder {
+          color: #999;
+        }
+      }
+      .option {
+        margin-left: auto;
+      }
+    }
+  }
+}

@@ -22,6 +22,12 @@ export default [
         hideInMenu: true // 在菜单隐藏
       },
       {
+        name: '个人信息',
+        path: '/personalCenter',
+        component: './PersonalCenter',
+        hideInMenu: true // 在菜单隐藏
+      },
+      {
         name: '系统管理',
         path: '/system',
         routes: [
@@ -33,6 +39,11 @@ export default [
             name: '用户管理',
             path: '/system/user',
             component: './User'
+          },
+          {
+            name: '角色管理',
+            path: '/system/role',
+            component: './Role'
           }
         ]
       }

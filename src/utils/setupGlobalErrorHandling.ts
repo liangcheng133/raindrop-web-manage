@@ -1,3 +1,10 @@
+/*
+ * @Date: 2025-01-10 09:58:27
+ * @LastEditTime: 2025-01-21 10:46:05
+ * @Author: CLX
+ * @LastEditors: CLX
+ * @Description: 全局常见错误过滤（如antd的属性弃用等警告）
+ */
 // utils/setupGlobalErrorHandling.ts
 
 // 类型定义

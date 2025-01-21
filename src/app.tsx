@@ -1,11 +1,13 @@
 // 运行时配置
 import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
 import { BreadcrumbProps } from 'antd/lib'
+import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { DEFAULT_NAME } from './constants'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
+import { AppAvatarComm } from './components/AppLayout'
 
 // 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 setupGlobalErrorHandling()
@@ -24,6 +26,14 @@ export const layout: RunTimeLayoutConfig = () => {
       locale: false // 关闭菜单国际化
     },
     layout: 'mix', // 混合菜单结构
+    avatarProps: {
+      src: 'https://wallpapershome.com/images/pages/ico_h/27018.jpg',
+      size: 'small',
+      title: 'Dylan',
+      render: (props, dom) => {
+        return <AppAvatarComm>{dom}</AppAvatarComm>
+      }
+    },
     breadcrumbRender: (routers: BreadcrumbProps[]) => {
       return [{ path: '/', breadcrumbName: '首页' }, ...routers]
     }

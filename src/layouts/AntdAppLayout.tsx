@@ -1,9 +1,8 @@
 import { antdUtil } from '@/utils/antdUtil'
 import { App } from 'antd'
 import React, { useEffect } from 'react'
-import { ReactFcProps } from './BasicLayout'
 
-const AntdAppLayout: React.FC<ReactFcProps> = (props) => {
+const AntdAppLayout: React.FC<React.PropsWithChildren> = (props) => {
   // 保存APP引用
   const { notification, message, modal } = App.useApp()
   useEffect(() => {
@@ -15,7 +14,7 @@ const AntdAppLayout: React.FC<ReactFcProps> = (props) => {
   return props.children
 }
 
-const APPLayout: React.FC<ReactFcProps> = (props) => {
+const APPLayout: React.FC<React.PropsWithChildren> = (props) => {
   return (
     <App>
       <AntdAppLayout />

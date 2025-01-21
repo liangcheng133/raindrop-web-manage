@@ -4,7 +4,7 @@ import mockjs from 'mockjs'
 // 拓展mockjs
 mockjs.Random.extend({
   phone: function () {
-    var phonePrefixs = ['132', '135', '189'] // 手机号前缀
+    let phonePrefixs = ['132', '135', '189'] // 手机号前缀
     return mockjs.Random.pick(phonePrefixs) + mockjs.mock(/\d{8}/)
   }
 })
