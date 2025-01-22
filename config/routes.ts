@@ -30,6 +30,7 @@ export default [
       {
         name: '系统管理',
         path: '/system',
+        icon: 'icon-setting', // 使用阿里巴巴iconfont，在app.tsx postMenuData 里处理。二级菜单没有显示图标，需要的话要再app.tsx处理
         routes: [
           {
             path: '/system',
@@ -38,12 +39,32 @@ export default [
           {
             name: '用户管理',
             path: '/system/user',
-            component: './User'
+            component: './System/User'
           },
           {
             name: '角色管理',
             path: '/system/role',
-            component: './Role'
+            component: './System/Role'
+          },
+          {
+            name: '字典管理',
+            path: '/system/dict',
+            component: './System/Dict'
+          },
+          {
+            name: '登陆日志',
+            path: '/system/loginLog',
+            component: './System/LoginLog'
+          },
+          {
+            name: '操作日志',
+            path: '/system/operationLog',
+            component: './System/OperationLog'
+          },
+          {
+            name: '错误日志',
+            path: '/system/errorLog',
+            component: './System/ErrorLog'
           }
         ]
       }

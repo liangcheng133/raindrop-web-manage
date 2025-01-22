@@ -1,13 +1,15 @@
 // 运行时配置
 import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
 import { BreadcrumbProps } from 'antd/lib'
+import { isString } from 'es-toolkit'
 import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
+import { AppAvatarComm } from './components/AppLayout'
+import { IconFont } from './components/rd-ui'
 import { DEFAULT_NAME } from './constants'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
-import { AppAvatarComm } from './components/AppLayout'
 
 // 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 setupGlobalErrorHandling()
@@ -33,6 +35,14 @@ export const layout: RunTimeLayoutConfig = () => {
       render: (props, dom) => {
         return <AppAvatarComm>{dom}</AppAvatarComm>
       }
+    },
+    postMenuData: (menuData) => {
+      return menuData?.map((item) => {
+        if (item.icon && isString(item.icon)) {
+          return { ...item, icon: <IconFont type={item.icon} /> }
+        }
+        return item
+      })
     },
     breadcrumbRender: (routers: BreadcrumbProps[]) => {
       return [{ path: '/', breadcrumbName: '首页' }, ...routers]

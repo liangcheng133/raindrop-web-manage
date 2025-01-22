@@ -8,7 +8,7 @@ import { isJSONString } from './validate';
  * @param {number} time 分钟
  * @param {boolean} isJson 是否保存为JSON字符串
  */
-export function setLocal(key: string, value: any, time: number = 0, isJson: boolean = true): void {
+export function localSet(key: string, value: any, time: number = 0, isJson: boolean = true): void {
   const data = {
     value,
     time: null as any
@@ -28,13 +28,13 @@ export function setLocal(key: string, value: any, time: number = 0, isJson: bool
  * @param {string} key 主键
  * @returns {any | null}
  */
-export function getLocal(key: string): any | null {
+export function localGet(key: string): any | null {
   const data = localStorage.getItem(key);
   if (!data) return null;
   if (!isJSONString(data)) return data;
   const dataObj = JSON.parse(data);
   if (dataObj.time && dataObj.time < dayjs().valueOf()) {
-    removeLocal(key);
+    localRemove(key);
     return null;
   }
   return dataObj.value;
@@ -44,7 +44,7 @@ export function getLocal(key: string): any | null {
  * 删除本地缓存数据
  * @param {string | string[]} key 主键
  */
-export function removeLocal(key: string | string[]): void {
+export function localRemove(key: string | string[]): void {
   if (Array.isArray(key)) {
     key.forEach((item) => {
       localStorage.removeItem(item);
@@ -57,6 +57,6 @@ export function removeLocal(key: string | string[]): void {
 /**
  * 清空所有本地缓存
  */
-export function clearLocal(): void {
+export function localClear(): void {
   localStorage.clear();
 }
