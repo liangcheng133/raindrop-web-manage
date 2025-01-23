@@ -28,6 +28,22 @@ export default [
         hideInMenu: true // 在菜单隐藏
       },
       {
+        name: '家庭管理',
+        path: '/family',
+        icon: 'icon-dropbox',
+        routes: [
+          {
+            path: '/family',
+            redirect: '/family/items'
+          },
+          {
+            name: '物品管理',
+            path: '/family/items',
+            component: './Family/Items'
+          }
+        ]
+      },
+      {
         name: '系统管理',
         path: '/system',
         icon: 'icon-setting', // 使用阿里巴巴iconfont，在app.tsx postMenuData 里处理。二级菜单没有显示图标，需要的话要再app.tsx处理

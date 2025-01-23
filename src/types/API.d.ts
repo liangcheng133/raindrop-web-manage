@@ -3,7 +3,8 @@ declare namespace API {
     current?: number
     count?: number
   }
-  export type BasicFile = {
+  /** 通用字段 */
+  export type BasicField = {
     create_user_id?: string
     create_user_name?: string
     update_user_id?: string
@@ -12,7 +13,7 @@ declare namespace API {
     update_time?: string
   }
   /** 系统用户 */
-  export type SystemUser = BasicFile & {
+  export type SystemUser = BasicField & {
     id?: string
     account?: string
     name?: string
@@ -22,8 +23,5 @@ declare namespace API {
     role_number?: string
     status?: integer
     remark?: string
-  }
-  export type SystemUserQuery = BasicParams & {
-    name?: string
   }
 }

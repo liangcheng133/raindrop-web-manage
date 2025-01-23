@@ -1,27 +1,11 @@
-/*
- * @Date: 2025-01-17 11:04:32
- * @LastEditTime: 2025-01-17 16:49:51
- * @Author: CLX
- * @LastEditors: CLX
- * @Description: 新建、编辑部门
- */
 import { IconFont } from '@/components/rd-ui'
 import { ModalForm, ModalFormProps, ProFormSelect, ProFormText } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
-export type CreateDepartmentModalProps = {
-  /** 保存成功后回调 */
-  onSuccess?: () => void
-}
-
-export type CreateDepartmentModalRef = {
-  /** 打开弹框 */
-  open: () => void
-}
-
-const CreateDepartmentModal = forwardRef<CreateDepartmentModalRef, CreateDepartmentModalProps>((props, ref) => {
+/** 新建、编辑部门弹框 */
+const EditDepartmentModal = forwardRef<ModalComm.ModalCommRef, ModalComm.ModalCommProps>((props, ref) => {
   const { onSuccess } = props
   const [form] = Form.useForm()
   const [visible, setVisible] = useSafeState(false)
@@ -53,15 +37,7 @@ const CreateDepartmentModal = forwardRef<CreateDepartmentModalRef, CreateDepartm
     }
   }
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        open
-      }
-    },
-    []
-  )
+  useImperativeHandle(ref, () => ({ open }), [])
 
   return (
     <ModalForm
@@ -84,4 +60,4 @@ const CreateDepartmentModal = forwardRef<CreateDepartmentModalRef, CreateDepartm
   )
 })
 
-export default CreateDepartmentModal
+export default EditDepartmentModal

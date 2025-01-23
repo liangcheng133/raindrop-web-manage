@@ -1,12 +1,13 @@
 // 运行时配置
-import { RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
-import { BreadcrumbProps } from 'antd/lib'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { history, RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
+import { Badge, BreadcrumbProps, Dropdown } from 'antd/lib'
 import { isString } from 'es-toolkit'
 import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
-import { AppAvatarComm } from './components/AppLayout'
 import { IconFont } from './components/rd-ui'
 import { DEFAULT_NAME } from './constants'
+import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
@@ -33,8 +34,40 @@ export const layout: RunTimeLayoutConfig = () => {
       size: 'small',
       title: 'Dylan',
       render: (props, dom) => {
-        return <AppAvatarComm>{dom}</AppAvatarComm>
+        const toUserInfo = () => {
+          console.log('用户信息')
+          history.push(appendQueryParams('/personalCenter'))
+        }
+        const onLogout = () => {
+          console.log('退出登录')
+        }
+        return (
+          <Dropdown
+            menu={{
+              items: [
+                { key: 'userInfo', icon: <UserOutlined />, label: '个人信息', onClick: toUserInfo },
+                { type: 'divider' },
+                { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: onLogout }
+              ]
+            }}>
+            {dom}
+          </Dropdown>
+        )
       }
+    },
+    actionsRender: (props) => {
+      return [
+        <Badge
+          key='InfoCircleFilled'
+          count={87}
+          size='small'
+          offset={[0, 10]}
+          onClick={() => {
+            console.log('我被点击了')
+          }}>
+          <IconFont type='icon-bell-fill' className='layout-menu-action' />
+        </Badge>
+      ]
     },
     postMenuData: (menuData) => {
       return menuData?.map((item) => {

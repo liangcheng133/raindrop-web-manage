@@ -4,16 +4,7 @@ import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/inde
 import { request } from '@umijs/max'
 import React, { ReactNode, useRef, useState } from 'react'
 import 'react-resizable/css/styles.css' // 引入默认样式
-import {
-  ColumnOptions,
-  RenderFunctionParams,
-  RequestFunctionParams,
-  UseTableColumnsType as UseTableColumnsTypeProps,
-  UseTableType as UseTableTypeProps
-} from './type'
-
-export type UseTableProps<T, U> = UseTableTypeProps<T, U>
-export type UseTableColumnsType<T> = UseTableColumnsTypeProps<T>
+import { ColumnOptions, RenderFunctionParams, RequestFunctionParams, UseTableColumnsType, UseTableType } from './type'
 
 /** 默认的列宽 */
 const DEFAULT_COLUMN_WIDTH = 120
@@ -25,7 +16,7 @@ const DEFAULT_PROPS = {
 }
 
 /** 封装 ProTable 常用的属性 与 请求方法 */
-export default function useTable<T, U>(useTableProps: UseTableProps<T, U>): ProTableProps<T, U> {
+export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTableProps<T, any> {
   const options = { ...DEFAULT_PROPS, ...useTableProps }
   const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', ...rest } = options
 
@@ -68,7 +59,7 @@ function handleTableParams<T, U>(
   params: RequestFunctionParams<T, U>[0],
   sort: RequestFunctionParams<T, U>[1],
   filter: RequestFunctionParams<T, U>[2],
-  { handleParams }: UseTableProps<T, U>
+  { handleParams }: UseTableType<T, U>
 ) {
   let requestParams = { ...params }
   if (handleParams) {
@@ -79,7 +70,7 @@ function handleTableParams<T, U>(
 
 /** 处理 columns */
 function handleColumns<T, U>(
-  { columns: propsColumns, resizable }: UseTableProps<T, U>,
+  { columns: propsColumns, resizable }: UseTableType<T, U>,
   columnOptions: ColumnOptions,
   setColumnOptions: (value: ColumnOptions) => void
 ) {
