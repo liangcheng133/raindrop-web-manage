@@ -85,7 +85,7 @@ const UserList: React.FC = () => {
   ]
   // 树形点击回调
   const onOrganizationTreeSelect: TreeProps['onSelect'] = (selectedKeys) => {
-    console.log('[ selectedKeys ] >', selectedKeys[0])
+    console.log('[ selectedKeys ] >', selectedKeys[0], test)
   }
 
   // 新增部门成功回调

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-01-10 09:58:27
- * @LastEditTime: 2025-01-21 10:46:05
+ * @LastEditTime: 2025-01-23 10:34:27
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 全局常见错误过滤（如antd的属性弃用等警告）
@@ -40,8 +40,8 @@ class ExtendedError extends Error {
   }
 }
 
-// 简化的警告配置，直接添加需要忽略的消息字符串即可
-const IGNORED_WARNING_MESSAGES = [
+/** 简化的警告配置，直接添加需要忽略的消息字符串即可 */
+export const IGNORED_WARNING_MESSAGES = [
   '`bordered` is deprecated',
   'Warning: findDOMNode is deprecated',
   // 在这里直接添加新的警告消息
