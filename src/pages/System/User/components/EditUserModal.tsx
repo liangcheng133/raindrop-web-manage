@@ -1,4 +1,5 @@
 import { saveUserInfoApi } from '@/services/User'
+import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import { ModalForm, ModalFormProps, ProFormGroup, ProFormText, ProFormTextArea } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
@@ -24,16 +25,19 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
     setVisible(true)
   }
 
+  const close = () => {
+    setVisible(false)
+  }
+
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
     setVisible(visible)
   }
 
-  const onFinish: ModalFormProps['onFinish'] = async (values) => {
+  const onFinish = async (values: API.SystemUser) => {
     console.log('[ values ] >', values)
-    return
     try {
       const res = await saveUserInfoApi(values)
-      console.log('[ res ] >', res)
+      antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
     } catch (error) {
@@ -42,7 +46,7 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
     }
   }
 
-  useImperativeHandle(ref, () => ({ open }), [])
+  useImperativeHandle(ref, () => ({ open, close }), [])
 
   const trigger = (
     <Button key='button' icon={<PlusOutlined />} type='primary'>
@@ -58,7 +62,8 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
       trigger={trigger}
       open={visible}
       onFinish={onFinish}
-      onOpenChange={onOpenChange}>
+      onOpenChange={onOpenChange}
+      modalProps={{ destroyOnClose: true }}>
       <ProFormText name='id' hidden />
       <ProFormGroup>
         <ProFormText

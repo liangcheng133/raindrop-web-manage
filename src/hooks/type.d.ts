@@ -18,10 +18,14 @@ export type RenderOperationType<T> = {
   /** 是否从更多按钮提取出来展示 */
   outside?: boolean
   /**
-   * 点击事件
-   * @param record 当前行数据
-   * @param index 当前行索引
+   * 按钮类型
+   * * deleteConfirm: 删除确认弹窗
    */
+  type?: 'deleteConfirm'
+  /**
+   * 点击事件
+   * * type为deleteConfirm 时，返回Promise异步关闭 Popconfirm 的弹框
+   *  */
   onClick?: () => void
 }
 
@@ -53,8 +57,8 @@ export type UseTableColumnsType<T> = ProColumns & {
 export type UseTableType<T, U> = Omit<ProTableProps<T, U>, 'columns'> & {
   /** 接口地址 */
   api: string
-  /** 
-   * 对应列是否可以通过拖动改变宽度，默认启用 
+  /**
+   * 对应列是否可以通过拖动改变宽度，默认启用
    * * 功能未完善
    */
   resizable?: boolean
@@ -70,6 +74,11 @@ export type UseTableType<T, U> = Omit<ProTableProps<T, U>, 'columns'> & {
   virtual?: boolean
   /** 列配置 */
   columns?: UseTableColumnsType<T>[]
+  /** 
+   * 持久化列配置的key，传入值时即开启持久化列配置，默认使用localStorage
+   * * 有变动可以使用 columnState
+   */
+  persistenceColumnsKey?: string
 }
 
 export type ColumnOptions = {

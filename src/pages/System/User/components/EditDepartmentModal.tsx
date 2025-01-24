@@ -47,7 +47,8 @@ const EditDepartmentModal = forwardRef<ModalComm.ModalCommRef, ModalComm.ModalCo
       trigger={trigger}
       open={visible}
       onFinish={onFinish}
-      onOpenChange={onOpenChange}>
+      onOpenChange={onOpenChange}
+      modalProps={{ destroyOnClose: true }}>
       <ProFormText
         rules={[{ required: true, message: '请输入部门名称' }]}
         name='name'

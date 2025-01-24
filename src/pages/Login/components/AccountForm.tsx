@@ -1,23 +1,33 @@
-import { Button, Checkbox, Form, Input } from 'antd'
+import { ProForm, ProFormText } from '@ant-design/pro-components'
+import { Button, Form } from 'antd'
+import { FormProps } from 'antd/lib'
 import React from 'react'
+
+type SystemUserLoginType = { account: string; password: string }
 
 const AccountForm: React.FC = () => {
   const [form] = Form.useForm()
+
+  const onFinish = (values: SystemUserLoginType) => {
+    console.log('[ values ] >', values)
+  }
+
   return (
-    <Form form={form} layout='vertical'>
-      <Form.Item name='username' label='用户名'>
-        <Input />
-      </Form.Item>
-      <Form.Item name='password' label='密码'>
-        <Input.Password />
-      </Form.Item>
-      <div style={{ marginBottom: '16px' }}>
-        <Checkbox>记住密码</Checkbox>
-      </div>
-      <Button htmlType='submit' type='primary' block>
-        登录
-      </Button>
-    </Form>
+    <ProForm
+      form={form}
+      onFinish={onFinish}
+      submitter={{
+        render: () => {
+          return [
+            <Button key='submit' type='primary' htmlType='submit' block>
+              登录
+            </Button>
+          ]
+        }
+      }}>
+      <ProFormText name='account' label='账号' rules={[{ required: true, message: '请输入账号' }]} />
+      <ProFormText.Password name='password' label='密码' rules={[{ required: true, message: '请输入密码' }]} />
+    </ProForm>
   )
 }
 

@@ -1,5 +1,7 @@
 import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
+import { deleteUserApi } from '@/services/User'
+import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { Card, Flex, Tree, TreeProps } from 'antd'
@@ -35,17 +37,34 @@ const UserList: React.FC = () => {
     console.log('[ selectedKeys ] >', selectedKeys[0])
   }
 
-  // 新增部门成功回调
-  const onEditDepartmentModalSuccess: ModalComm.ModalCommProps['onSuccess'] = () => {
+  // 处理弹框处理成功回调
+  const handleModalCallbackSuccess = () => {
     tableRef.current?.reload()
   }
 
   // 表格列配置
   const columns: UseTableColumnsType<API.SystemUser>[] = [
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 100,
+      fixed: 'left',
+      valueEnum: {
+        0: {
+          text: '启用',
+          status: 'Success'
+        },
+        1: {
+          text: '禁用',
+          status: 'Error'
+        }
+      }
+    },
     { title: '名称', dataIndex: 'name' },
     { title: '账号', dataIndex: 'account', width: 200 },
-    { title: '手机号', dataIndex: 'phone', width: 160 },
+    { title: '手机号', dataIndex: 'mobile_phone', width: 160 },
     { title: '邮箱', dataIndex: 'email', width: 200 },
+    { title: '角色', dataIndex: 'role_name', width: 140 },
     { title: '创建时间', dataIndex: 'create_time', width: 200, search: false },
     { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
     {
@@ -60,24 +79,13 @@ const UserList: React.FC = () => {
             }
           },
           {
-            name: '编辑4',
-            key: 'edit4',
-            onClick: () => {
-              console.log('按钮点击事件2')
-            }
-          },
-          {
-            name: '编辑3',
-            key: 'edit3',
-            onClick: () => {
-              console.log('按钮点击事件3')
-            }
-          },
-          {
-            name: '编辑1',
-            key: 'edit1',
-            onClick: () => {
-              console.log('按钮点击事件4')
+            name: '删除',
+            key: 'delete',
+            type: 'deleteConfirm',
+            onClick: async () => {
+              await deleteUserApi({ id: record.id })
+              antdUtil.message?.success('删除成功')
+              tableRef.current?.reload()
             }
           }
         ]
@@ -89,12 +97,11 @@ const UserList: React.FC = () => {
     actionRef: tableRef,
     api: '/sys/user/list',
     columns: columns,
-    toolBarRender: () => [<EditUserModal ref={editUserRef} />]
+    persistenceColumnsKey: 'sys.user.index',
+    toolBarRender: () => [<EditUserModal ref={editUserRef} onSuccess={handleModalCallbackSuccess} />]
   })
   // 组织架构卡片extra
-  const organizationCardExtra = (
-    <EditDepartmentModal ref={createDepartmentRef} onSuccess={onEditDepartmentModalSuccess} />
-  )
+  const organizationCardExtra = <EditDepartmentModal ref={createDepartmentRef} onSuccess={handleModalCallbackSuccess} />
 
   return (
     <PageContainer ghost className={cx('user-list-container')}>

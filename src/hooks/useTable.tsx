@@ -1,8 +1,10 @@
-import { ProColumns, TableDropdown } from '@ant-design/pro-components'
+import { ColumnsState, ProColumns, TableDropdown } from '@ant-design/pro-components'
 import { ProTableProps, RequestData } from '@ant-design/pro-table'
 import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/index'
 import { request } from '@umijs/max'
-import React, { ReactNode, useRef, useState } from 'react'
+import { useSafeState } from 'ahooks'
+import { Popconfirm } from 'antd'
+import React, { ReactNode, useRef } from 'react'
 import 'react-resizable/css/styles.css' // 引入默认样式
 import { ColumnOptions, RenderFunctionParams, RequestFunctionParams, UseTableColumnsType, UseTableType } from './type'
 
@@ -18,17 +20,28 @@ const DEFAULT_PROPS = {
 /** 封装 ProTable 常用的属性 与 请求方法 */
 export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTableProps<T, any> {
   const options = { ...DEFAULT_PROPS, ...useTableProps }
-  const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', ...rest } = options
+  const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', persistenceColumnsKey, ...rest } = options
 
-  const [columnOptions, setColumnOptions] = useState<ColumnOptions>({})
-  const oldResponse = useRef<RequestData<T> | null>(null)
+  const [columnOptions, setColumnOptions] = useSafeState<ColumnOptions>({})
+  const columnsStateValue = useRef<Record<string, ColumnsState>>({})  // 持久化列配置数据
+  const oldResponse = useRef<RequestData<T> | null>(null) // 上次成功的请求结果
 
-  const columns = handleColumns(options, columnOptions, setColumnOptions)
+  const columns = handleColumns(options, columnOptions, setColumnOptions) // 列配置
 
+  console.log('执行')
   return {
     ...rest,
     columns,
     components: {},
+    columnsState: persistenceColumnsKey
+      ? {
+          onChange: (value: Record<string, ColumnsState>) => {
+            columnsStateValue.current = value
+          },
+          persistenceKey: persistenceColumnsKey,
+          persistenceType: 'localStorage'
+        }
+      : undefined,
     request: async (...args) => {
       const params = handleTableParams(...args, options)
 
@@ -117,17 +130,31 @@ function renderColumnOperation<T>(
     const operationMaxShowQuantity = column.operationMaxShowQuantity ?? 3
 
     renderOperations.forEach((rItem, rIndex) => {
-      const { name, key, hide, outside, onClick, ...rest } = rItem
+      const { name, key, hide, outside, type, onClick, ...rest } = rItem
       const callClick = () => {
-        onClick?.()
+        return onClick?.()
       }
       if (hide !== true) {
         if (buttonsRender.length < operationMaxShowQuantity - 1 || outside) {
-          buttonsRender.push(
-            <a key={key} onClick={callClick}>
-              {name}
-            </a>
-          )
+          if (type === 'deleteConfirm') {
+            buttonsRender.push(
+              <Popconfirm
+                title='删除提示'
+                description='您确定要删除该数据吗？'
+                onConfirm={callClick}
+                key={key}
+                okText='确认'
+                cancelText='取消'>
+                <a className='danger-color'>{name}</a>
+              </Popconfirm>
+            )
+          } else {
+            buttonsRender.push(
+              <a key={key} onClick={callClick}>
+                {name}
+              </a>
+            )
+          }
         } else {
           dropdownItems.push({ key: key, name, ...rest })
         }
