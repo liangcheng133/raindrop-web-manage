@@ -66,21 +66,32 @@ export default [
             name: '字典管理',
             path: '/system/dict',
             component: './System/Dict'
+          }
+        ]
+      },
+      {
+        name: '系统日志',
+        path: '/log',
+        icon: 'icon-log',
+        routes: [
+          {
+            path: '/log',
+            redirect: '/log/user'
           },
           {
             name: '登陆日志',
-            path: '/system/loginLog',
-            component: './System/LoginLog'
+            path: '/log/loginLog',
+            component: './Log/LoginLog'
           },
           {
             name: '操作日志',
-            path: '/system/operationLog',
-            component: './System/OperationLog'
+            path: '/log/operationLog',
+            component: './Log/OperationLog'
           },
           {
             name: '错误日志',
-            path: '/system/errorLog',
-            component: './System/ErrorLog'
+            path: '/log/errorLog',
+            component: './Log/ErrorLog'
           }
         ]
       }

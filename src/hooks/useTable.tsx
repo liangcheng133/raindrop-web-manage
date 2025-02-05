@@ -4,31 +4,50 @@ import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/inde
 import { request } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Popconfirm } from 'antd'
-import React, { ReactNode, useRef } from 'react'
+import { throttle } from 'es-toolkit'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import 'react-resizable/css/styles.css' // 引入默认样式
 import { ColumnOptions, RenderFunctionParams, RequestFunctionParams, UseTableColumnsType, UseTableType } from './type'
 
 /** 默认的列宽 */
 const DEFAULT_COLUMN_WIDTH = 120
+/** 默认表格高度 */
+const DEFAULT_TABLE_HEIGHT = 400
 /** 默认表格配置 */
 const DEFAULT_PROPS = {
   rowKey: 'id',
-  scroll: { x: 'max-content', y: 400 },
   resizable: true
 }
 
 /** 封装 ProTable 常用的属性 与 请求方法 */
 export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTableProps<T, any> {
-  const options = { ...DEFAULT_PROPS, ...useTableProps }
+  const [tableBodyHeight, setTableBodyHeight] = useSafeState(DEFAULT_TABLE_HEIGHT)
+  const options = {
+    ...DEFAULT_PROPS,
+    scroll: { x: 'max-content', y: tableBodyHeight },
+    ...useTableProps
+  }
   const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', persistenceColumnsKey, ...rest } = options
 
   const [columnOptions, setColumnOptions] = useSafeState<ColumnOptions>({})
-  const columnsStateValue = useRef<Record<string, ColumnsState>>({})  // 持久化列配置数据
+  const columnsStateValue = useRef<Record<string, ColumnsState>>({}) // 持久化列配置数据
   const oldResponse = useRef<RequestData<T> | null>(null) // 上次成功的请求结果
 
   const columns = handleColumns(options, columnOptions, setColumnOptions) // 列配置
 
-  console.log('执行')
+  /** 更新表格高度 */
+  const refreshTableHeight = () => {
+    setTableBodyHeight(calculationTableBodyHeight())
+  }
+
+  useEffect(() => {
+    refreshTableHeight()
+    window.onresize = throttle(refreshTableHeight, 300)
+    return () => {
+      window.onresize = null
+    }
+  }, [])
+
   return {
     ...rest,
     columns,
@@ -174,4 +193,18 @@ function renderColumnOperation<T>(
     }
     return renders
   }
+}
+
+/**
+ * 计算表格可用高度
+ * @param threshold 阈值，高度会减少该阈值 默认为100
+ * @returns
+ */
+function calculationTableBodyHeight(threshold = 100) {
+  const clientHeight = document.documentElement.clientHeight
+  const bodyArr = document.getElementsByClassName('ant-table-body')
+  if (bodyArr.length) {
+    return clientHeight - bodyArr[0].getBoundingClientRect().top - threshold
+  }
+  return DEFAULT_TABLE_HEIGHT
 }

@@ -109,7 +109,7 @@ const UserList: React.FC = () => {
         <Card className={cx('organizational-container')} title='组织架构' extra={organizationCardExtra}>
           <Tree defaultExpandAll blockNode showIcon treeData={treeData} onSelect={onOrganizationTreeSelect} />
         </Card>
-        <ProTable className={cx('user-table-container')} {...tableProps} />
+        <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
     </PageContainer>
   )

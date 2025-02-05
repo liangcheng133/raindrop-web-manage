@@ -24,4 +24,11 @@ declare namespace API {
     status?: integer
     remark?: string
   }
+  /** 系统角色 */
+  export type SystemRole = BasicField & {
+    id?: string
+    name?: string
+    number?: string
+    remark?: string
+  }
 }
