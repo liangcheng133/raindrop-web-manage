@@ -24,6 +24,12 @@ declare namespace API {
     status?: integer
     remark?: string
   }
+  /** 系统组织 */
+  export type SystemOrg = BasicField & {
+    id?: string
+    name?: string
+    parent_id?: string
+  }
   /** 系统角色 */
   export type SystemRole = BasicField & {
     id?: string

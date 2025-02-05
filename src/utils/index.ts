@@ -28,3 +28,30 @@ export function appendQueryParams(url: string, params?: { [key: string]: string 
 
   return url
 }
+
+/** 列表转树形 */
+export function listToTree<T extends { [key: string]: any }>(
+  list: T[],
+  idField?: string,
+  parentIdField?: string,
+  topId?: string,
+  parentIds: string[] = []
+): T[] {
+  const data: T[] = []
+  const pIdField = idField || 'id'
+  const pParentIdField = parentIdField || 'parent_id'
+  const topIdValue = topId || '0'
+
+  list.forEach((item) => {
+    const idArr = [...parentIds, item[pIdField]]
+    console.log(item[pParentIdField], topIdValue)
+    if (item[pParentIdField] === topIdValue) {
+      data.push({
+        ...item,
+        key: idArr.join('-'),
+        children: listToTree(list, pIdField, pParentIdField, item[pIdField], idArr)
+      })
+    }
+  })
+  return data
+}

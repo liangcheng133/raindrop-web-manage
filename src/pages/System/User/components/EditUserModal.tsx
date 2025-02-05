@@ -1,4 +1,4 @@
-import { saveUserInfoApi } from '@/services/User'
+import { saveSysUserInfoApi } from '@/services/User'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import { ModalForm, ModalFormProps, ProFormGroup, ProFormText, ProFormTextArea } from '@ant-design/pro-components'
@@ -36,7 +36,7 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
   const onFinish = async (values: API.SystemUser) => {
     console.log('[ values ] >', values)
     try {
-      const res = await saveUserInfoApi(values)
+      const res = await saveSysUserInfoApi(values)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true

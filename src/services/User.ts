@@ -1,7 +1,7 @@
 import { request } from '@umijs/max'
 
 /** 新建、编辑用户信息 */
-export function saveUserInfoApi(data: any) {
+export function saveSysUserInfoApi(data: any) {
   return request('/sys/user/save', {
     method: 'post',
     data
@@ -9,7 +9,7 @@ export function saveUserInfoApi(data: any) {
 }
 
 /** 删除用户信息 */
-export function deleteUserApi(data: any) {
+export function deleteSysUserApi(data: any) {
   return request('/sys/user/delete', {
     method: 'post',
     data

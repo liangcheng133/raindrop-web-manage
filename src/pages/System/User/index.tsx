@@ -1,14 +1,17 @@
 import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
-import { deleteUserApi } from '@/services/User'
+import { deleteSysUserApi } from '@/services/User'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { Card, Flex, Tree, TreeProps } from 'antd'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import EditDepartmentModal from './components/EditDepartmentModal'
 import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
 import styles from './index.less'
+import { useSafeState } from 'ahooks'
+import { querySysOrgListAll } from '@/services/Org'
+import { listToTree } from '@/utils'
 
 const cx = classNameBind(styles)
 
@@ -16,21 +19,25 @@ const UserList: React.FC = () => {
   const tableRef = useRef<ActionType | null>(null)
   const createDepartmentRef = useRef<ModalComm.ModalCommRef>(null)
   const editUserRef = useRef<EditUserModalRef>(null)
+  
+  // 组织架构数据
+  const [orgListData, setOrgListData] = useSafeState<API.SystemOrg[]>([])
+  const [orgTreeData, setOrgTreeData] = useSafeState<TreeProps['treeData']>([])
 
   // 组织架构树数据
-  const treeData: TreeProps['treeData'] = [
-    {
-      title: 'parent 1',
-      key: '0-0',
-      icon: <IconFont type='icon-team' />,
-      children: [
-        {
-          title: 'parent 1-0',
-          key: '0-0-0'
-        }
-      ]
-    }
-  ]
+  // const treeData: TreeProps['treeData'] = [
+  //   {
+  //     title: 'parent 1',
+  //     key: '0-0',
+  //     icon: <IconFont type='icon-team' />,
+  //     children: [
+  //       {
+  //         title: 'parent 1-0',
+  //         key: '0-0-0'
+  //       }
+  //     ]
+  //   }
+  // ]
 
   // 树形点击回调
   const onOrganizationTreeSelect: TreeProps['onSelect'] = (selectedKeys) => {
@@ -83,7 +90,7 @@ const UserList: React.FC = () => {
             key: 'delete',
             type: 'deleteConfirm',
             onClick: async () => {
-              await deleteUserApi({ id: record.id })
+              await deleteSysUserApi({ id: record.id })
               antdUtil.message?.success('删除成功')
               tableRef.current?.reload()
             }
@@ -103,11 +110,19 @@ const UserList: React.FC = () => {
   // 组织架构卡片extra
   const organizationCardExtra = <EditDepartmentModal ref={createDepartmentRef} onSuccess={handleModalCallbackSuccess} />
 
+  useEffect(() => {
+    querySysOrgListAll().then((res) => {
+      const data = res.data
+      setOrgListData(data)
+      console.log(listToTree(data))
+    })
+  }, [])
+
   return (
     <PageContainer ghost className={cx('user-list-container')}>
       <Flex gap={16}>
         <Card className={cx('organizational-container')} title='组织架构' extra={organizationCardExtra}>
-          <Tree defaultExpandAll blockNode showIcon treeData={treeData} onSelect={onOrganizationTreeSelect} />
+          <Tree defaultExpandAll blockNode showIcon treeData={orgTreeData} onSelect={onOrganizationTreeSelect} />
         </Card>
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
