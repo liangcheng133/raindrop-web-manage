@@ -4,12 +4,12 @@ declare namespace ModalComm {
     /** 保存成功后回调 */
     onSuccess?: () => void
     /** 保存失败后回调 */
-    onFail?: () => void
+    onFail?: (error: unknown) => void
   }
   export type ModalCommRef = {
     /** 打开弹框 */
-    open?: () => void
+    open: () => void
     /** 关闭弹框 */
-    close?: () => void
+    close: () => void
   }
 }

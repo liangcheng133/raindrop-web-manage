@@ -1,3 +1,4 @@
+import { objRemoveEmpty } from '@/utils'
 import { ColumnsState, ProColumns, TableDropdown } from '@ant-design/pro-components'
 import { ProTableProps, RequestData } from '@ant-design/pro-table'
 import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/index'
@@ -16,7 +17,8 @@ const DEFAULT_TABLE_HEIGHT = 400
 /** 默认表格配置 */
 const DEFAULT_PROPS = {
   rowKey: 'id',
-  resizable: true
+  resizable: true,
+  clearEmptyParams: true
 }
 
 /** 封装 ProTable 常用的属性 与 请求方法 */
@@ -27,7 +29,15 @@ export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTab
     scroll: { x: 'max-content', y: tableBodyHeight },
     ...useTableProps
   }
-  const { api, handleParams, columns: propsColumns, tableLayout = 'fixed', persistenceColumnsKey, ...rest } = options
+  const {
+    api,
+    handleParams,
+    clearEmptyParams,
+    columns: propsColumns,
+    tableLayout = 'fixed',
+    persistenceColumnsKey,
+    ...rest
+  } = options
 
   const [columnOptions, setColumnOptions] = useSafeState<ColumnOptions>({})
   const columnsStateValue = useRef<Record<string, ColumnsState>>({}) // 持久化列配置数据
@@ -91,11 +101,14 @@ function handleTableParams<T, U>(
   params: RequestFunctionParams<T, U>[0],
   sort: RequestFunctionParams<T, U>[1],
   filter: RequestFunctionParams<T, U>[2],
-  { handleParams }: UseTableType<T, U>
+  { handleParams, clearEmptyParams }: UseTableType<T, U>
 ) {
   let requestParams = { ...params }
   if (handleParams) {
     requestParams = handleParams(params, sort, filter)
+  }
+  if (clearEmptyParams) {
+    objRemoveEmpty(requestParams)
   }
   return requestParams
 }

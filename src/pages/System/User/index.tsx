@@ -1,51 +1,56 @@
-import { IconFont } from '@/components/rd-ui'
+import { CardExtraOptions } from '@/components'
 import { useTable, UseTableColumnsType } from '@/hooks'
+import { querySysOrgListAll } from '@/services/Org'
 import { deleteSysUserApi } from '@/services/User'
+import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
-import { Card, Flex, Tree, TreeProps } from 'antd'
-import React, { useEffect, useRef } from 'react'
-import EditDepartmentModal from './components/EditDepartmentModal'
+import { useRequest } from 'ahooks'
+import { Card, Empty, Flex, Spin, Tree, TreeProps } from 'antd'
+import React, { useRef } from 'react'
+import EditOrgModal from './components/EditOrgModal'
 import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
 import styles from './index.less'
-import { useSafeState } from 'ahooks'
-import { querySysOrgListAll } from '@/services/Org'
-import { listToTree } from '@/utils'
 
 const cx = classNameBind(styles)
 
 const UserList: React.FC = () => {
-  const tableRef = useRef<ActionType | null>(null)
-  const createDepartmentRef = useRef<ModalComm.ModalCommRef>(null)
+  const tableRef = useRef<ActionType>()
+  const editOrgModalRef = useRef<ModalComm.ModalCommRef>(null)
   const editUserRef = useRef<EditUserModalRef>(null)
-  
+
   // 组织架构数据
-  const [orgListData, setOrgListData] = useSafeState<API.SystemOrg[]>([])
-  const [orgTreeData, setOrgTreeData] = useSafeState<TreeProps['treeData']>([])
+  const orgListData = useRef<API.SystemOrg[]>([])
+  const selectOrgId = useRef<string>()
+  const {
+    data: orgTreeData,
+    loading: getOrgListDataLoading,
+    run: getOrgListData
+  } = useRequest(() => {
+    return new Promise<TreeProps['treeData']>((resolve, reject) => {
+      querySysOrgListAll().then((res) => {
+        const data = res.data
+        orgListData.current = data
+        resolve(listToTree(data))
+      })
+    })
+  })
 
-  // 组织架构树数据
-  // const treeData: TreeProps['treeData'] = [
-  //   {
-  //     title: 'parent 1',
-  //     key: '0-0',
-  //     icon: <IconFont type='icon-team' />,
-  //     children: [
-  //       {
-  //         title: 'parent 1-0',
-  //         key: '0-0-0'
-  //       }
-  //     ]
-  //   }
-  // ]
-
-  // 树形点击回调
-  const onOrganizationTreeSelect: TreeProps['onSelect'] = (selectedKeys) => {
-    console.log('[ selectedKeys ] >', selectedKeys[0])
+  // 树形选中回调
+  const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
+    selectOrgId.current = selected ? (node as API.SystemOrg).id : undefined
+    tableRef.current?.reload()
   }
 
-  // 处理弹框处理成功回调
-  const handleModalCallbackSuccess = () => {
+  // 处理编辑组织成功回调
+  const handleOrgSaveSuccess = () => {
+    getOrgListData()
+    editOrgModalRef.current?.close()
+  }
+
+  // 处理编辑用户成功回调
+  const handleUserSaveSuccess = () => {
     tableRef.current?.reload()
   }
 
@@ -105,27 +110,69 @@ const UserList: React.FC = () => {
     api: '/sys/user/list',
     columns: columns,
     persistenceColumnsKey: 'sys.user.index',
-    toolBarRender: () => [<EditUserModal ref={editUserRef} onSuccess={handleModalCallbackSuccess} />]
+    handleParams: (params) => {
+      return {
+        ...params,
+        org_id: selectOrgId.current
+      }
+    },
+    toolBarRender: () => [<EditUserModal ref={editUserRef} onSuccess={handleUserSaveSuccess} />]
   })
-  // 组织架构卡片extra
-  const organizationCardExtra = <EditDepartmentModal ref={createDepartmentRef} onSuccess={handleModalCallbackSuccess} />
 
-  useEffect(() => {
-    querySysOrgListAll().then((res) => {
-      const data = res.data
-      setOrgListData(data)
-      console.log(listToTree(data))
-    })
-  }, [])
+  // 组织架构卡片extra
+  const orgCardExtra = (
+    <CardExtraOptions
+      items={[
+        {
+          key: 'add',
+          icon: 'icon-plus',
+          title: '新增组织',
+          onClick: () => {
+            editOrgModalRef.current?.open?.()
+          }
+        },
+        {
+          key: 'reload',
+          icon: 'icon-reload',
+          title: '刷新',
+          onClick: () => {
+            getOrgListData()
+          }
+        }
+      ]}
+    />
+  )
 
   return (
     <PageContainer ghost className={cx('user-list-container')}>
       <Flex gap={16}>
-        <Card className={cx('organizational-container')} title='组织架构' extra={organizationCardExtra}>
-          <Tree defaultExpandAll blockNode showIcon treeData={orgTreeData} onSelect={onOrganizationTreeSelect} />
+        <Card className={cx('org-container')} title='组织架构' extra={orgCardExtra}>
+          {orgTreeData?.length ? (
+            <Spin spinning={getOrgListDataLoading}>
+              <Tree
+                defaultExpandAll
+                blockNode
+                showIcon
+                showLine
+                titleRender={(nodeData) => {
+                  const data = nodeData as API.SystemOrg & { children: API.SystemOrg[] }
+                  return <div>{data.name}</div>
+                }}
+                treeData={orgTreeData}
+                fieldNames={{ key: 'id' }}
+                onSelect={onOrgTreeSelect}
+              />
+            </Spin>
+          ) : getOrgListDataLoading ? (
+            <Spin className={cx('spin-placeholder')} />
+          ) : (
+            <Empty />
+          )}
         </Card>
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
+
+      <EditOrgModal ref={editOrgModalRef} onSuccess={handleOrgSaveSuccess} />
     </PageContainer>
   )
 }

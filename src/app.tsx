@@ -117,7 +117,6 @@ export const request: RequestConfig = {
         antdUtil.message?.error(msg)
       }
       if (res.status !== 0) {
-        console.log('[  antdUtil?.notification ] >', antdUtil?.notification)
         if (res.status === 1) {
           onError(res.msg)
         } else if (res.status === 401) {

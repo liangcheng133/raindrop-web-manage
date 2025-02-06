@@ -79,6 +79,8 @@ export type UseTableType<T, U> = Omit<ProTableProps<T, U>, 'columns'> & {
    * * 有变动可以使用 columnState
    */
   persistenceColumnsKey?: string
+  /** 是否在请求时清除空参数，默认为true */
+  clearEmptyParams?: boolean
 }
 
 export type ColumnOptions = {

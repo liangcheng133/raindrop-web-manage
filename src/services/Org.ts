@@ -6,3 +6,11 @@ export function querySysOrgListAll() {
     method: 'post'
   })
 }
+
+/** 新建、编辑组织 */
+export function saveSysOrg(data: any) {
+  return request('/sys/org/save', {
+    method: 'post',
+    data
+  })
+}

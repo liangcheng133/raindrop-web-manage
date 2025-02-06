@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import mockjs from 'mockjs'
 
 const data = [
   {
@@ -7,7 +8,7 @@ const data = [
     parent_id: '0'
   },
   {
-    id: '1',
+    id: '2',
     name: '测试',
     parent_id: '0'
   },
@@ -31,5 +32,18 @@ export default {
       msg: null,
       data: [...data]
     })
+  },
+  /** 新建、编辑组织 */
+  'POST /sys/org/save': (req: Request, res: Response) => {
+    const params = req.body
+    if (params.id) {
+      const index = data.findIndex((item) => item.id === params.id)
+      const newData = { ...params, ...data[index] }
+      data[index] = newData
+    } else {
+      params.id = mockjs.Random.id()
+      data.push(params)
+    }
+    res.status(200).json({ status: 0, msg: null, data: null })
   }
 }
