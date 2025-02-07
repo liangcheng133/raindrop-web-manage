@@ -14,7 +14,7 @@ const PersonalCenter: React.FC = () => {
     { key: '1', label: '用户名', children: 'Dylan' },
     { key: '2', label: '账号', children: 'Dylan' },
     { key: '3', label: '邮箱', children: 'Dylan' },
-    { key: '4', label: '部门', children: 'Dylan' },
+    { key: '4', label: '组织', children: 'Dylan' },
     { key: '5', label: '角色', children: 'Dylan' },
     { key: '6', label: '性别', children: 'Dylan' }
   ]

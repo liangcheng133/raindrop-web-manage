@@ -1,18 +1,32 @@
+import { querySysOrgListAllApi } from '@/services/Org'
 import { saveSysUserInfoApi } from '@/services/User'
+import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
-import { ModalForm, ModalFormProps, ProFormGroup, ProFormText, ProFormTextArea } from '@ant-design/pro-components'
+import {
+  ModalForm,
+  ModalFormProps,
+  ProFormGroup,
+  ProFormText,
+  ProFormTextArea,
+  ProFormTreeSelect
+} from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
+
+export type EditUserModalProps = ModalComm.ModalCommProps & {
+  /** 组织id，不传递时默认顶级组织 */
+  orgId?: string
+}
 
 export type EditUserModalRef = Omit<ModalComm.ModalCommRef, 'open'> & {
   open: (data?: API.SystemUser) => void
 }
 
 /** 新建、编辑用户信息弹框 */
-const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((props, ref) => {
-  const { onSuccess } = props
+const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, ref) => {
+  const { onSuccess, orgId } = props
   const [form] = Form.useForm()
   const [baseFormData, setBaseFormData] = useSafeState<API.SystemUser>()
   const [visible, setVisible] = useSafeState(false)
@@ -30,11 +44,15 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
   }
 
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
+    if (!isEdit) {
+      form.setFieldsValue({
+        org_id: orgId || '0'
+      })
+    }
     setVisible(visible)
   }
 
   const onFinish = async (values: API.SystemUser) => {
-    console.log('[ values ] >', values)
     try {
       const res = await saveSysUserInfoApi(values)
       antdUtil.message?.success('保存成功')
@@ -63,7 +81,7 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
       open={visible}
       onFinish={onFinish}
       onOpenChange={onOpenChange}
-      modalProps={{ destroyOnClose: true }}>
+      modalProps={{ destroyOnClose: true, forceRender: true }}>
       <ProFormText name='id' hidden />
       <ProFormGroup>
         <ProFormText
@@ -93,6 +111,22 @@ const EditUserModal = forwardRef<EditUserModalRef, ModalComm.ModalCommProps>((pr
           rules={[{ required: true, message: '请输入邮箱' }]}
         />
       </ProFormGroup>
+      <ProFormTreeSelect
+        rules={[{ required: true, message: '请选择所在组织' }]}
+        name='org_id'
+        label='所在组织'
+        initialValue='0'
+        placeholder='请选择所在组织'
+        fieldProps={{
+          fieldNames: { label: 'name', value: 'id' },
+          treeDefaultExpandAll: true
+        }}
+        request={async () => {
+          const res = await querySysOrgListAllApi()
+          if (!res.data) return []
+          return [{ name: '顶级', id: '0', children: listToTree(res.data) }]
+        }}
+      />
       <ProFormTextArea name='remark' label='备注' placeholder='请输入备注' />
     </ModalForm>
   )

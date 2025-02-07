@@ -4,7 +4,7 @@ import { request } from '@umijs/max'
 export function saveSysUserInfoApi(data: any) {
   return request('/sys/user/save', {
     method: 'post',
-    data
+    data,
   })
 }
 

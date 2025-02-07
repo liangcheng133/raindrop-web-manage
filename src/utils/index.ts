@@ -66,9 +66,10 @@ export function listToTree<T extends { [key: string]: any }>(
   list.forEach((item) => {
     if (item[pParentIdField] === topIdValue) {
       const idArr = [...parentIds, item[pIdField]]
+      const children = listToTree(Array.from(idMap.values()), pIdField, pParentIdField, item[pIdField], idArr)
       data.push({
         ...item,
-        children: listToTree(Array.from(idMap.values()), pIdField, pParentIdField, item[pIdField], idArr)
+        ...(children.length > 0 ? { children } : {})
       })
     }
   })

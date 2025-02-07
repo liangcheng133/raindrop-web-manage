@@ -57,15 +57,14 @@ export const layout: RunTimeLayoutConfig = () => {
     },
     actionsRender: (props) => {
       return [
-        <Badge
-          key='InfoCircleFilled'
-          count={87}
-          size='small'
-          offset={[0, 10]}
-          onClick={() => {
-            console.log('我被点击了')
-          }}>
-          <IconFont type='icon-bell-fill' className='layout-menu-action' />
+        <Badge key='InfoCircleFilled' count={87} size='small' offset={[0, 10]}>
+          <IconFont
+            type='icon-bell-fill'
+            className='layout-menu-action'
+            onClick={() => {
+              console.log('我被点击了')
+            }}
+          />
         </Badge>
       ]
     },
@@ -89,7 +88,7 @@ export const antd: RuntimeAntdConfig = (memo) => {
 }
 
 export const request: RequestConfig = {
-  timeout: 2000,
+  timeout: 10 * 1000,
   headers: { 'Content-Type': 'application/json' },
   errorConfig: {
     errorThrower: (res: any) => {
