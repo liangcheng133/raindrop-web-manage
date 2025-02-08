@@ -1,3 +1,4 @@
+import { cloneDeep } from 'es-toolkit'
 import { Request, Response } from 'express'
 import mockjs from 'mockjs'
 
@@ -9,7 +10,7 @@ type OrgUpdateOrderType = {
 
 const data = [
   {
-    id: '1',
+    id: 'root_1111',
     name: '雨滴',
     parent_id: '0',
     order: 1
@@ -23,13 +24,13 @@ const data = [
   {
     id: '3',
     name: '开发组',
-    parent_id: '1',
+    parent_id: '1111',
     order: 1
   },
   {
     id: '4',
     name: '测试组',
-    parent_id: '1',
+    parent_id: '1111',
     order: 2
   }
 ]
@@ -48,7 +49,7 @@ export default {
     const params = req.body
     if (params.id) {
       const index = data.findIndex((item) => item.id === params.id)
-      const newData = { ...params, ...data[index] }
+      const newData = { ...data[index], ...params }
       data[index] = newData
     } else {
       params.id = mockjs.Random.id()
@@ -56,6 +57,7 @@ export default {
     }
     res.status(200).json({ status: 0, msg: null, data: null })
   },
+  /** 排序组织 */
   'POST /sys/org/sort': (req: Request, res: Response) => {
     const params: OrgUpdateOrderType[] = req.body
     if (params) {
@@ -64,6 +66,21 @@ export default {
         if (index !== -1) {
           data[index].order = item.order
           data[index].parent_id = item.parent_id
+        }
+      })
+    }
+    res.status(200).json({ status: 0, msg: null, data: null })
+  },
+  /** 删除组织以及下级组织 */
+  'POST /sys/org/remove': (req: Request, res: Response) => {
+    const params = req.body
+    if (params.id) {
+      if (params.id === '1111') {
+        return res.status(200).json({ status: 1, msg: '不能删除根节点', data: null })
+      }
+      cloneDeep(data).forEach((item, index) => {
+        if (params.id === item.id || item.parent_id === params.id) {
+          data.splice(index, 1)
         }
       })
     }

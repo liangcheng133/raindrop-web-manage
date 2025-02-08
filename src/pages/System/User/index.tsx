@@ -1,7 +1,7 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
-import { querySysOrgListAllApi, saveSysOrgOrderApi } from '@/services/Org'
+import { deleteSysOrgApi, querySysOrgListAllApi, saveSysOrgOrderApi } from '@/services/Org'
 import { deleteSysUserApi } from '@/services/User'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
@@ -11,7 +11,7 @@ import { useRequest, useSafeState } from 'ahooks'
 import { Card, Dropdown, Empty, Flex, MenuProps, Spin, Tree, TreeProps } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React, { useRef } from 'react'
-import EditOrgModal from './components/EditOrgModal'
+import EditOrgModal, { EditOrgModalRef } from './components/EditOrgModal'
 import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
 import styles from './index.less'
 
@@ -27,9 +27,15 @@ type OrgUpdateOrderType = {
 
 const cx = classNameBind(styles)
 
+const orgTreeTitleOptions: MenuProps['items'] = [
+  { key: 'createChildOrg', label: '创建子部门' },
+  { key: 'editOrg', label: '编辑部门' },
+  { key: 'removeOrg', label: '删除部门' }
+]
+
 const UserList: React.FC = () => {
   const tableRef = useRef<ActionType>()
-  const editOrgModalRef = useRef<ModalComm.ModalCommRef>(null)
+  const editOrgModalRef = useRef<EditOrgModalRef>(null)
   const editUserRef = useRef<EditUserModalRef>(null)
 
   const [isOrgTreeDrop, setIsOrgTreeDrop] = useSafeState<boolean>(false) // 是否使用组织树拖曳
@@ -45,41 +51,82 @@ const UserList: React.FC = () => {
     run: refreshOrgList
   } = useRequest(() => {
     return new Promise<OrgTreeNodeType[]>((resolve, reject) => {
-      querySysOrgListAllApi().then((res) => {
-        const sortFn = (list: OrgTreeNodeType[]): OrgTreeNodeType[] => {
-          return list
-            .map((item) => {
-              return {
-                ...item,
-                ...(item.children?.length ? { children: sortFn(item.children) } : {})
-              }
-            })
-            .sort((a, b) => {
-              return a.order! - b.order!
-            })
-        }
-        const treeData = sortFn(listToTree(res.data))
-        orgListData.current = res.data
-        oldOrgTreeData.current = treeData
-        resolve(treeData)
-      })
+      querySysOrgListAllApi()
+        .then((res) => {
+          const sortFn = (list: OrgTreeNodeType[]): OrgTreeNodeType[] => {
+            return list
+              .map((item) => {
+                const newItem: OrgTreeNodeType = { ...item }
+                if (item.children?.length) {
+                  newItem.children = sortFn(item.children)
+                }
+                return newItem
+              })
+              .sort((a, b) => {
+                return a.order! - b.order!
+              })
+          }
+          const treeData = sortFn(listToTree(res.data))
+          orgListData.current = res.data
+          oldOrgTreeData.current = treeData
+          resolve(treeData)
+        })
+        .catch(() => {
+          reject()
+        })
     })
   })
 
-  const orgTreeTitleOptions: MenuProps['items'] = [
-    { key: 'createChildOrg', label: '创建子部门' },
-    { key: 'editOrg', label: '编辑部门' },
-    { key: 'removeOrg', label: '删除部门' }
-  ]
-
-  // 树形选中回调
-  const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
-    if (isOrgTreeDrop) return
-    setSelectOrgId(selected ? (node as API.SystemOrg).id : undefined)
-    tableRef.current?.reload()
+  // 处理节点设置为可拖动
+  const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData) => {
+    if ((nodeData as OrgTreeNodeType).id === 'root_1111') return false // 根节点不允许拖动
+    return isOrgTreeDrop
   }
 
-  // 树形拖曳结束回调
+  // 处理节点标题渲染
+  const handleOrgTreeTitleRender: TreeProps['titleRender'] = (nodeData) => {
+    const data = nodeData as OrgTreeNodeType
+    return (
+      <div className={cx('tree-title')}>
+        <span className={cx('tree-title-txt')}> {data.name}</span>
+        <span onClick={(e) => e.stopPropagation()}>
+          <Dropdown
+            menu={{ items: orgTreeTitleOptions, onClick: (e) => onOrgTreeTitleClick(e, data) }}
+            placement='bottomLeft'
+            trigger={['click']}>
+            <IconFont className={cx('tree-title-icon', isOrgTreeDrop && 'hide')} type='icon-setting-fill' />
+          </Dropdown>
+        </span>
+      </div>
+    )
+  }
+
+  // 处理节点设置下拉菜单点击回调
+  const onOrgTreeTitleClick = ({ key }: { key: string }, record: OrgTreeNodeType) => {
+    switch (key) {
+      case 'createChildOrg':
+        setSelectOrgId(record.id)
+        editOrgModalRef.current?.open()
+        break
+      case 'editOrg':
+        editOrgModalRef.current?.open(record)
+        break
+      case 'removeOrg':
+        antdUtil.modal?.confirm({
+          title: '提示',
+          content: `此操作将删除部门【${record.name}】及其子部门，确定删除？`,
+          onOk: async () => {
+            const res = await deleteSysOrgApi({ id: record.id })
+            if (res.status !== 0) return
+            antdUtil.message?.success('删除成功')
+            refreshOrgList()
+          }
+        })
+        break
+    }
+  }
+
+  // 处理树形拖曳结束回调
   const onOrgDrop: TreeProps['onDrop'] = (info) => {
     if (!orgTreeData) return
     const dropKey = info.node.key
@@ -130,13 +177,20 @@ const UserList: React.FC = () => {
     setOrgTreeData(data)
   }
 
+  // 处理树形选中回调
+  const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
+    if (isOrgTreeDrop) return
+    setSelectOrgId(selected ? (node as API.SystemOrg).id : undefined)
+    tableRef.current?.reload()
+  }
+
   // 处理编辑组织成功回调
-  const handleOrgSaveSuccess = () => {
+  const onOrgSaveSuccess = () => {
     refreshOrgList()
   }
 
   // 处理编辑用户成功回调
-  const handleUserSaveSuccess = () => {
+  const onUserSaveSuccess = () => {
     tableRef.current?.reload()
   }
 
@@ -181,7 +235,8 @@ const UserList: React.FC = () => {
             key: 'delete',
             type: 'deleteConfirm',
             onClick: async () => {
-              await deleteSysUserApi({ id: record.id })
+              const res = await deleteSysUserApi({ id: record.id })
+              if (res.status !== 0) return
               antdUtil.message?.success('删除成功')
               tableRef.current?.reload()
             }
@@ -202,7 +257,7 @@ const UserList: React.FC = () => {
         org_id: selectOrgId
       }
     },
-    toolBarRender: () => [<EditUserModal ref={editUserRef} orgId={selectOrgId} onSuccess={handleUserSaveSuccess} />]
+    toolBarRender: () => [<EditUserModal ref={editUserRef} orgId={selectOrgId} onSuccess={onUserSaveSuccess} />]
   })
 
   // 组织架构卡片extra
@@ -239,7 +294,8 @@ const UserList: React.FC = () => {
               })
             }
             loop(orgTreeData, '0')
-            await saveSysOrgOrderApi(data)
+            const res = await saveSysOrgOrderApi(data)
+            if (res.status !== 0) return
             antdUtil.message?.success('排序成功')
             setIsOrgTreeDrop(false)
             refreshOrgList()
@@ -297,23 +353,8 @@ const UserList: React.FC = () => {
                 showIcon
                 blockNode
                 showLine
-                draggable={isOrgTreeDrop}
-                titleRender={(nodeData) => {
-                  const data = nodeData as OrgTreeNodeType
-                  return (
-                    <div className={cx('tree-title')}>
-                      <span className={cx('tree-title-txt')}> {data.name}</span>
-                      <span onClick={(e) => e.stopPropagation()}>
-                        <Dropdown menu={{ items: orgTreeTitleOptions }} placement='bottomLeft' trigger={['click']}>
-                          <IconFont
-                            className={cx('tree-title-icon', isOrgTreeDrop && 'hide')}
-                            type='icon-setting-fill'
-                          />
-                        </Dropdown>
-                      </span>
-                    </div>
-                  )
-                }}
+                draggable={handleOrgTreeDraggable}
+                titleRender={handleOrgTreeTitleRender}
                 selectedKeys={[selectOrgId || '']}
                 treeData={orgTreeData as TreeProps['treeData']}
                 fieldNames={{ key: 'id', title: 'name' }}
@@ -330,7 +371,7 @@ const UserList: React.FC = () => {
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
 
-      <EditOrgModal ref={editOrgModalRef} orgId={selectOrgId} onSuccess={handleOrgSaveSuccess} />
+      <EditOrgModal ref={editOrgModalRef} orgId={selectOrgId} onSuccess={onOrgSaveSuccess} />
     </PageContainer>
   )
 }

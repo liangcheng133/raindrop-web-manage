@@ -67,6 +67,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
       onFinish={onFinish}
       onOpenChange={onOpenChange}
       modalProps={{ destroyOnClose: true, forceRender: true }}>
+      <ProFormText name='id' hidden />
       <ProFormText
         rules={[{ required: true, message: '请输入组织名称' }]}
         name='name'

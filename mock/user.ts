@@ -24,7 +24,7 @@ const data = [
     role_id: 'dasdasdsadasdwqeqwe21321321',
     role_number: 'admin',
     role_name: '系统管理员',
-    org_id: '1',
+    org_id: 'root_1111',
     status: 0,
     create_time: '2021-01-01 00:00:00',
     update_time: '2021-01-05 00:00:00'
@@ -39,7 +39,7 @@ const data = [
     role_id: 'dasdasdsadasdwqeqwe21321321',
     role_number: 'admin',
     role_name: '系统管理员',
-    org_id: '1',
+    org_id: 'root_1111',
     status: 0,
     create_time: '2021-01-01 00:00:00',
     update_time: '2021-01-03 00:00:00'
@@ -55,7 +55,7 @@ for (let i = 1; i < maxCount; i++) {
       mobile_phone: '@phone',
       email: '@email',
       status: 0,
-      org_id: mockjs.Random.pick(['1', '2', '3', '4']),
+      org_id: mockjs.Random.pick(['2', '3', '4']),
       create_time: '@datetime',
       update_time: '@datetime'
     })
@@ -94,7 +94,7 @@ export default {
     const params = req.body
     if (params.id) {
       const index = data.findIndex((item) => item.id === params.id)
-      const newData = { ...params, ...data[index] }
+      const newData = { ...data[index], ...params }
       newData.update_time = getCurrentTime()
       data[index] = newData
     } else {

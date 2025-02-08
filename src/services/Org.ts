@@ -22,3 +22,11 @@ export function saveSysOrgOrderApi(data: any): Promise<API.SuccessResponse> {
     data
   })
 }
+
+/** 删除组织 */
+export function deleteSysOrgApi(data: any): Promise<API.SuccessResponse> {
+  return request('/sys/org/remove', {
+    method: 'post',
+    data
+  })
+}
