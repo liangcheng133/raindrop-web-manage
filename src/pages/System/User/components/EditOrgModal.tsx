@@ -6,13 +6,26 @@ import { useSafeState } from 'ahooks'
 import { Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
+export type EditOrgModalProps = ModalComm.ModalCommProps & {
+  /** 组织id，不传递时默认顶级组织 */
+  orgId?: string
+}
+
+export type EditOrgModalRef = Omit<ModalComm.ModalCommRef, 'open'> & {
+  open: (data?: API.SystemOrg) => void
+}
+
 /** 新建、编辑组织弹框 */
-const EditOrgModal = forwardRef<ModalComm.ModalCommRef, ModalComm.ModalCommProps>((props, ref) => {
-  const { onSuccess, onFail } = props
+const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref) => {
+  const { onSuccess, onFail, orgId } = props
   const [form] = Form.useForm()
   const [visible, setVisible] = useSafeState(false)
+  const [baseFormData, setBaseFormData] = useSafeState<API.SystemOrg>()
+  const isEdit = !!baseFormData
 
-  const open = () => {
+  const open = (data?: API.SystemOrg) => {
+    form.setFieldsValue(data)
+    setBaseFormData(data)
     setVisible(true)
   }
 
@@ -21,6 +34,11 @@ const EditOrgModal = forwardRef<ModalComm.ModalCommRef, ModalComm.ModalCommProps
   }
 
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
+    if (!isEdit) {
+      form.setFieldsValue({
+        parent_id: orgId || '0'
+      })
+    }
     setVisible(visible)
   }
 
@@ -48,7 +66,7 @@ const EditOrgModal = forwardRef<ModalComm.ModalCommRef, ModalComm.ModalCommProps
       open={visible}
       onFinish={onFinish}
       onOpenChange={onOpenChange}
-      modalProps={{ destroyOnClose: true }}>
+      modalProps={{ destroyOnClose: true, forceRender: true }}>
       <ProFormText
         rules={[{ required: true, message: '请输入组织名称' }]}
         name='name'

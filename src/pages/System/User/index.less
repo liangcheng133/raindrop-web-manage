@@ -11,6 +11,24 @@
         height: 100px;
         line-height: 100px;
       }
+      .tree-title {
+        .single-line-text();
+        &:hover {
+          .tree-title-icon {
+            display: inline-block;
+          }
+        }
+        .tree-title-icon {
+          display: none;
+          padding: 0 4px;
+          &.hide {
+            display: none;
+          }
+          &:hover {
+            color: @primary-color;
+          }
+        }
+      }
     }
     .table-container {
       width: 1px;

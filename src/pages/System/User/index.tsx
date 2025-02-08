@@ -1,4 +1,5 @@
 import { CardExtraOptions } from '@/components'
+import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
 import { querySysOrgListAllApi, saveSysOrgOrderApi } from '@/services/Org'
 import { deleteSysUserApi } from '@/services/User'
@@ -7,7 +8,7 @@ import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useRequest, useSafeState } from 'ahooks'
-import { Card, Empty, Flex, Spin, Tree, TreeProps } from 'antd'
+import { Card, Dropdown, Empty, Flex, MenuProps, Spin, Tree, TreeProps } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React, { useRef } from 'react'
 import EditOrgModal from './components/EditOrgModal'
@@ -65,8 +66,15 @@ const UserList: React.FC = () => {
     })
   })
 
+  const orgTreeTitleOptions: MenuProps['items'] = [
+    { key: 'createChildOrg', label: '创建子部门' },
+    { key: 'editOrg', label: '编辑部门' },
+    { key: 'removeOrg', label: '删除部门' }
+  ]
+
   // 树形选中回调
   const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
+    if (isOrgTreeDrop) return
     setSelectOrgId(selected ? (node as API.SystemOrg).id : undefined)
     tableRef.current?.reload()
   }
@@ -272,21 +280,43 @@ const UserList: React.FC = () => {
   return (
     <PageContainer ghost className={cx('user-list-container')}>
       <Flex gap={16}>
-        <Card className={cx('org-container')} title='组织架构' extra={orgCardExtra}>
+        <Card
+          className={cx('org-container')}
+          title='组织架构'
+          extra={orgCardExtra}
+          styles={{
+            body: {
+              height: 'calc(100% - 48px)',
+              overflowX: 'auto'
+            }
+          }}>
           {orgTreeData?.length ? (
             <Spin spinning={refreshOrgListLoading}>
               <Tree
                 defaultExpandAll
-                blockNode
                 showIcon
+                blockNode
                 showLine
                 draggable={isOrgTreeDrop}
                 titleRender={(nodeData) => {
                   const data = nodeData as OrgTreeNodeType
-                  return <div>{data.name}</div>
+                  return (
+                    <div className={cx('tree-title')}>
+                      <span className={cx('tree-title-txt')}> {data.name}</span>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Dropdown menu={{ items: orgTreeTitleOptions }} placement='bottomLeft' trigger={['click']}>
+                          <IconFont
+                            className={cx('tree-title-icon', isOrgTreeDrop && 'hide')}
+                            type='icon-setting-fill'
+                          />
+                        </Dropdown>
+                      </span>
+                    </div>
+                  )
                 }}
+                selectedKeys={[selectOrgId || '']}
                 treeData={orgTreeData as TreeProps['treeData']}
-                fieldNames={{ key: 'id' }}
+                fieldNames={{ key: 'id', title: 'name' }}
                 onSelect={onOrgTreeSelect}
                 onDrop={onOrgDrop}
               />
@@ -300,7 +330,7 @@ const UserList: React.FC = () => {
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
 
-      <EditOrgModal ref={editOrgModalRef} onSuccess={handleOrgSaveSuccess} />
+      <EditOrgModal ref={editOrgModalRef} orgId={selectOrgId} onSuccess={handleOrgSaveSuccess} />
     </PageContainer>
   )
 }
