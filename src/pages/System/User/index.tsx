@@ -2,6 +2,7 @@ import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
 import { deleteSysOrgApi, querySysOrgListAllApi, saveSysOrgOrderApi } from '@/services/Org'
+import { querySysRoleListAllApi } from '@/services/Role'
 import { deleteSysUserApi } from '@/services/User'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
@@ -201,22 +202,27 @@ const UserList: React.FC = () => {
       dataIndex: 'status',
       width: 100,
       fixed: 'left',
-      valueEnum: {
-        0: {
-          text: '启用',
-          status: 'Success'
-        },
-        1: {
-          text: '禁用',
-          status: 'Error'
-        }
-      }
+      valueEnum: new Map().set(0, { text: '禁用', status: 'Default' }).set(1, { text: '启用', status: 'Success' })
     },
     { title: '名称', dataIndex: 'name' },
     { title: '账号', dataIndex: 'account', width: 200 },
     { title: '手机号', dataIndex: 'mobile_phone', width: 160 },
     { title: '邮箱', dataIndex: 'email', width: 200 },
-    { title: '角色', dataIndex: 'role_name', width: 140 },
+    {
+      title: '角色',
+      dataIndex: 'role_name',
+      width: 140,
+      valueType: 'select',
+      fieldProps: {
+        fieldNames: { value: 'id', label: 'name' },
+        mode: 'multiple'
+      },
+      request: async () => {
+        const res = await querySysRoleListAllApi()
+        if (!res.data) return []
+        return res.data
+      }
+    },
     { title: '创建时间', dataIndex: 'create_time', width: 200, search: false },
     { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
     {

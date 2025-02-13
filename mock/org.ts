@@ -24,13 +24,13 @@ const data = [
   {
     id: '3',
     name: '开发组',
-    parent_id: '1111',
+    parent_id: 'root_1111',
     order: 1
   },
   {
     id: '4',
     name: '测试组',
-    parent_id: '1111',
+    parent_id: 'root_1111',
     order: 2
   }
 ]

@@ -46,7 +46,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
     if (!isEdit) {
       form.setFieldsValue({
-        org_id: orgId || '0'
+        org_id: orgId || null
       })
     }
     setVisible(visible)
@@ -115,16 +115,15 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
         rules={[{ required: true, message: '请选择所在组织' }]}
         name='org_id'
         label='所在组织'
-        initialValue='0'
         placeholder='请选择所在组织'
         fieldProps={{
-          fieldNames: { label: 'name', value: 'id' },
+          fieldNames: { value: 'id', label: 'name' },
           treeDefaultExpandAll: true
         }}
         request={async () => {
           const res = await querySysOrgListAllApi()
           if (!res.data) return []
-          return [{ name: '顶级', id: '0', children: listToTree(res.data) }]
+          return listToTree(res.data)
         }}
       />
       <ProFormTextArea name='remark' label='备注' placeholder='请输入备注' />

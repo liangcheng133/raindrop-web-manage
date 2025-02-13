@@ -21,7 +21,7 @@ const data = [
     password: '123456',
     mobile_phone: '13212345678',
     email: 'zhangsan@163.com',
-    role_id: 'dasdasdsadasdwqeqwe21321321',
+    role_id: 'role_root_1',
     role_number: 'admin',
     role_name: '系统管理员',
     org_id: 'root_1111',
@@ -36,7 +36,7 @@ const data = [
     password: '123456',
     mobile_phone: '18888888888',
     email: 'asins@163.com',
-    role_id: 'dasdasdsadasdwqeqwe21321321',
+    role_id: 'role_root_1',
     role_number: 'admin',
     role_name: '系统管理员',
     org_id: 'root_1111',
@@ -54,7 +54,7 @@ for (let i = 1; i < maxCount; i++) {
       name: '@cname',
       mobile_phone: '@phone',
       email: '@email',
-      status: 0,
+      status: mockjs.Random.pick([0, 1]),
       org_id: mockjs.Random.pick(['2', '3', '4']),
       create_time: '@datetime',
       update_time: '@datetime'
@@ -73,6 +73,18 @@ export default {
     // return
     const queryData = cloneDeep(data).filter((item) => {
       if (isNotNil(req.body.name) && !item.name.includes(req.body.name)) {
+        return false
+      }
+      if (isNotNil(req.body.account) && !item.account.includes(req.body.account)) {
+        return false
+      }
+      if (isNotNil(req.body.email) && !item.email.includes(req.body.email)) {
+        return false
+      }
+      if (isNotNil(req.body.status) && item.status !== req.body.status) {
+        return false
+      }
+      if (isNotNil(req.body.role_id) && item.role_id !== req.body.role_id) {
         return false
       }
       if (isNotNil(req.body.org_id) && !item.org_id.includes(req.body.org_id)) {

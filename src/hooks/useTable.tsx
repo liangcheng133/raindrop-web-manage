@@ -120,7 +120,7 @@ function handleColumns<T, U>(
   setColumnOptions: (value: ColumnOptions) => void
 ) {
   const columns = propsColumns?.map((item) => {
-    const { type, ellipsis = true, onHeaderCell, ...rest } = item
+    const { ellipsis = true, onHeaderCell, ...rest } = item
     const extra: ProColumns<T> = {
       width: DEFAULT_COLUMN_WIDTH
     }

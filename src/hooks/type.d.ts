@@ -31,11 +31,6 @@ export type RenderOperationType<T> = {
 
 export type UseTableColumnsType<T> = ProColumns & {
   /**
-   * 列类型
-   * * operation: 操作列
-   */
-  type?: 'operation'
-  /**
    * 文本溢出是否省略（该属性已排除，请使用 commEllipsis 这个属性）
    * * 尽量不要在开启虚拟列表的情况下使用。ProTable的实现使用 <Typography.Text /> 这个组件，这个组件内部实现会获取DOM的高度和宽度，导致回流重绘，会让页面严重掉帧 [https://github.com/ant-design/pro-components/issues/4407]
    */
