@@ -1,45 +1,74 @@
-import { IconFont } from '@/components/rd-ui'
+import { useTable, UseTableColumnsType } from '@/hooks'
 import { classNameBind } from '@/utils/classnamesBind'
-import { PageContainer, ProTable } from '@ant-design/pro-components'
-import { Card, Flex, Tabs, TabsProps, Tree } from 'antd'
-import { TreeProps } from 'antd/lib'
-import React from 'react'
+import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
+import { useSafeState } from 'ahooks'
+import { Card, Flex, Tabs, TabsProps } from 'antd'
+import React, { useRef } from 'react'
 import RoleAuth from './components/RoleAuth'
+import RoleDragList from './components/RoleDragList'
 import styles from './index.less'
 
 const cx = classNameBind(styles)
 
 const RolePage: React.FC = () => {
-  // 组织架构树数据
-  const treeData: TreeProps['treeData'] = [
+  const tableRef = useRef<ActionType>()
+
+  const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<API.SystemRole>({})
+
+  // 表格列配置
+  const columns: UseTableColumnsType<API.SystemUser>[] = [
+    { title: '名称', dataIndex: 'name' },
+    { title: '组织', dataIndex: 'org_name', search: false },
+    { title: '角色', dataIndex: 'role_name', width: 140, search: false },
     {
-      title: 'parent 1',
-      key: '0-0',
-      icon: <IconFont type='icon-team' />,
-      children: [
-        {
-          title: 'parent 1-0',
-          key: '0-0-0'
-        }
-      ]
+      valueType: 'option',
+      renderOperation: (text, record, index, action, colProps) => {
+        return [
+          {
+            name: '编辑',
+            key: 'edit',
+            onClick: () => {}
+          },
+          {
+            name: '删除',
+            key: 'delete',
+            type: 'deleteConfirm',
+            onClick: async () => {}
+          }
+        ]
+      }
     }
   ]
-  // 树形点击回调
-  const onOrganizationTreeSelect: TreeProps['onSelect'] = (selectedKeys) => {
-    console.log('[ selectedKeys ] >', selectedKeys[0])
-  }
+
+  // 表格配置
+  const tableProps = useTable<API.SystemUser>({
+    actionRef: tableRef,
+    api: '/sys/user/list',
+    manualRequest: true,
+    columns: columns,
+    persistenceColumnsKey: 'sys.user.index',
+    handleParams: (params) => {
+      return {
+        ...params,
+        role_id: [roleSelectedInfo.id]
+      }
+    }
+  })
 
   const tabItems: TabsProps['items'] = [
-    { key: '1', label: '角色用户', children: <ProTable /> },
+    { key: '1', label: '角色用户', children: <ProTable {...tableProps} /> },
     { key: '2', label: '角色权限', children: <RoleAuth /> }
   ]
+
+  const handleRoleDragListSelect = (role: API.SystemRole) => {
+    setRoleSelectedInfo(role)
+    tableRef.current?.reload()
+  }
 
   return (
     <PageContainer ghost className={cx('role-list-container')}>
       <Flex gap={16}>
-        <Card className={cx('organizational-container')} title='角色'>
-          <Tree defaultExpandAll blockNode showIcon treeData={treeData} onSelect={onOrganizationTreeSelect} />
-        </Card>
+          <RoleDragList onSelect={handleRoleDragListSelect} />
         <Tabs className={cx('tabs-container')} items={tabItems} />
       </Flex>
     </PageContainer>

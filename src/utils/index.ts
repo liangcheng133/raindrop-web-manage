@@ -90,3 +90,11 @@ export function objRemoveEmpty(obj: any) {
   }
   return obj
 }
+
+/**
+ * 同步 模拟等待
+ * @param ms 等待毫秒数
+ */
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

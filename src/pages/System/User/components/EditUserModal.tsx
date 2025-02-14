@@ -1,5 +1,5 @@
 import { querySysOrgListAllApi } from '@/services/Org'
-import { saveSysUserInfoApi } from '@/services/User'
+import { saveSysUserApi } from '@/services/User'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
@@ -54,12 +54,12 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
 
   const onFinish = async (values: API.SystemUser) => {
     try {
-      const res = await saveSysUserInfoApi(values)
+      const res = await saveSysUserApi(values)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
     } catch (error) {
-      console.error('提交失败', error)
+      // console.log(error)
       return false
     }
   }
@@ -121,9 +121,12 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           treeDefaultExpandAll: true
         }}
         request={async () => {
-          const res = await querySysOrgListAllApi()
-          if (!res.data) return []
-          return listToTree(res.data)
+          try {
+            const res = await querySysOrgListAllApi()
+            return listToTree(res.data)
+          } catch (error) {
+            return []
+          }
         }}
       />
       <ProFormTextArea name='remark' label='备注' placeholder='请输入备注' />

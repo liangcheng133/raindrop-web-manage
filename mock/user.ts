@@ -25,6 +25,7 @@ const data = [
     role_number: 'admin',
     role_name: '系统管理员',
     org_id: 'root_1111',
+    org_name: 'mock数据',
     status: 0,
     create_time: '2021-01-01 00:00:00',
     update_time: '2021-01-05 00:00:00'
@@ -40,6 +41,7 @@ const data = [
     role_number: 'admin',
     role_name: '系统管理员',
     org_id: 'root_1111',
+    org_name: 'mock数据',
     status: 0,
     create_time: '2021-01-01 00:00:00',
     update_time: '2021-01-03 00:00:00'
@@ -84,7 +86,7 @@ export default {
       if (isNotNil(req.body.status) && item.status !== req.body.status) {
         return false
       }
-      if (isNotNil(req.body.role_id) && item.role_id !== req.body.role_id) {
+      if (isNotNil(req.body.role_id) && !req.body.role_id.includes(item.role_id)) {
         return false
       }
       if (isNotNil(req.body.org_id) && !item.org_id.includes(req.body.org_id)) {

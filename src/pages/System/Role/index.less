@@ -32,3 +32,43 @@
     }
   }
 }
+
+.role-drag-list-container {
+  height: 100%;
+  .role-drag-list-item {
+    padding: 0 0 4px 0;
+    line-height: 28px;
+    .content {
+      padding: 0 0 0 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s;
+      &:hover {
+        background-color: #f5f7fa;
+      }
+      .label {
+        max-width: 90%;
+        .single-line-text();
+      }
+      &:hover {
+        .dropdown-btn {
+          display: inline-block;
+        }
+      }
+      .dropdown-btn {
+        display: none;
+        padding: 0 4px;
+        &.hide {
+          display: none;
+        }
+        &:hover {
+          color: @primary-color;
+        }
+      }
+    }
+    .active {
+      background-color: #e6f4ff;
+    }
+  }
+}

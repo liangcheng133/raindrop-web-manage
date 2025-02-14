@@ -29,9 +29,9 @@ type OrgUpdateOrderType = {
 const cx = classNameBind(styles)
 
 const orgTreeTitleOptions: MenuProps['items'] = [
-  { key: 'createChildOrg', label: '创建子部门' },
-  { key: 'editOrg', label: '编辑部门' },
-  { key: 'removeOrg', label: '删除部门' }
+  { key: 'createChildOrg', label: '创建子组织' },
+  { key: 'editOrg', label: '编辑组织' },
+  { key: 'removeOrg', label: '删除组织' }
 ]
 
 const UserList: React.FC = () => {
@@ -51,30 +51,29 @@ const UserList: React.FC = () => {
     loading: refreshOrgListLoading,
     run: refreshOrgList
   } = useRequest(() => {
-    return new Promise<OrgTreeNodeType[]>((resolve, reject) => {
-      querySysOrgListAllApi()
-        .then((res) => {
-          const sortFn = (list: OrgTreeNodeType[]): OrgTreeNodeType[] => {
-            return list
-              .map((item) => {
-                const newItem: OrgTreeNodeType = { ...item }
-                if (item.children?.length) {
-                  newItem.children = sortFn(item.children)
-                }
-                return newItem
-              })
-              .sort((a, b) => {
-                return a.order! - b.order!
-              })
-          }
-          const treeData = sortFn(listToTree(res.data))
-          orgListData.current = res.data
-          oldOrgTreeData.current = treeData
-          resolve(treeData)
-        })
-        .catch(() => {
-          reject()
-        })
+    return new Promise<OrgTreeNodeType[]>(async (resolve, reject) => {
+      try {
+        const res = await querySysOrgListAllApi()
+        const sortFn = (list: OrgTreeNodeType[]): OrgTreeNodeType[] => {
+          return list
+            .map((item) => {
+              const newItem: OrgTreeNodeType = { ...item }
+              if (item.children?.length) {
+                newItem.children = sortFn(item.children)
+              }
+              return newItem
+            })
+            .sort((a, b) => {
+              return a.order! - b.order!
+            })
+        }
+        const treeData = sortFn(listToTree(res.data))
+        orgListData.current = res.data
+        oldOrgTreeData.current = treeData
+        resolve(treeData)
+      } catch (error) {
+        resolve([])
+      }
     })
   })
 
@@ -115,12 +114,15 @@ const UserList: React.FC = () => {
       case 'removeOrg':
         antdUtil.modal?.confirm({
           title: '提示',
-          content: `此操作将删除部门【${record.name}】及其子部门，确定删除？`,
+          content: `此操作将删除组织【${record.name}】及其子组织，确定删除？`,
           onOk: async () => {
-            const res = await deleteSysOrgApi({ id: record.id })
-            if (res.status !== 0) return
-            antdUtil.message?.success('删除成功')
-            refreshOrgList()
+            try {
+              const res = await deleteSysOrgApi({ id: record.id })
+              antdUtil.message?.success('删除成功')
+              refreshOrgList()
+            } catch (error) {
+              // console.log(error)
+            }
           }
         })
         break
@@ -202,7 +204,7 @@ const UserList: React.FC = () => {
       dataIndex: 'status',
       width: 100,
       fixed: 'left',
-      valueEnum: new Map().set(0, { text: '禁用', status: 'Default' }).set(1, { text: '启用', status: 'Success' })
+      valueEnum: new Map().set(0, { text: '启用', status: 'Success' }).set(1, { text: '禁用', status: 'Default' })
     },
     { title: '名称', dataIndex: 'name' },
     { title: '账号', dataIndex: 'account', width: 200 },
@@ -210,7 +212,7 @@ const UserList: React.FC = () => {
     { title: '邮箱', dataIndex: 'email', width: 200 },
     {
       title: '角色',
-      dataIndex: 'role_name',
+      dataIndex: 'role_id',
       width: 140,
       valueType: 'select',
       fieldProps: {
@@ -218,10 +220,15 @@ const UserList: React.FC = () => {
         mode: 'multiple'
       },
       request: async () => {
-        const res = await querySysRoleListAllApi()
-        if (!res.data) return []
-        return res.data
-      }
+        try {
+          const res = await querySysRoleListAllApi()
+          return res.data
+        } catch (error) {
+          // console.log(error)
+          return []
+        }
+      },
+      renderText: (text, record) => record.role_name || ''
     },
     { title: '创建时间', dataIndex: 'create_time', width: 200, search: false },
     { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
@@ -241,10 +248,13 @@ const UserList: React.FC = () => {
             key: 'delete',
             type: 'deleteConfirm',
             onClick: async () => {
-              const res = await deleteSysUserApi({ id: record.id })
-              if (res.status !== 0) return
-              antdUtil.message?.success('删除成功')
-              tableRef.current?.reload()
+              try {
+                const res = await deleteSysUserApi({ id: record.id })
+                antdUtil.message?.success('删除成功')
+                tableRef.current?.reload()
+              } catch (error) {
+                // console.log(error)
+              }
             }
           }
         ]
@@ -267,7 +277,7 @@ const UserList: React.FC = () => {
   })
 
   // 组织架构卡片extra
-  const orgCardExtra = orgTreeData?.length && (
+  const orgCardExtra = orgTreeData?.length ? (
     <CardExtraOptions
       items={[
         {
@@ -286,25 +296,28 @@ const UserList: React.FC = () => {
           title: '确认',
           hide: !isOrgTreeDrop,
           onClick: async () => {
-            const data: OrgUpdateOrderType[] = []
-            const loop = (orgList: OrgTreeNodeType[], parent_id: string) => {
-              orgList.forEach((item, index) => {
-                data.push({
-                  id: item.id,
-                  parent_id: parent_id,
-                  order: index + 1
+            try {
+              const data: OrgUpdateOrderType[] = []
+              const loop = (orgList: OrgTreeNodeType[], parent_id: string) => {
+                orgList.forEach((item, index) => {
+                  data.push({
+                    id: item.id,
+                    parent_id: parent_id,
+                    order: index + 1
+                  })
+                  if (item.children?.length) {
+                    loop(item.children, item.id!)
+                  }
                 })
-                if (item.children?.length) {
-                  loop(item.children, item.id!)
-                }
-              })
+              }
+              loop(orgTreeData, '0')
+              const res = await saveSysOrgOrderApi(data)
+              antdUtil.message?.success('排序成功')
+              setIsOrgTreeDrop(false)
+              refreshOrgList()
+            } catch (error) {
+              // console.log(error)
             }
-            loop(orgTreeData, '0')
-            const res = await saveSysOrgOrderApi(data)
-            if (res.status !== 0) return
-            antdUtil.message?.success('排序成功')
-            setIsOrgTreeDrop(false)
-            refreshOrgList()
           }
         },
         {
@@ -337,7 +350,7 @@ const UserList: React.FC = () => {
         }
       ]}
     />
-  )
+  ) : null
 
   return (
     <PageContainer ghost className={cx('user-list-container')}>

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-01-10 09:58:27
- * @LastEditTime: 2025-01-23 10:34:27
+ * @LastEditTime: 2025-02-14 12:35:43
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 全局常见错误过滤（如antd的属性弃用等警告）
@@ -47,7 +47,8 @@ export const IGNORED_WARNING_MESSAGES = [
   // 在这里直接添加新的警告消息
   'Warning: StrictMode double-invocation',
   'Warning: Cannot update a component while rendering a different component',
-  '[antd: Form.Item] `children` is array'
+  '[antd: Form.Item] `children` is array',
+  'Support for defaultProps will be removed'
 ] as const
 
 // 默认配置
