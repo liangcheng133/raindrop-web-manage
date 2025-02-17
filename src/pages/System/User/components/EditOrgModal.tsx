@@ -49,7 +49,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
       onSuccess?.()
       return true
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       onFail?.(error)
       return false
     }

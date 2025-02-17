@@ -121,7 +121,7 @@ const UserList: React.FC = () => {
               antdUtil.message?.success('删除成功')
               refreshOrgList()
             } catch (error) {
-              // console.log(error)
+              console.log(error)
             }
           }
         })
@@ -224,7 +224,7 @@ const UserList: React.FC = () => {
           const res = await querySysRoleListAllApi()
           return res.data
         } catch (error) {
-          // console.log(error)
+          console.log(error)
           return []
         }
       },
@@ -253,7 +253,7 @@ const UserList: React.FC = () => {
                 antdUtil.message?.success('删除成功')
                 tableRef.current?.reload()
               } catch (error) {
-                // console.log(error)
+                console.log(error)
               }
             }
           }
@@ -316,7 +316,7 @@ const UserList: React.FC = () => {
               setIsOrgTreeDrop(false)
               refreshOrgList()
             } catch (error) {
-              // console.log(error)
+              console.log(error)
             }
           }
         },

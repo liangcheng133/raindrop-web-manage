@@ -59,7 +59,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
       onSuccess?.()
       return true
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return false
     }
   }

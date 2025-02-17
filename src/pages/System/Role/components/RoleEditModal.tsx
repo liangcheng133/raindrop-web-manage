@@ -38,7 +38,7 @@ const RoleEditModal = forwardRef<RoleEditModalRef, ModalComm.ModalCommProps>((pr
       onSuccess?.()
       return true
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       onFail?.(error)
       return false
     }

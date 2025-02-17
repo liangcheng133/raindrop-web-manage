@@ -55,7 +55,7 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
         }
         resolve(data)
       } catch (error) {
-        // console.log(error)
+        console.log(error)
         resolve([])
       }
     })
@@ -94,7 +94,7 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
               antdUtil.message?.success('删除成功')
               refreshRoleDataList()
             } catch (error) {
-              // console.log(error)
+              console.log(error)
             }
           }
         })
