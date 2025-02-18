@@ -1,4 +1,5 @@
 import { querySysOrgListAllApi } from '@/services/Org'
+import { querySysRoleListAllApi } from '@/services/Role'
 import { saveSysUserApi } from '@/services/User'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
@@ -7,6 +8,7 @@ import {
   ModalForm,
   ModalFormProps,
   ProFormGroup,
+  ProFormSelect,
   ProFormText,
   ProFormTextArea,
   ProFormTreeSelect
@@ -75,7 +77,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
   return (
     <ModalForm
       title={isEdit ? '编辑用户' : '新建用户'}
-      width={600}
+      width={800}
       form={form}
       trigger={trigger}
       open={visible}
@@ -89,12 +91,14 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           label='用户账号'
           placeholder='请输入用户账号'
           rules={[{ required: true, message: '请输入用户账号' }]}
+          width='md'
         />
         <ProFormText
           name='name'
           label='用户名称'
           placeholder='请输入用户名称'
           rules={[{ required: true, message: '请输入用户名称' }]}
+          width='md'
         />
       </ProFormGroup>
       <ProFormGroup>
@@ -103,32 +107,56 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           label='手机号'
           placeholder='请输入手机号'
           rules={[{ required: true, message: '请输入手机号' }]}
+          width='md'
         />
         <ProFormText
           name='email'
           label='邮箱'
           placeholder='请输入邮箱'
           rules={[{ required: true, message: '请输入邮箱' }]}
+          width='md'
         />
       </ProFormGroup>
-      <ProFormTreeSelect
-        rules={[{ required: true, message: '请选择所在组织' }]}
-        name='org_id'
-        label='所在组织'
-        placeholder='请选择所在组织'
-        fieldProps={{
-          fieldNames: { value: 'id', label: 'name' },
-          treeDefaultExpandAll: true
-        }}
-        request={async () => {
-          try {
-            const res = await querySysOrgListAllApi()
-            return listToTree(res.data)
-          } catch (error) {
-            return []
-          }
-        }}
-      />
+      <ProFormGroup>
+        <ProFormSelect
+          name='role_ids'
+          label='角色'
+          placeholder='请选择角色'
+          rules={[{ required: true, message: '请选择角色' }]}
+          width='md'
+          fieldProps={{
+            fieldNames: { value: 'id', label: 'name' },
+            mode: 'multiple'
+          }}
+          request={async () => {
+            try {
+              const res = await querySysRoleListAllApi()
+              return res.data
+            } catch (error) {
+              return []
+            }
+          }}
+        />
+        <ProFormTreeSelect
+          name='org_id'
+          label='所在组织'
+          placeholder='请选择所在组织'
+          rules={[{ required: true, message: '请选择所在组织' }]}
+          width='md'
+          fieldProps={{
+            fieldNames: { value: 'id', label: 'name' },
+            treeDefaultExpandAll: true
+          }}
+          request={async () => {
+            try {
+              const res = await querySysOrgListAllApi()
+              return listToTree(res.data)
+            } catch (error) {
+              return []
+            }
+          }}
+        />
+      </ProFormGroup>
       <ProFormTextArea name='remark' label='备注' placeholder='请输入备注' />
     </ModalForm>
   )

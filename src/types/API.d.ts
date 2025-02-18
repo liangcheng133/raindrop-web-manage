@@ -17,6 +17,7 @@ declare namespace API {
   }
   /** 通用字段 */
   export type BasicField = {
+    remark?: string
     create_user_id?: string
     create_user_name?: string
     update_user_id?: string
@@ -33,9 +34,10 @@ declare namespace API {
     mobile_phone?: string
     email?: string
     org_id?: string
-    role_number?: string
+    org_name?: string
+    role_ids?: string
+    role_names?: string
     status?: integer
-    remark?: string
   }
   /** 系统组织 */
   export type SystemOrg = BasicField & {
@@ -48,8 +50,6 @@ declare namespace API {
   export type SystemRole = BasicField & {
     id?: string
     name?: string
-    number?: string
     order?: number
-    remark?: string
   }
 }

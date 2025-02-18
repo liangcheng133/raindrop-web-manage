@@ -9,7 +9,7 @@ import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useRequest, useSafeState } from 'ahooks'
-import { Card, Dropdown, Empty, Flex, MenuProps, Spin, Tree, TreeProps } from 'antd'
+import { Card, Dropdown, Empty, Flex, MenuProps, Space, Spin, Table, Tree, TreeProps } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React, { useRef } from 'react'
 import EditOrgModal, { EditOrgModalRef } from './components/EditOrgModal'
@@ -272,6 +272,17 @@ const UserList: React.FC = () => {
         ...params,
         org_id: selectOrgId
       }
+    },
+    rowSelection: {
+      selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT]
+    },
+    tableAlertOptionRender: () => {
+      return (
+        <Space size={16}>
+          <a>编辑角色</a>
+          <a>重置部门</a>
+        </Space>
+      )
     },
     toolBarRender: () => [<EditUserModal ref={editUserRef} orgId={selectOrgId} onSuccess={onUserSaveSuccess} />]
   })
