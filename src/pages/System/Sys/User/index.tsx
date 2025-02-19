@@ -9,7 +9,7 @@ import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useRequest, useSafeState } from 'ahooks'
-import { Card, Dropdown, Empty, Flex, MenuProps, Space, Spin, Table, Tree, TreeProps } from 'antd'
+import { Card, Dropdown, Empty, Flex, MenuProps, Space, Spin, Tree, TreeProps } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React, { useRef } from 'react'
 import EditOrgModal, { EditOrgModalRef } from './components/EditOrgModal'
@@ -273,9 +273,7 @@ const UserList: React.FC = () => {
         org_id: selectOrgId
       }
     },
-    rowSelection: {
-      selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT]
-    },
+    rowSelection: {},
     tableAlertOptionRender: () => {
       return (
         <Space size={16}>

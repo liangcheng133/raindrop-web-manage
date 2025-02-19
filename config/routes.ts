@@ -27,6 +27,21 @@ export default [
         hideInMenu: true // 在菜单隐藏
       },
       {
+        name: '成员',
+        path: '/member',
+        routes: [
+          {
+            path: '/member',
+            redirect: '/member/members'
+          },
+          {
+            name: '成员管理',
+            path: '/member/members',
+            component: './Member/Members'
+          }
+        ]
+      },
+      {
         name: '系统',
         path: '/system',
         routes: [
