@@ -1,7 +1,7 @@
 // 运行时配置
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { history, RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
-import { Badge, BreadcrumbProps, Dropdown } from 'antd/lib'
+import { Badge, Dropdown } from 'antd/lib'
 import { isString } from 'es-toolkit'
 import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
@@ -31,6 +31,8 @@ export const layout: RunTimeLayoutConfig = () => {
       locale: false // 关闭菜单国际化
     },
     layout: 'mix', // 混合菜单结构
+    splitMenus: true, // 自动分离顶部与侧边菜单
+    fixSiderbar: true, // 固定侧边栏
     avatarProps: {
       src: 'https://wallpapershome.com/images/pages/ico_h/27018.jpg',
       size: 'small',
@@ -77,10 +79,11 @@ export const layout: RunTimeLayoutConfig = () => {
         }
         return item
       })
-    },
-    breadcrumbRender: (routers: BreadcrumbProps[]) => {
-      return [{ path: '/', breadcrumbName: '首页' }, ...routers]
     }
+
+    // breadcrumbRender: (routers: BreadcrumbProps[]) => {
+    //   return [{ path: '/', breadcrumbName: '首页' }, ...routers]   // 面包屑增加首页路由
+    // }
   }
 }
 
