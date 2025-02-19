@@ -46,7 +46,7 @@ export default [
               {
                 name: '用户管理',
                 path: '/system/sys/user',
-                component: './System/User'
+                component: './System/Sys/User'
               }
             ]
           },
@@ -62,17 +62,17 @@ export default [
               {
                 name: '登陆日志',
                 path: '/system/log/loginLog',
-                component: './Log/LoginLog'
+                component: './System/Log/LoginLog'
               },
               {
                 name: '操作日志',
                 path: '/system/log/operationLog',
-                component: './Log/OperationLog'
+                component: './System/Log/OperationLog'
               },
               {
                 name: '错误日志',
                 path: '/system/log/errorLog',
-                component: './Log/ErrorLog'
+                component: './System/Log/ErrorLog'
               }
             ]
           }
