@@ -1,5 +1,5 @@
 import LogoImage from '@/assets/img/logo.png'
-import { DEFAULT_NAME } from '@/constants'
+import { WEB_NAME } from '@/constants'
 import { classNameBind } from '@/utils/classnamesBind'
 import { Helmet } from '@umijs/max'
 import { useSafeState } from 'ahooks'
@@ -23,13 +23,13 @@ const Login: React.FC = () => {
     <div className={cx('container-wrapper')}>
       <div className={cx('container')}>
         <Helmet>
-          <title>登录 - {DEFAULT_NAME}</title>
+          <title>登录 - {WEB_NAME}</title>
         </Helmet>
         <div className={cx('header')}>
           <div className={cx('logo')}>``
             <img className={cx('logo')} src={LogoImage} />
           </div>
-          <div className={cx('title')}>登录 {DEFAULT_NAME}</div>
+          <div className={cx('title')}>登录 {WEB_NAME}</div>
         </div>
         <div className={cx('body')}>
           <Tabs className={cx('tabs')} activeKey={tabKey} items={TAB_ITEMS} centered onTabClick={setTabKey} />

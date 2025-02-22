@@ -1,4 +1,4 @@
-import { DEFAULT_NAME } from '@/constants'
+import { WEB_NAME } from '@/constants'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
 import { Outlet } from '@umijs/max'
@@ -21,7 +21,7 @@ export default BasicLayout
 /** 前端监控上报 */
 WebTracing.init({
   dsn: '/sys/track',
-  appName: DEFAULT_NAME,
+  appName: WEB_NAME,
   debug: true,
   recordScreen: true, // 开启录屏
   pv: false, // 不采集页面跳转相关数据
