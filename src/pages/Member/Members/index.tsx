@@ -5,7 +5,7 @@ import styles from './index.less'
 
 const cx = classNameBind(styles)
 
-const MembersList: React.FC<React.PropsWithChildren> = (props) => {
+const MembersList: React.FC<React.PropsWithChildren> = () => {
   return (
     <PageContainer ghost className={cx('list-container')}>
       <ProTable />

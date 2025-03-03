@@ -96,5 +96,7 @@ export function objRemoveEmpty(obj: any) {
  * @param ms 等待毫秒数
  */
 export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }
