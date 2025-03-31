@@ -1,6 +1,8 @@
+import { sysUserAccountLoginApi } from '@/services/User'
+import { rsa } from '@/utils/encrypt'
 import { ProForm, ProFormText } from '@ant-design/pro-components'
 import { Button, Form } from 'antd'
-import { FormProps } from 'antd/lib'
+import { cloneDeep } from 'es-toolkit'
 import React from 'react'
 
 type SystemUserLoginType = { account: string; password: string }
@@ -8,8 +10,10 @@ type SystemUserLoginType = { account: string; password: string }
 const AccountForm: React.FC = () => {
   const [form] = Form.useForm()
 
-  const onFinish = (values: SystemUserLoginType) => {
-    console.log('[ values ] >', values)
+  const onFinish = async (values: SystemUserLoginType) => {
+    const params = cloneDeep(values)
+    params.password = await rsa(values.password)
+    sysUserAccountLoginApi(params)
   }
 
   return (

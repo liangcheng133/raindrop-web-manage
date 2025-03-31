@@ -26,7 +26,7 @@ const Login: React.FC = () => {
           <title>登录 - {WEB_NAME}</title>
         </Helmet>
         <div className={cx('header')}>
-          <div className={cx('logo')}>``
+          <div className={cx('logo')}>
             <img className={cx('logo')} src={LogoImage} />
           </div>
           <div className={cx('title')}>登录 {WEB_NAME}</div>
