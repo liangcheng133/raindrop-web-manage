@@ -1,13 +1,37 @@
-// 全局共享数据示例
-import { WEB_NAME } from '@/constants';
-import { useState } from 'react';
+// 全局共享数据
+import { useRequest } from 'ahooks'
 
-const useUser = () => {
-  const [name, setName] = useState<string>(WEB_NAME);
+export default () => {
+  const {
+    data: authObj,
+    loading: getUserAuthLoading,
+    run: getUserAuth
+  } = useRequest(
+    () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            manage: {
+              member: {
+                index: true,
+                view: true
+              },
+              system: {
+                index: true
+              }
+            }
+          })
+        }, 5000)
+      })
+    },
+    {
+      manual: true // 手动触发请求
+    }
+  )
+
   return {
-    name,
-    setName,
-  };
-};
-
-export default useUser;
+    authObj,
+    getUserAuth,
+    getUserAuthLoading
+  }
+}
