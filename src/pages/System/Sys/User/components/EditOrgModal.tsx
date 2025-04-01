@@ -1,4 +1,4 @@
-import { querySysOrgListAllApi, saveSysOrgApi } from '@/services/Org'
+import { querySysOrgListAllApi, saveSysOrgApi } from '@/services/org'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ModalFormProps, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'

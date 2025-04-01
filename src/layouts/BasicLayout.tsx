@@ -7,7 +7,7 @@ import { cloneDeep } from 'es-toolkit'
 import React from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
-const BasicLayout: React.FC<React.PropsWithChildren> = ({ children, ...rest }) => {
+const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <>
       <Outlet />

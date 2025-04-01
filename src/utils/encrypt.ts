@@ -1,4 +1,4 @@
-import { getRsaPublicKey } from '@/services/User'
+import { getRsaPublicKey } from '@/services/user'
 import JSEncrypt from 'jsencrypt'
 
 /** 
@@ -6,7 +6,7 @@ import JSEncrypt from 'jsencrypt'
  * @param str 需要加密的字符串
  * @returns 返回加密后的字符串
  */
-export function rsa(str: string): Promise<string> {
+export function rsaEncrypt(str: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const jsencrypt = new JSEncrypt()
     //从后端接口获取publicKey

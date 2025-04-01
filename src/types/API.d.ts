@@ -1,22 +1,22 @@
 declare namespace API {
   /** 基础响应 */
-  export type BasicResponse<T> = {
+  type BasicResponse<T> = {
     status: number
     msg: string
     data: T
   }
   /** 成功响应信息 */
-  export type SuccessResponse = BasicResponse<null>
+  type SuccessResponse = BasicResponse<null>
   /** 错误响应信息 */
-  export type ErrorResponse = BasicResponse<null> & {
+  type ErrorResponse = BasicResponse<null> & {
     errMsg: string
   }
-  export type BasicParams = {
+  type BasicParams = {
     current?: number
     count?: number
   }
   /** 通用字段 */
-  export type BasicField = {
+  type BasicField = {
     remark?: string
     create_user_id?: string
     create_user_name?: string
@@ -26,7 +26,7 @@ declare namespace API {
     update_time?: string
   }
   /** 系统用户 */
-  export type SystemUser = BasicField & {
+  type SystemUser = BasicField & {
     id?: string
     account?: string
     name?: string
@@ -40,14 +40,14 @@ declare namespace API {
     status?: integer
   }
   /** 系统组织 */
-  export type SystemOrg = BasicField & {
+  type SystemOrg = BasicField & {
     id?: string
     name?: string
     order?: number
     parent_id?: string
   }
   /** 系统角色 */
-  export type SystemRole = BasicField & {
+  type SystemRole = BasicField & {
     id?: string
     name?: string
     order?: number

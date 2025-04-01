@@ -1,6 +1,6 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
-import { deleteSysRoleApi, querySysRoleListAllApi, saveSysRoleOrderApi } from '@/services/Role'
+import { deleteSysRoleApi, querySysRoleListAllApi, saveSysRoleOrderApi } from '@/services/role'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { useRequest, useSafeState } from 'ahooks'

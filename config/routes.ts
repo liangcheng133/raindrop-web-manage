@@ -1,3 +1,10 @@
+function menu({ ...rest }) {
+  return {
+    wrappers: ['@/wrappers/auth'],
+    ...rest
+  }
+}
+
 export default [
   {
     name: '登录',

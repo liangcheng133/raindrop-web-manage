@@ -1,6 +1,6 @@
-import { sysUserAccountLoginApi } from '@/services/User'
-import { rsa } from '@/utils/encrypt'
+import { rsaEncrypt } from '@/utils/encrypt'
 import { ProForm, ProFormText } from '@ant-design/pro-components'
+import { useModel } from '@umijs/max'
 import { Button, Form } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React from 'react'
@@ -9,11 +9,12 @@ type SystemUserLoginType = { account: string; password: string }
 
 const AccountForm: React.FC = () => {
   const [form] = Form.useForm()
+  const { userLogin } = useModel('user')
 
   const onFinish = async (values: SystemUserLoginType) => {
     const params = cloneDeep(values)
-    params.password = await rsa(values.password)
-    sysUserAccountLoginApi(params)
+    params.password = await rsaEncrypt(values.password)
+    userLogin(params)
   }
 
   return (

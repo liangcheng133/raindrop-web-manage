@@ -14,7 +14,7 @@ const AntdAppLayout: React.FC<React.PropsWithChildren> = (props) => {
   return props.children
 }
 
-const APPLayout: React.FC<React.PropsWithChildren> = (props) => {
+const APPLayout: React.FC<React.PropsWithChildren> = () => {
   return (
     <App>
       <AntdAppLayout />

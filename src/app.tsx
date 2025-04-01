@@ -28,32 +28,7 @@ export const layout: RunTimeLayoutConfig = () => {
     title: WEB_NAME,
     logo: 'https://img.alicdn.com/tfs/TB1YHEpwUT1gK0jSZFhXXaAtVXa-28-27.svg',
     menu: {
-      locale: false, // 关闭菜单国际化
-      request: (params, defaultMenuData) => {
-        console.log('[ params, defaultMenuData ] >', params, defaultMenuData)
-        return new Promise((resolve) => {
-          console.log('触发request')
-          setTimeout(() => {
-            console.log('模拟resolve')
-            resolve([
-              {
-                name: '首页',
-                path: '/home'
-              },
-              {
-                name: '成员',
-                path: '/member',
-                children: [
-                  {
-                    name: '成员管理',
-                    path: '/member/members'
-                  }
-                ]
-              }
-            ])
-          }, 3000)
-        })
-      }
+      locale: false // 关闭菜单国际化
     },
     layout: 'mix', // 混合菜单结构
     splitMenus: true, // 自动分离顶部与侧边菜单
