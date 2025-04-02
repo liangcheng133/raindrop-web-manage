@@ -11,6 +11,7 @@ import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
+import { localGet } from './utils/localStorage'
 
 // 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 if (process.env.NODE_ENV === 'development') {
@@ -107,6 +108,10 @@ export const request: RequestConfig = {
     [
       (config: RequestOptions) => {
         config.baseURL = '/api'
+        config.headers = {
+          ...config.headers,
+          Authorization: 'Bearer ' + localGet('token') || ''
+        }
         return config
       }
     ]

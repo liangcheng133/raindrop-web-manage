@@ -1,4 +1,5 @@
 import { sysUserAccountLoginApi } from '@/services/user'
+import { localSet } from '@/utils/localStorage'
 import { history, useRequest } from '@umijs/max'
 
 export default () => {
@@ -23,7 +24,10 @@ export default () => {
   }
 
   const userLogin = async (params: any) => {
-   await sysUserAccountLoginApi(params)
+    const res = await sysUserAccountLoginApi(params)
+    if (res.status !== 0) return
+    localSet('token', res.data.token)
+    localSet('user_id', res.data.user_id)
 
     console.log('登录成功')
     await getAuth()

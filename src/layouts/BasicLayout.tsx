@@ -1,13 +1,14 @@
 import { WEB_NAME } from '@/constants'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
-import { Outlet } from '@umijs/max'
+import { Outlet, useModel } from '@umijs/max'
 import WebTracing from '@web-tracing/core'
 import { cloneDeep } from 'es-toolkit'
 import React from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const {} = useModel('user');
   return (
     <>
       <Outlet />
