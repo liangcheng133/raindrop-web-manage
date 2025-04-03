@@ -1,19 +1,10 @@
 declare namespace API {
-  /** 基础响应 */
-  type BasicResponse<T> = {
+  /** 响应信息 */
+  type Response<T> = {
     status: number
     msg: string
     data: T
-  }
-  /** 成功响应信息 */
-  type SuccessResponse = BasicResponse<null>
-  /** 错误响应信息 */
-  type ErrorResponse = BasicResponse<null> & {
-    errMsg: string
-  }
-  type BasicParams = {
-    current?: number
-    count?: number
+    errMsg?: string
   }
   /** 通用字段 */
   type BasicField = {
@@ -26,30 +17,22 @@ declare namespace API {
     update_time?: string
   }
   /** 系统用户 */
-  type SystemUser = BasicField & {
+  type SysUserResponse = BasicField & {
     id?: string
     account?: string
     name?: string
     avatar_url?: string
     mobile_phone?: string
     email?: string
-    org_id?: string
-    org_name?: string
-    role_ids?: string
-    role_names?: string
+    role_id?: string
+    role_name?: string
+    // org_id?: string
+    // org_name?: string
     status?: integer
   }
-  /** 系统组织 */
-  type SystemOrg = BasicField & {
-    id?: string
-    name?: string
-    order?: number
-    parent_id?: string
-  }
-  /** 系统角色 */
-  type SystemRole = BasicField & {
-    id?: string
-    name?: string
-    order?: number
+  /** 登录 */
+  type LoginResponse = {
+    token?: string
+    user_id?: string
   }
 }

@@ -10,8 +10,8 @@ import { WEB_NAME } from './constants'
 import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
-import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 import { localGet } from './utils/localStorage'
+import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 
 // 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 if (process.env.NODE_ENV === 'development') {
@@ -93,6 +93,7 @@ export const antd: RuntimeAntdConfig = (memo) => {
   return memo
 }
 
+/** 请求 拦截器 */
 export const request: RequestConfig = {
   timeout: 10 * 1000,
   headers: { 'Content-Type': 'application/json' },
@@ -102,12 +103,21 @@ export const request: RequestConfig = {
     },
     errorHandler: (error: any, opts: any) => {
       console.log('处理错误>>>', { error, opts })
+      const status = error.response.status
+      if (status === 401) {
+        noAuthHandle()
+        return Promise.reject(error.data)
+      } else if (status === 403) {
+      }
+      return Promise.reject(error.data)
     }
   },
   requestInterceptors: [
     [
       (config: RequestOptions) => {
+        // 请求前缀
         config.baseURL = '/api'
+        // 拼接 token
         config.headers = {
           ...config.headers,
           Authorization: 'Bearer ' + localGet('token') || ''

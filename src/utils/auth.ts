@@ -24,7 +24,7 @@ export function noAuthHandle() {
     keyboard: false,
     okText: '重新登陆',
     onOk: handleOk,
-    footer: (_, { OkBtn, CancelBtn }) => {
+    footer: (_, { OkBtn }) => {
       return React.createElement(OkBtn)
     }
   })

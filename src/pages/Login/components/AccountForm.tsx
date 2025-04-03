@@ -30,8 +30,18 @@ const AccountForm: React.FC = () => {
           ]
         }
       }}>
-      <ProFormText name='account' label='账号' rules={[{ required: true, message: '请输入账号' }]} />
-      <ProFormText.Password name='password' label='密码' rules={[{ required: true, message: '请输入密码' }]} />
+      <ProFormText
+        name='account'
+        label='账号'
+        placeholder='请输入账号'
+        rules={[{ required: true, message: '请输入账号' }]}
+      />
+      <ProFormText.Password
+        name='password'
+        label='密码'
+        placeholder='请输入密码'
+        rules={[{ required: true, message: '请输入密码' }]}
+      />
     </ProForm>
   )
 }
