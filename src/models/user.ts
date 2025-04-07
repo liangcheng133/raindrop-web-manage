@@ -1,3 +1,4 @@
+import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 import { sysUserAccountLoginApi } from '@/services/user'
 import { localSet } from '@/utils/localStorage'
 import { history, useRequest } from '@umijs/max'
@@ -14,6 +15,7 @@ export default () => {
     })
   })
 
+  /** 获取权限 */
   const getAuth = () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -23,19 +25,18 @@ export default () => {
     })
   }
 
-  const userLogin = async (params: any) => {
+  /** 用户账号登录 */
+  const userAccountLogin = async (params: any) => {
     const res = await sysUserAccountLoginApi(params)
     if (res.status !== 0) return
-    localSet('token', res.data.token)
-    localSet('user_id', res.data.user_id)
+    localSet(USER_TOKEN_KEY, res.data.token)
+    localSet(USER_ID_KEY, res.data.user_id)
 
-    console.log('登录成功')
     await getAuth()
-    console.log('准备跳转')
     history.push('/')
   }
 
   return {
-    userLogin
+    userAccountLogin
   }
 }

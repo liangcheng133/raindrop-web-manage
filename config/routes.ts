@@ -7,12 +7,6 @@ function menu({ ...rest }) {
 
 export default [
   {
-    name: '登录',
-    path: '/login',
-    component: './Login',
-    layout: false
-  },
-  {
     path: '/',
     component: '@/layouts/BasicLayout',
     flatMenu: true, // 隐藏当前菜单，子级菜单提升
@@ -20,6 +14,14 @@ export default [
       {
         path: '/',
         redirect: '/home'
+      },
+      {
+        name: '登录',
+        path: '/login',
+        component: './Login',
+        layout: false,
+        headerRender: false,
+        hideInMenu: true
       },
       {
         name: '首页',

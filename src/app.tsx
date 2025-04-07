@@ -98,18 +98,21 @@ export const request: RequestConfig = {
   timeout: 10 * 1000,
   headers: { 'Content-Type': 'application/json' },
   errorConfig: {
-    errorThrower: (res: any) => {
-      console.log('拦截错误>>>', res)
-    },
+    // errorThrower: (res: any) => {
+    //   console.log('拦截错误>>>', res)
+    // },
     errorHandler: (error: any, opts: any) => {
       console.log('处理错误>>>', { error, opts })
-      const status = error.response.status
+      const res = error.response
+      const status = res.status
       if (status === 401) {
         noAuthHandle()
-        return Promise.reject(error.data)
-      } else if (status === 403) {
+      } else if ([403, 404].includes(status)) {
+        antdUtil.notification?.error({
+          message: '请求错误',
+          description: res.data.msg || res.data.error || '请求错误，请稍后再试'
+        })
       }
-      return Promise.reject(error.data)
     }
   },
   requestInterceptors: [
@@ -138,8 +141,6 @@ export const request: RequestConfig = {
       if (res.status !== 0) {
         if (res.status === 1) {
           onError(res.msg)
-        } else if (res.status === 401) {
-          noAuthHandle()
         }
         return Promise.reject(res)
       }

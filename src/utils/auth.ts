@@ -1,8 +1,19 @@
 import React from 'react'
 import { history } from 'umi'
+import { appendQueryParams } from '.'
 import { antdUtil } from './antdUtil'
+import { localRemove } from './localStorage'
+import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 
 let postNum = 0 // 防止无权限弹框重复弹出
+
+/**
+ * 退出登录处理
+ */
+export function logoutHandle() {
+  localRemove(USER_ID_KEY)
+  localRemove(USER_TOKEN_KEY)
+}
 
 /**
  * 无权限处理
@@ -11,10 +22,8 @@ let postNum = 0 // 防止无权限弹框重复弹出
 export function noAuthHandle() {
   const handleOk = () => {
     postNum = 0
-    history.push({
-      pathname: '/login',
-      search: `?redirect=${window.location.pathname}`
-    })
+    logoutHandle();
+    history.replace(appendQueryParams('/login', { redirect: window.location.pathname }))
   }
   if (postNum === 1) return
   postNum = 1

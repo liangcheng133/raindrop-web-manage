@@ -17,21 +17,28 @@ declare namespace API {
     update_time?: string
   }
   /** 系统用户 */
-  type SysUserResponse = BasicField & {
+  type SysUserVO = BasicField & {
     id?: string
     account?: string
     name?: string
     avatar_url?: string
     mobile_phone?: string
     email?: string
-    role_id?: string
-    role_name?: string
-    // org_id?: string
-    // org_name?: string
+    role_ids?: string
+    role_names?: string
+    org_id?: string
+    org_name?: string
     status?: integer
   }
+  /** 系统组织 */
+  type SysOrgVO = BasicField & {
+    id?: string
+    name?: string
+    parent_id?: string
+    order?: integer
+  }
   /** 登录 */
-  type LoginResponse = {
+  type LoginVO = {
     token?: string
     user_id?: string
   }

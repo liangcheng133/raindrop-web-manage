@@ -1,10 +1,11 @@
 import LogoImage from '@/assets/img/logo.png'
-import { WEB_NAME } from '@/constants'
+import { USER_TOKEN_KEY, WEB_NAME } from '@/constants'
 import { classNameBind } from '@/utils/classnamesBind'
-import { Helmet } from '@umijs/max'
+import { localGet } from '@/utils/localStorage'
+import { Helmet, history } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Tabs, TabsProps } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 import AccountForm from './components/AccountForm'
 import EmailForm from './components/EmailForm'
 import style from './index.less'
@@ -13,11 +14,18 @@ const cx = classNameBind(style)
 
 const TAB_ITEMS: TabsProps['items'] = [
   { key: 'account', label: '账号登录', children: <AccountForm /> },
-  { key: 'email', label: '邮箱登录', children: <EmailForm /> }
+  { key: 'email', label: '邮箱登录', children: <EmailForm />, disabled: true }
 ]
 
 const Login: React.FC = () => {
   const [tabKey, setTabKey] = useSafeState('account')
+
+  useEffect(() => {
+    // 有登录时，自动跳转首页
+    if (localGet(USER_TOKEN_KEY)) {
+      history.replace('/')
+    }
+  }, [])
 
   return (
     <div className={cx('container-wrapper')}>

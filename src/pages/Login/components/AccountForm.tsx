@@ -9,12 +9,12 @@ type SystemUserLoginType = { account: string; password: string }
 
 const AccountForm: React.FC = () => {
   const [form] = Form.useForm()
-  const { userLogin } = useModel('user')
+  const { userAccountLogin } = useModel('user')
 
   const onFinish = async (values: SystemUserLoginType) => {
     const params = cloneDeep(values)
     params.password = await rsaEncrypt(values.password)
-    userLogin(params)
+    userAccountLogin(params)
   }
 
   return (
