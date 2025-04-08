@@ -1,4 +1,4 @@
-import { querySysOrgListAllApi, saveSysOrgApi } from '@/services/org'
+import { addSysOrgApi, querySysOrgListAllApi, updateSysOrgApi } from '@/services/org'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ModalFormProps, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
@@ -6,13 +6,16 @@ import { useSafeState } from 'ahooks'
 import { Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
-export type EditOrgModalProps = ModalComm.ModalCommProps & {
+export type EditOrgModalProps = {
   /** 组织id，不传递时默认顶级组织 */
   orgId?: string
+  onSuccess?: () => void
+  onFail?: (error: any) => void
 }
 
-export type EditOrgModalRef = Omit<ModalComm.ModalCommRef, 'open'> & {
-  open: (data?: API.SystemOrg) => void
+export type EditOrgModalRef = {
+  open: (data?: API.SysOrgVO) => void
+  close: () => void
 }
 
 /** 新建、编辑组织弹框 */
@@ -20,10 +23,10 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
   const { onSuccess, onFail, orgId } = props
   const [form] = Form.useForm()
   const [visible, setVisible] = useSafeState(false)
-  const [baseFormData, setBaseFormData] = useSafeState<API.SystemOrg>()
-  const isEdit = !!baseFormData
+  const [baseFormData, setBaseFormData] = useSafeState<API.SysOrgVO>()
+  const isEdit = !!baseFormData?.id
 
-  const open = (data?: API.SystemOrg) => {
+  const open = (data?: API.SysOrgVO) => {
     form.setFieldsValue(data)
     setBaseFormData(data)
     setVisible(true)
@@ -44,7 +47,11 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
 
   const onFinish: ModalFormProps['onFinish'] = async (values) => {
     try {
-      const res = await saveSysOrgApi(values)
+      if (values.id) {
+        await updateSysOrgApi(values)
+      } else {
+        await addSysOrgApi(values)
+      }
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true

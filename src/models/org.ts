@@ -8,39 +8,43 @@ export type OrgTreeItem = API.SysOrgVO & {
 }
 
 export default () => {
-  /** 组织树 */
-  const [treeList, setTreeList] = useSafeState<OrgTreeItem[]>([])
-
-  /** 包含顶部的组织树 */
-  const [hasTopOrgTreeList, setHasTopTreeList] = useSafeState<OrgTreeItem[]>([])
+  const [orgTreeList, setOrgTreeList] = useSafeState<OrgTreeItem[]>([])
 
   const {
     data: orgList,
     loading: refreshOrgLoading,
     run: refreshOrgList
-  } = useRequest<API.Response<API.SysOrgVO[]>>(
-    async () => {
-      try {
-        const res = await querySysOrgListAllApi()
-        return res.data || []
-      } catch (error) {
-        return []
+  } = useRequest<API.Response<API.SysOrgVO[]>>(querySysOrgListAllApi, {
+    onSuccess: (data) => {
+      /** 排序 */
+      const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
+        return list
+          .map((item) => {
+            const newItem: OrgTreeItem = { ...item }
+            if (item.children?.length) {
+              newItem.children = sortFn(item.children)
+            }
+            return newItem
+          })
+          .sort((a, b) => {
+            return a.order! - b.order!
+          })
       }
-    },
-    {
-      onSuccess: (data) => {
-        const treeList = listToTree(data)
-        setHasTopTreeList([{ name: '顶级', id: '0', children: treeList }])
-        setTreeList(treeList)
-      }
+      const treeList = sortFn(listToTree(data))
+      setOrgTreeList(treeList)
     }
-  )
+  })
 
   return {
+    /** 组织列表 */
     orgList,
-    treeList,
-    hasTopOrgTreeList,
+    /** 组织树 */
+    orgTreeList,
+    /** 设置组织树 */
+    setOrgTreeList,
+    /** 组织列表接口loading */
     refreshOrgLoading,
+    /** 刷新组织列表 */
     refreshOrgList
   }
 }

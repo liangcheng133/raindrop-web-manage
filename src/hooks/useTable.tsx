@@ -103,13 +103,15 @@ function handleTableParams<T, U>(
   filter: RequestFunctionParams<T, U>[2],
   { handleParams, clearEmptyParams }: UseTableType<T, U>
 ) {
-  let requestParams = { ...params }
+  const { current, pageSize, ...rest } = params
+  let requestParams = { ...rest, current: current, count: pageSize }
   if (handleParams) {
-    requestParams = handleParams(params, sort, filter)
+    requestParams = handleParams(requestParams, sort, filter)
   }
   if (clearEmptyParams) {
     objRemoveEmpty(requestParams)
   }
+  console.log('[ requestParams ] >', requestParams)
   return requestParams
 }
 
@@ -161,7 +163,7 @@ function renderColumnOperation<T>(
     const dropdownItems: DropdownProps['menus'] = []
     const operationMaxShowQuantity = column.operationMaxShowQuantity ?? 3
 
-    renderOperations.forEach((rItem, rIndex) => {
+    renderOperations.forEach((rItem) => {
       const { name, key, hide, outside, type, onClick, ...rest } = rItem
       const callClick = () => {
         return onClick?.()

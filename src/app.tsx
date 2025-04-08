@@ -6,7 +6,7 @@ import { isString } from 'es-toolkit'
 import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { IconFont } from './components/rd-ui'
-import { WEB_NAME } from './constants'
+import { USER_TOKEN_KEY, WEB_NAME } from './constants'
 import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
@@ -103,15 +103,21 @@ export const request: RequestConfig = {
     // },
     errorHandler: (error: any, opts: any) => {
       console.log('处理错误>>>', { error, opts })
+      const onNotificationError = (msg: string, errMsg: string) => {
+        // if (!hideMsg) {
+        // return ;
+        // }
+        antdUtil.notification?.error({
+          message: msg,
+          description: errMsg || '请求错误，请联系管理员'
+        })
+      }
       const res = error.response
       const status = res.status
       if (status === 401) {
         noAuthHandle()
-      } else if ([403, 404].includes(status)) {
-        antdUtil.notification?.error({
-          message: '请求错误',
-          description: res.data.msg || res.data.error || '请求错误，请稍后再试'
-        })
+      } else if ([403, 404].includes(status) || res.data.status === 1) {
+        onNotificationError('请求错误', res.data.msg || res.data.error)
       }
     }
   },
@@ -123,7 +129,7 @@ export const request: RequestConfig = {
         // 拼接 token
         config.headers = {
           ...config.headers,
-          Authorization: 'Bearer ' + localGet('token') || ''
+          Authorization: 'Bearer ' + localGet(USER_TOKEN_KEY) || ''
         }
         return config
       }
@@ -132,17 +138,8 @@ export const request: RequestConfig = {
   responseInterceptors: [
     (response: AxiosResponse) => {
       const res = response.data
-      const onError = (msg: string) => {
-        // if (!hideMsg) {
-        // return ;
-        // }
-        antdUtil.message?.error(msg)
-      }
       if (res.status !== 0) {
-        if (res.status === 1) {
-          onError(res.msg)
-        }
-        return Promise.reject(res)
+        return Promise.reject({ response })
       }
       console.log('请求Response拦截器', response)
       return response

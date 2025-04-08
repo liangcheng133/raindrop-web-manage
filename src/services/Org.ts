@@ -7,16 +7,24 @@ export function querySysOrgListAllApi(): Promise<API.Response<API.SysOrgVO[]>> {
   })
 }
 
-/** 新建、编辑组织 */
-export function saveSysOrgApi(data: any): Promise<boolean> {
-  return request('/sys/org/save', {
+/** 新建组织 */ 
+export function addSysOrgApi(data: any): Promise<boolean> {
+  return request('/sys/org/add', {
+    method: 'post',
+    data
+  })
+}
+
+/** 编辑组织 */
+export function updateSysOrgApi(data: any): Promise<boolean> {
+  return request('/sys/org/update', {
     method: 'post',
     data
   })
 }
 
 /** 修改组织数据排序 */
-export function saveSysOrgOrderApi(data: any): Promise<boolean> {
+export function sortSysOrgOrderApi(data: any): Promise<boolean> {
   return request('/sys/org/sort', {
     method: 'post',
     data

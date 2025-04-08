@@ -1,14 +1,15 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
 import { useTable, UseTableColumnsType } from '@/hooks'
-import { deleteSysOrgApi, querySysOrgListAllApi, saveSysOrgOrderApi } from '@/services/org'
+import { OrgTreeItem } from '@/models/org'
+import { deleteSysOrgApi, sortSysOrgOrderApi } from '@/services/org'
 import { querySysRoleListAllApi } from '@/services/role'
 import { deleteSysUserApi } from '@/services/user'
-import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
-import { useRequest, useSafeState } from 'ahooks'
+import { useModel } from '@umijs/max'
+import { useSafeState } from 'ahooks'
 import { Card, Dropdown, Empty, Flex, MenuProps, Space, Spin, Tree, TreeProps } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React, { useRef } from 'react'
@@ -16,14 +17,10 @@ import EditOrgModal, { EditOrgModalRef } from './components/EditOrgModal'
 import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
 import styles from './index.less'
 
-type OrgTreeNodeType = API.SystemOrg & {
-  children?: API.SystemOrg[]
-}
-
 type OrgUpdateOrderType = {
   id?: string
   parent_id?: string
-  order?: number
+  sort?: number
 }
 
 const cx = classNameBind(styles)
@@ -35,57 +32,54 @@ const orgTreeTitleOptions: MenuProps['items'] = [
 ]
 
 const UserList: React.FC = () => {
+  const { orgTreeList, setOrgTreeList, refreshOrgLoading, refreshOrgList } = useModel('org')
+
   const tableRef = useRef<ActionType>()
   const editOrgModalRef = useRef<EditOrgModalRef>(null)
   const editUserRef = useRef<EditUserModalRef>(null)
 
   const [isOrgTreeDrop, setIsOrgTreeDrop] = useSafeState<boolean>(false) // 是否使用组织树拖曳
 
-  // 组织架构数据
-  const orgListData = useRef<API.SystemOrg[]>([]) // 组织列表数据
-  const oldOrgTreeData = useRef<OrgTreeNodeType[]>([]) // 旧组织树数据，在排序取消时，重新设置回来
+  const oldOrgTreeData = useRef<OrgTreeItem[]>([]) // 旧组织树数据
   const [selectOrgId, setSelectOrgId] = useSafeState<string>() // 选中的组织id
-  const {
-    data: orgTreeData,
-    mutate: setOrgTreeData,
-    loading: refreshOrgListLoading,
-    run: refreshOrgList
-  } = useRequest(() => {
-    return new Promise<OrgTreeNodeType[]>(async (resolve, reject) => {
-      try {
-        const res = await querySysOrgListAllApi()
-        const sortFn = (list: OrgTreeNodeType[]): OrgTreeNodeType[] => {
-          return list
-            .map((item) => {
-              const newItem: OrgTreeNodeType = { ...item }
-              if (item.children?.length) {
-                newItem.children = sortFn(item.children)
-              }
-              return newItem
-            })
-            .sort((a, b) => {
-              return a.order! - b.order!
-            })
-        }
-        const treeData = sortFn(listToTree(res.data))
-        orgListData.current = res.data
-        oldOrgTreeData.current = treeData
-        resolve(treeData)
-      } catch (error) {
-        resolve([])
-      }
-    })
-  })
 
   // 处理节点设置为可拖动
   const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData) => {
-    if ((nodeData as OrgTreeNodeType).id === 'root_1111') return false // 根节点不允许拖动
+    if ((nodeData as OrgTreeItem).id === 'root_1111') return false // 根节点不允许拖动
     return isOrgTreeDrop
+  }
+
+  // 处理节点设置下拉菜单点击回调
+  const onOrgTreeTitleClick = ({ key }: { key: string }, record: OrgTreeItem) => {
+    switch (key) {
+      case 'createChildOrg':
+        setSelectOrgId(record.id)
+        editOrgModalRef.current?.open()
+        break
+      case 'editOrg':
+        editOrgModalRef.current?.open(record)
+        break
+      case 'removeOrg':
+        antdUtil.modal?.confirm({
+          title: '提示',
+          content: `此操作将删除组织【${record.name}】及其子组织，确定删除？`,
+          onOk: async () => {
+            try {
+              await deleteSysOrgApi({ id: record.id })
+              antdUtil.message?.success('删除成功')
+              refreshOrgList()
+            } catch (error) {
+              console.log(error)
+            }
+          }
+        })
+        break
+    }
   }
 
   // 处理节点标题渲染
   const handleOrgTreeTitleRender: TreeProps['titleRender'] = (nodeData) => {
-    const data = nodeData as OrgTreeNodeType
+    const data = nodeData as OrgTreeItem
     return (
       <div className={cx('tree-title')}>
         <span className={cx('tree-title-txt')}> {data.name}</span>
@@ -101,46 +95,18 @@ const UserList: React.FC = () => {
     )
   }
 
-  // 处理节点设置下拉菜单点击回调
-  const onOrgTreeTitleClick = ({ key }: { key: string }, record: OrgTreeNodeType) => {
-    switch (key) {
-      case 'createChildOrg':
-        setSelectOrgId(record.id)
-        editOrgModalRef.current?.open()
-        break
-      case 'editOrg':
-        editOrgModalRef.current?.open(record)
-        break
-      case 'removeOrg':
-        antdUtil.modal?.confirm({
-          title: '提示',
-          content: `此操作将删除组织【${record.name}】及其子组织，确定删除？`,
-          onOk: async () => {
-            try {
-              const res = await deleteSysOrgApi({ id: record.id })
-              antdUtil.message?.success('删除成功')
-              refreshOrgList()
-            } catch (error) {
-              console.log(error)
-            }
-          }
-        })
-        break
-    }
-  }
-
   // 处理树形拖曳结束回调
   const onOrgDrop: TreeProps['onDrop'] = (info) => {
-    if (!orgTreeData) return
+    if (!orgTreeList) return
     const dropKey = info.node.key
     const dragKey = info.dragNode.key
     const dropPos = info.node.pos.split('-')
     const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
 
     const loop = (
-      data: OrgTreeNodeType[],
+      data: OrgTreeItem[],
       key: React.Key,
-      callback: (node: OrgTreeNodeType, i: number, data: OrgTreeNodeType[]) => void
+      callback: (node: OrgTreeItem, i: number, data: OrgTreeItem[]) => void
     ) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i].id === key) {
@@ -152,9 +118,9 @@ const UserList: React.FC = () => {
       }
     }
 
-    const data = cloneDeep(orgTreeData) as OrgTreeNodeType[]
+    const data = cloneDeep(orgTreeList) as OrgTreeItem[]
 
-    let dragObj: OrgTreeNodeType
+    let dragObj: OrgTreeItem
     loop(data, dragKey, (item, index, arr) => {
       arr.splice(index, 1)
       dragObj = item
@@ -165,7 +131,7 @@ const UserList: React.FC = () => {
         item.children.unshift(dragObj)
       })
     } else {
-      let ar: OrgTreeNodeType[] = []
+      let ar: OrgTreeItem[] = []
       let i: number
       loop(data, dropKey, (_item, index, arr) => {
         ar = arr
@@ -177,13 +143,13 @@ const UserList: React.FC = () => {
         ar.splice(i! + 1, 0, dragObj!)
       }
     }
-    setOrgTreeData(data)
+    setOrgTreeList(data)
   }
 
   // 处理树形选中回调
   const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
     if (isOrgTreeDrop) return
-    setSelectOrgId(selected ? (node as API.SystemOrg).id : undefined)
+    setSelectOrgId(selected ? (node as API.SysOrgVO).id : undefined)
     tableRef.current?.reload()
   }
 
@@ -198,7 +164,7 @@ const UserList: React.FC = () => {
   }
 
   // 表格列配置
-  const columns: UseTableColumnsType<API.SystemUser>[] = [
+  const columns: UseTableColumnsType<API.SysUserVO>[] = [
     {
       title: '状态',
       dataIndex: 'status',
@@ -234,7 +200,7 @@ const UserList: React.FC = () => {
     { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
     {
       valueType: 'option',
-      renderOperation: (text, record, index, action, colProps) => {
+      renderOperation: (text, record) => {
         return [
           {
             name: '编辑',
@@ -249,7 +215,7 @@ const UserList: React.FC = () => {
             type: 'deleteConfirm',
             onClick: async () => {
               try {
-                const res = await deleteSysUserApi({ id: record.id })
+                await deleteSysUserApi({ id: record.id })
                 antdUtil.message?.success('删除成功')
                 tableRef.current?.reload()
               } catch (error) {
@@ -262,7 +228,7 @@ const UserList: React.FC = () => {
     }
   ]
   // 表格配置
-  const tableProps = useTable<API.SystemUser>({
+  const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
     api: '/sys/user/list',
     columns: columns,
@@ -282,11 +248,13 @@ const UserList: React.FC = () => {
         </Space>
       )
     },
-    toolBarRender: () => [<EditUserModal ref={editUserRef} orgId={selectOrgId} onSuccess={onUserSaveSuccess} />]
+    toolBarRender: () => [
+      <EditUserModal ref={editUserRef} key='editUserModal' orgId={selectOrgId} onSuccess={onUserSaveSuccess} />
+    ]
   })
 
   // 组织架构卡片extra
-  const orgCardExtra = orgTreeData?.length ? (
+  const orgCardExtra = orgTreeList?.length ? (
     <CardExtraOptions
       items={[
         {
@@ -295,7 +263,7 @@ const UserList: React.FC = () => {
           title: '取消',
           hide: !isOrgTreeDrop,
           onClick: () => {
-            setOrgTreeData(oldOrgTreeData.current)
+            setOrgTreeList(oldOrgTreeData.current)
             setIsOrgTreeDrop(false)
           }
         },
@@ -307,25 +275,25 @@ const UserList: React.FC = () => {
           onClick: async () => {
             try {
               const data: OrgUpdateOrderType[] = []
-              const loop = (orgList: OrgTreeNodeType[], parent_id: string) => {
+              const loop = (orgList: OrgTreeItem[], parent_id: string) => {
                 orgList.forEach((item, index) => {
                   data.push({
                     id: item.id,
                     parent_id: parent_id,
-                    order: index + 1
+                    sort: index + 1
                   })
                   if (item.children?.length) {
                     loop(item.children, item.id!)
                   }
                 })
               }
-              loop(orgTreeData, '0')
-              const res = await saveSysOrgOrderApi(data)
+              loop(orgTreeList, '0')
+              await sortSysOrgOrderApi(data)
               antdUtil.message?.success('排序成功')
               setIsOrgTreeDrop(false)
               refreshOrgList()
             } catch (error) {
-              console.log(error)
+              console.log('error', error)
             }
           }
         },
@@ -334,7 +302,7 @@ const UserList: React.FC = () => {
           icon: 'icon-plus',
           title: '新增组织',
           hide: isOrgTreeDrop,
-          onClick: (e) => {
+          onClick: () => {
             editOrgModalRef.current?.open?.()
           }
         },
@@ -344,9 +312,9 @@ const UserList: React.FC = () => {
           title: '排序',
           hide: isOrgTreeDrop,
           onClick: () => {
-            if (orgTreeData) {
+            if (orgTreeList) {
               setIsOrgTreeDrop(true)
-              oldOrgTreeData.current = cloneDeep(orgTreeData)
+              oldOrgTreeData.current = cloneDeep(orgTreeList)
             }
           }
         },
@@ -374,8 +342,8 @@ const UserList: React.FC = () => {
               overflowX: 'auto'
             }
           }}>
-          {orgTreeData?.length ? (
-            <Spin spinning={refreshOrgListLoading}>
+          {orgTreeList?.length ? (
+            <Spin spinning={refreshOrgLoading}>
               <Tree
                 defaultExpandAll
                 showIcon
@@ -384,13 +352,13 @@ const UserList: React.FC = () => {
                 draggable={handleOrgTreeDraggable}
                 titleRender={handleOrgTreeTitleRender}
                 selectedKeys={[selectOrgId || '']}
-                treeData={orgTreeData as TreeProps['treeData']}
+                treeData={orgTreeList as TreeProps['treeData']}
                 fieldNames={{ key: 'id', title: 'name' }}
                 onSelect={onOrgTreeSelect}
                 onDrop={onOrgDrop}
               />
             </Spin>
-          ) : refreshOrgListLoading ? (
+          ) : refreshOrgLoading ? (
             <Spin className={cx('spin-placeholder')} />
           ) : (
             <Empty />
