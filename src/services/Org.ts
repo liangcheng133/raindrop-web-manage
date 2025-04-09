@@ -7,7 +7,7 @@ export function querySysOrgListAllApi(): Promise<API.Response<API.SysOrgVO[]>> {
   })
 }
 
-/** 新建组织 */ 
+/** 新建组织 */
 export function addSysOrgApi(data: any): Promise<boolean> {
   return request('/sys/org/add', {
     method: 'post',
@@ -32,9 +32,8 @@ export function sortSysOrgOrderApi(data: any): Promise<boolean> {
 }
 
 /** 删除组织 */
-export function deleteSysOrgApi(data: any): Promise<boolean> {
-  return request('/sys/org/remove', {
-    method: 'post',
-    data
+export function deleteSysOrgApi(id: string): Promise<boolean> {
+  return request(`/sys/org/delete/${id}`, {
+    method: 'post'
   })
 }

@@ -9,12 +9,19 @@ import React, { forwardRef, useImperativeHandle } from 'react'
 export type EditOrgModalProps = {
   /** 组织id，不传递时默认顶级组织 */
   orgId?: string
+  /** 接口成功时回调 */
   onSuccess?: () => void
+  /** 接口失败时回调 */
   onFail?: (error: any) => void
 }
 
 export type EditOrgModalRef = {
+  /**
+   * 打开弹框
+   * @param {*} data 编辑数据，传递时则为编辑模式
+   */  
   open: (data?: API.SysOrgVO) => void
+  /** 关闭弹框 */
   close: () => void
 }
 

@@ -1,9 +1,14 @@
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 import { sysUserAccountLoginApi } from '@/services/user'
-import { localSet } from '@/utils/localStorage'
+import { localGet, localSet } from '@/utils/localStorage'
 import { history, useRequest } from '@umijs/max'
+import { useSafeState } from 'ahooks'
 
 export default () => {
+  const [token, setToken] = useSafeState(localGet(USER_TOKEN_KEY) || '')
+  const [userId, setUserId] = useSafeState(localGet(USER_ID_KEY) || '')
+  const [userInfo, setUserInfo] = useSafeState({})
+
   const {} = useRequest(() => {
     return new Promise<any>((resolve) => {
       setTimeout(() => {
@@ -25,18 +30,31 @@ export default () => {
     })
   }
 
-  /** 用户账号登录 */
-  const userAccountLogin = async (params: any) => {
-    const res = await sysUserAccountLoginApi(params)
-    if (res.status !== 0) return
-    localSet(USER_TOKEN_KEY, res.data.token)
-    localSet(USER_ID_KEY, res.data.user_id)
+  /** 登录成功后回调 */
+  const loginSuccessAfter = async (res: API.LoginVO) => {
+    localSet(USER_TOKEN_KEY, res.token)
+    localSet(USER_ID_KEY, res.user_id)
+    setToken(res.token)
+    setUserId(res.user_id)
 
     await getAuth()
     history.push('/')
   }
 
+  /** 用户账号登录 */
+  const userAccountLogin = async (params: any) => {
+    try {
+      const res = await sysUserAccountLoginApi(params)
+      loginSuccessAfter(res.data)
+    } catch (error) {
+      console.log('登录失败', error)
+    }
+  }
+
   return {
-    userAccountLogin
+    userAccountLogin,
+    token,
+    userId,
+    userInfo
   }
 }

@@ -111,7 +111,6 @@ function handleTableParams<T, U>(
   if (clearEmptyParams) {
     objRemoveEmpty(requestParams)
   }
-  console.log('[ requestParams ] >', requestParams)
   return requestParams
 }
 

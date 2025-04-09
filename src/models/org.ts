@@ -1,39 +1,61 @@
 import { querySysOrgListAllApi } from '@/services/org'
 import { listToTree } from '@/utils'
-import { useRequest } from '@umijs/max'
+import { useModel, useRequest } from '@umijs/max'
 import { useSafeState } from 'ahooks'
+import { isEmpty } from 'es-toolkit/compat'
 
 export type OrgTreeItem = API.SysOrgVO & {
   children?: OrgTreeItem[]
 }
 
 export default () => {
+  const { token } = useModel('user')
   const [orgTreeList, setOrgTreeList] = useSafeState<OrgTreeItem[]>([])
 
   const {
     data: orgList,
     loading: refreshOrgLoading,
-    run: refreshOrgList
-  } = useRequest<API.Response<API.SysOrgVO[]>>(querySysOrgListAllApi, {
-    onSuccess: (data) => {
-      /** 排序 */
-      const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
-        return list
-          .map((item) => {
-            const newItem: OrgTreeItem = { ...item }
-            if (item.children?.length) {
-              newItem.children = sortFn(item.children)
-            }
-            return newItem
-          })
-          .sort((a, b) => {
-            return a.order! - b.order!
-          })
+    run
+  } = useRequest<API.Response<API.SysOrgVO[]>>(
+    () => {
+      console.log('请求组织列表')
+      if (isEmpty(token)) {
+        return Promise.resolve(null)
       }
-      const treeList = sortFn(listToTree(data))
-      setOrgTreeList(treeList)
+      return querySysOrgListAllApi()
+    },
+    {
+      onSuccess: (data) => {
+        if (!data) return
+        /** 排序 */
+        const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
+          return list
+            .map((item) => {
+              const newItem: OrgTreeItem = { ...item }
+              if (item.children?.length) {
+                newItem.children = sortFn(item.children)
+              }
+              return newItem
+            })
+            .sort((a, b) => {
+              return a.order! - b.order!
+            })
+        }
+        const treeList = sortFn(listToTree(data))
+        setOrgTreeList(treeList)
+      }
     }
-  })
+  )
+
+  /**
+   * 刷新组织列表
+   * @param {Boolean} isReload 是否强制刷新
+   */
+  const refreshOrgList = (isReload = false) => {
+    if (!isEmpty(token) && (isEmpty(orgList) || isReload)) {
+      run()
+    }
+  }
 
   return {
     /** 组织列表 */
@@ -44,7 +66,6 @@ export default () => {
     setOrgTreeList,
     /** 组织列表接口loading */
     refreshOrgLoading,
-    /** 刷新组织列表 */
     refreshOrgList
   }
 }

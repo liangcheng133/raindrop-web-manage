@@ -101,8 +101,8 @@ export const request: RequestConfig = {
     // errorThrower: (res: any) => {
     //   console.log('拦截错误>>>', res)
     // },
-    errorHandler: (error: any, opts: any) => {
-      console.log('处理错误>>>', { error, opts })
+    errorHandler: (error: any) => {
+      // console.log('处理错误>>>', { error, opts })
       const onNotificationError = (msg: string, errMsg: string) => {
         // if (!hideMsg) {
         // return ;
@@ -118,6 +118,8 @@ export const request: RequestConfig = {
         noAuthHandle()
       } else if ([403, 404].includes(status) || res.data.status === 1) {
         onNotificationError('请求错误', res.data.msg || res.data.error)
+      } else if (status === 504) {
+        onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
       }
     }
   },
@@ -141,7 +143,7 @@ export const request: RequestConfig = {
       if (res.status !== 0) {
         return Promise.reject({ response })
       }
-      console.log('请求Response拦截器', response)
+      // console.log('请求Response拦截器', response)
       return response
     }
   ]

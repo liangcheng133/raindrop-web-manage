@@ -3,17 +3,26 @@ import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
 import { Outlet, useModel } from '@umijs/max'
 import WebTracing from '@web-tracing/core'
+import { useSafeState } from 'ahooks'
+import { App, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
-import React from 'react'
+import React, { useEffect } from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const {} = useModel('user');
+  const [isShow, setIsShow] = useSafeState(false)
+  const { token } = useModel('user')
+  const { refreshOrgList } = useModel('org')
+
+  useEffect(() => {
+    refreshOrgList(true)
+  }, [token])
+
   return (
-    <>
-      <Outlet />
-      <AntdAppLayout>{children}</AntdAppLayout>
-    </>
+    <App>
+      <Spin spinning={!isShow}>{isShow && <Outlet />}</Spin>
+      <AntdAppLayout onAfterMount={() => setIsShow(true)}>{children}</AntdAppLayout>
+    </App>
   )
 }
 
