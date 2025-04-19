@@ -51,7 +51,7 @@ export type UseTableColumnsType<T> = ProColumns & {
 
 export type UseTableType<T, U> = Omit<ProTableProps<T, U>, 'columns'> & {
   /** 接口地址 */
-  api: string
+  api: (data: any) => Promise<T>
   /**
    * 对应列是否可以通过拖动改变宽度，默认启用
    * * 功能未完善
@@ -69,7 +69,7 @@ export type UseTableType<T, U> = Omit<ProTableProps<T, U>, 'columns'> & {
   virtual?: boolean
   /** 列配置 */
   columns?: UseTableColumnsType<T>[]
-  /** 
+  /**
    * 持久化列配置的key，传入值时即开启持久化列配置，默认使用localStorage
    * * 有变动可以使用 columnState
    */

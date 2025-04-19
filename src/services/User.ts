@@ -1,5 +1,13 @@
 import { request } from '@umijs/max'
 
+/** 查询用户列表 */
+export function getSysUserListApi(data: Record<string, any>) {
+  return request<API.Response<null>>('/sys/user/list', {
+    method: 'post',
+    data
+  })
+}
+
 /** 新建、编辑用户信息 */
 export function saveSysUserApi(data: Record<string, any>) {
   return request<API.Response<null>>('/sys/user/save', {
@@ -18,7 +26,7 @@ export function deleteSysUserApi(data: Record<string, any>) {
 
 /** 用户账号登录 */
 export function sysUserAccountLoginApi(data: Record<string, any>) {
-  return request<API.Response<API.LoginResponse>>('/public/accountLogin', {
+  return request<API.Response<API.LoginVO>>('/public/accountLogin', {
     method: 'post',
     data
   })

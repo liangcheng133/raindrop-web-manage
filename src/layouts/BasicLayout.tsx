@@ -48,7 +48,7 @@ WebTracing.init({
     // react 有报错上抛第一次错误的机制，这里给它规避掉
     newData.eventInfo = newData.eventInfo?.reduce((acc: any, item: any) => {
       if (!acc.some((accItem: any) => accItem.sendTime === item.sendTime)) {
-        // 如果报错时间相同 且 含被忽略的报错，则不添加
+        // 如果报错时间相同 且 含被忽略的报错，不添加到上报
         if (!IGNORED_WARNING_MESSAGES.some((warningMsg) => item.errMessage.includes(warningMsg))) {
           acc.push(item)
         }

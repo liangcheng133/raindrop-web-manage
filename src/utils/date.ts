@@ -24,11 +24,9 @@ export const DATE_FORMATS = {
  * @return {string}
  */
 export function format(val: Date | string | number | dayjs.Dayjs, formatStr?: string): string {
-  let time = dayjs(val)
-  if (!formatStr) {
-    formatStr = DATE_FORMATS[1]
-  }
-  return time.format(formatStr)
+  const time = dayjs(val)
+  const f = formatStr || DATE_FORMATS[1]
+  return time.format(f)
 }
 
 /**

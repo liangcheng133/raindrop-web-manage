@@ -1,5 +1,6 @@
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 import { sysUserAccountLoginApi } from '@/services/user'
+import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
 import { history, useRequest } from '@umijs/max'
 import { useSafeState } from 'ahooks'
@@ -36,7 +37,7 @@ export default () => {
     localSet(USER_ID_KEY, res.user_id)
     setToken(res.token)
     setUserId(res.user_id)
-
+    antdUtil.message?.success('登录成功')
     await getAuth()
     history.push('/')
   }

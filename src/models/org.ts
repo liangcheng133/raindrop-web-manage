@@ -18,7 +18,6 @@ export default () => {
     run
   } = useRequest<API.Response<API.SysOrgVO[]>>(
     () => {
-      console.log('请求组织列表')
       if (isEmpty(token)) {
         return Promise.resolve(null)
       }

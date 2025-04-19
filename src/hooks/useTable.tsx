@@ -2,7 +2,6 @@ import { objRemoveEmpty } from '@/utils'
 import { ColumnsState, ProColumns, TableDropdown } from '@ant-design/pro-components'
 import { ProTableProps, RequestData } from '@ant-design/pro-table'
 import { DropdownProps } from '@ant-design/pro-table/es/components/Dropdown/index'
-import { request } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Popconfirm } from 'antd'
 import { throttle } from 'es-toolkit'
@@ -75,7 +74,7 @@ export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTab
       const params = handleTableParams(...args, options)
 
       try {
-        const res = await request(api, { method: 'post', data: params })
+        const res = await api(params) as RequestData<T>
 
         const response = {
           data: res.data,

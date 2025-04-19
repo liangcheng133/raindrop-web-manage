@@ -24,6 +24,20 @@ export function localSet(key: string, value: any, time: number = 0, isJson: bool
 }
 
 /**
+ * 删除本地缓存数据
+ * @param {string | string[]} key 主键
+ */
+export function localRemove(key: string | string[]): void {
+  if (Array.isArray(key)) {
+    key.forEach((item) => {
+      localStorage.removeItem(item);
+    });
+  } else {
+    localStorage.removeItem(key);
+  }
+}
+
+/**
  * 获取本地缓存数据
  * @param {string} key 主键
  * @returns {any | null}
@@ -38,20 +52,6 @@ export function localGet(key: string): any | null {
     return null;
   }
   return dataObj.value;
-}
-
-/**
- * 删除本地缓存数据
- * @param {string | string[]} key 主键
- */
-export function localRemove(key: string | string[]): void {
-  if (Array.isArray(key)) {
-    key.forEach((item) => {
-      localStorage.removeItem(item);
-    });
-  } else {
-    localStorage.removeItem(key);
-  }
 }
 
 /**
