@@ -1,4 +1,4 @@
-import { getRsaPublicKey } from '@/services/user'
+import { getRsaPublicKeyAPI } from '@/services/user'
 import JSEncrypt from 'jsencrypt'
 
 /** 
@@ -10,7 +10,7 @@ export function rsaEncrypt(str: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const jsencrypt = new JSEncrypt()
     //从后端接口获取publicKey
-    getRsaPublicKey()
+    getRsaPublicKeyAPI()
       .then((res) => {
         if (res.data) {
           jsencrypt.setPublicKey(res.data)

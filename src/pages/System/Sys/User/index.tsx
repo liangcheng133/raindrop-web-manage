@@ -1,7 +1,7 @@
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
-import { querySysRoleListAllApi } from '@/services/role'
-import { deleteSysUserApi, getSysUserListApi } from '@/services/user'
+import { querySysRoleListAllAPI } from '@/services/role'
+import { deleteSysUserAPI, getSysUserListAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
@@ -37,7 +37,7 @@ const UserList: React.FC = () => {
   /** 表格配置 */
   const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
-    api: getSysUserListApi,
+    api: getSysUserListAPI,
     columns: [
       {
         title: '状态',
@@ -61,7 +61,7 @@ const UserList: React.FC = () => {
         },
         request: async () => {
           try {
-            const res = await querySysRoleListAllApi()
+            const res = await querySysRoleListAllAPI()
             return res.data
           } catch (error) {
             console.log(error)
@@ -89,7 +89,7 @@ const UserList: React.FC = () => {
               type: 'deleteConfirm',
               onClick: async () => {
                 try {
-                  await deleteSysUserApi({ id: record.id })
+                  await deleteSysUserAPI({ id: record.id })
                   antdUtil.message?.success('删除成功')
                   tableRef.current?.reload()
                 } catch (error) {

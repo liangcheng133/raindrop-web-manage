@@ -1,7 +1,7 @@
-import { addSysOrgApi, querySysOrgListAllApi, updateSysOrgApi } from '@/services/org'
-import { listToTree } from '@/utils'
+import { saveSysOrgAPI } from '@/services/org'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ModalFormProps, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
+import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
@@ -19,7 +19,7 @@ export type EditOrgModalRef = {
   /**
    * 打开弹框
    * @param {*} data 编辑数据，传递时则为编辑模式
-   */  
+   */
   open: (data?: API.SysOrgVO) => void
   /** 关闭弹框 */
   close: () => void
@@ -28,7 +28,10 @@ export type EditOrgModalRef = {
 /** 新建、编辑组织弹框 */
 const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref) => {
   const { onSuccess, onFail, orgId } = props
+
   const [form] = Form.useForm()
+  const { orgTreeList, refreshOrgList } = useModel('org')
+
   const [visible, setVisible] = useSafeState(false)
   const [baseFormData, setBaseFormData] = useSafeState<API.SysOrgVO>()
   const isEdit = !!baseFormData?.id
@@ -54,11 +57,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
 
   const onFinish: ModalFormProps['onFinish'] = async (values) => {
     try {
-      if (values.id) {
-        await updateSysOrgApi(values)
-      } else {
-        await addSysOrgApi(values)
-      }
+      await saveSysOrgAPI(values)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
@@ -101,8 +100,8 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
         }}
         request={async () => {
           try {
-            const res = await querySysOrgListAllApi()
-            return [{ name: '顶级', id: '0', children: listToTree(res.data) }]
+            await refreshOrgList()
+            return [{ name: '顶级', id: '0', children: orgTreeList }]
           } catch (error) {
             return []
           }

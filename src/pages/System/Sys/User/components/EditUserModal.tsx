@@ -1,7 +1,5 @@
-import { querySysOrgListAllApi } from '@/services/org'
-import { querySysRoleListAllApi } from '@/services/role'
-import { saveSysUserApi } from '@/services/user'
-import { listToTree } from '@/utils'
+import { querySysRoleListAllAPI } from '@/services/role'
+import { saveSysUserAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -13,30 +11,50 @@ import {
   ProFormTextArea,
   ProFormTreeSelect
 } from '@ant-design/pro-components'
+import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
-export type EditUserModalProps = ModalComm.ModalCommProps & {
+export type EditUserModalProps = {
   /** 组织id，不传递时默认顶级组织 */
   orgId?: string
+  /** 接口成功时回调 */
+  onSuccess?: () => void
+  /** 接口失败时回调 */
+  onFail?: (error: any) => void
 }
 
-export type EditUserModalRef = Omit<ModalComm.ModalCommRef, 'open'> & {
-  open: (data?: API.SystemUser) => void
+export type EditUserModalRef = {
+  open: (data?: API.SysUserVO) => void
+}
+
+export type SysUserForm = Omit<API.SysUserVO, 'role_ids'> & {
+  role_ids?: string[]
 }
 
 /** 新建、编辑用户信息弹框 */
 const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, ref) => {
   const { onSuccess, orgId } = props
+
+  const { orgTreeList, refreshOrgList } = useModel('org')
   const [form] = Form.useForm()
-  const [baseFormData, setBaseFormData] = useSafeState<API.SystemUser>()
+
+  const [baseFormData, setBaseFormData] = useSafeState<API.SysUserVO>()
   const [visible, setVisible] = useSafeState(false)
 
+  // 是否编辑数据
   const isEdit = !!baseFormData
 
-  const open = (data?: API.SystemUser) => {
-    form.setFieldsValue(data)
+  const open = (data?: API.SysUserVO) => {
+    const formData: SysUserForm = {
+      ...data,
+      role_ids: data?.role_ids?.split(',')
+    }
+    if (!data) {
+      formData.org_id = orgId
+    }
+    form.setFieldsValue(formData)
     setBaseFormData(data)
     setVisible(true)
   }
@@ -46,17 +64,17 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
   }
 
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
-    if (!isEdit) {
-      form.setFieldsValue({
-        org_id: orgId || null
-      })
-    }
     setVisible(visible)
   }
 
-  const onFinish = async (values: API.SystemUser) => {
+  const onFinish = async (values: SysUserForm) => {
     try {
-      const res = await saveSysUserApi(values)
+      console.log('[ values ] >', values)
+      const params: API.SysUserVO = {
+        ...values,
+        role_ids: values.role_ids?.join(',')
+      }
+      await saveSysUserAPI(params)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
@@ -85,6 +103,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
       onOpenChange={onOpenChange}
       modalProps={{ destroyOnClose: true, forceRender: true }}>
       <ProFormText name='id' hidden />
+      <ProFormText name='status' hidden />
       <ProFormGroup>
         <ProFormText
           name='account'
@@ -93,6 +112,15 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           rules={[{ required: true, message: '请输入用户账号' }]}
           width='md'
         />
+        {!isEdit && (
+          <ProFormText.Password
+            name='password'
+            label='登录密码'
+            placeholder='请输入登录密码'
+            rules={[{ required: true, message: '请输入登录密码' }]}
+            width='md'
+          />
+        )}
         <ProFormText
           name='name'
           label='用户名称'
@@ -118,25 +146,6 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
         />
       </ProFormGroup>
       <ProFormGroup>
-        <ProFormSelect
-          name='role_ids'
-          label='角色'
-          placeholder='请选择角色'
-          rules={[{ required: true, message: '请选择角色' }]}
-          width='md'
-          fieldProps={{
-            fieldNames: { value: 'id', label: 'name' },
-            mode: 'multiple'
-          }}
-          request={async () => {
-            try {
-              const res = await querySysRoleListAllApi()
-              return res.data
-            } catch (error) {
-              return []
-            }
-          }}
-        />
         <ProFormTreeSelect
           name='org_id'
           label='所在组织'
@@ -149,8 +158,26 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           }}
           request={async () => {
             try {
-              const res = await querySysOrgListAllApi()
-              return listToTree(res.data)
+              await refreshOrgList()
+              return orgTreeList
+            } catch (error) {
+              return []
+            }
+          }}
+        />
+        <ProFormSelect
+          name='role_ids'
+          label='角色'
+          placeholder='请选择角色'
+          width='md'
+          fieldProps={{
+            fieldNames: { value: 'id', label: 'name' },
+            mode: 'multiple'
+          }}
+          request={async () => {
+            try {
+              const res = await querySysRoleListAllAPI()
+              return res.data
             } catch (error) {
               return []
             }

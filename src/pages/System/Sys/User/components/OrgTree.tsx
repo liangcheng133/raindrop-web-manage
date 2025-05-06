@@ -1,7 +1,7 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
 import { OrgTreeItem } from '@/models/org'
-import { deleteSysOrgApi, sortSysOrgOrderApi } from '@/services/org'
+import { deleteSysOrgAPI, sortSysOrgOrderAPI } from '@/services/org'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { useModel } from '@umijs/max'
@@ -118,7 +118,6 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
   /** 处理编辑组织成功回调 */
   const onOrgSaveSuccess = () => {
     refreshOrgList(true)
-    setSelectOrgIdAndCallback()
   }
 
   /** 处理节点设置下拉菜单点击回调 */
@@ -137,7 +136,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
           content: `此操作将删除组织【${record.name}】及其子组织，确定删除？`,
           onOk: async () => {
             try {
-              await deleteSysOrgApi(record.id!)
+              await deleteSysOrgAPI(record.id!)
               antdUtil.message?.success('删除成功')
               refreshOrgList(true)
             } catch (error) {
@@ -205,7 +204,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
               }
               loop(orgTreeListCopy, '0')
 
-              await sortSysOrgOrderApi(data)
+              await sortSysOrgOrderAPI(data)
 
               antdUtil.message?.success('排序成功')
               setIsOrgTreeDrop(false)

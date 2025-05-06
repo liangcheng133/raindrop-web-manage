@@ -1,8 +1,10 @@
-import { querySysOrgListAllApi } from '@/services/org'
+import { querySysOrgListAllAPI } from '@/services/org'
 import { listToTree } from '@/utils'
-import { useModel, useRequest } from '@umijs/max'
-import { useSafeState } from 'ahooks'
+import { useModel } from '@umijs/max'
+import { useRequest, useSafeState } from 'ahooks'
+import { Result } from 'ahooks/lib/useRequest/src/types'
 import { isEmpty } from 'es-toolkit/compat'
+import { useRef } from 'react'
 
 export type OrgTreeItem = API.SysOrgVO & {
   children?: OrgTreeItem[]
@@ -10,22 +12,22 @@ export type OrgTreeItem = API.SysOrgVO & {
 
 export default () => {
   const { token } = useModel('user')
+
+  const orgListRequest = useRef<Promise<any> | undefined>() // 存储当前请求
   const [orgTreeList, setOrgTreeList] = useSafeState<OrgTreeItem[]>([])
 
-  const {
-    data: orgList,
-    loading: refreshOrgLoading,
-    run
-  } = useRequest<API.Response<API.SysOrgVO[]>>(
+  const orgListRequestHook: Result<API.Response<API.SysOrgVO[]>, any[]> = useRequest(
     () => {
-      if (isEmpty(token)) {
-        return Promise.resolve(null)
-      }
-      return querySysOrgListAllApi()
+      const request = querySysOrgListAllAPI()
+      orgListRequest.current = request
+      return request
     },
     {
-      onSuccess: (data) => {
-        if (!data) return
+      ready: !isEmpty(token),
+      manual: true,
+      onSuccess: (res) => {
+        if (!res) return
+        orgListRequest.current = undefined
         /** 排序 */
         const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
           return list
@@ -40,31 +42,34 @@ export default () => {
               return a.order! - b.order!
             })
         }
-        const treeList = sortFn(listToTree(data))
+        const treeList = sortFn(listToTree(res.data))
         setOrgTreeList(treeList)
       }
     }
   )
 
   /**
-   * 刷新组织列表
+   * 数据为空时，刷新组织列表
    * @param {Boolean} isReload 是否强制刷新
    */
   const refreshOrgList = (isReload = false) => {
-    if (!isEmpty(token) && (isEmpty(orgList) || isReload)) {
-      run()
+    if (orgListRequest.current) {
+      return orgListRequest.current
+    }
+    if (!isEmpty(token) && (isEmpty(orgListRequestHook.data) || isReload)) {
+      return orgListRequestHook.runAsync()
     }
   }
 
   return {
     /** 组织列表 */
-    orgList,
+    orgList: orgListRequestHook.data,
     /** 组织树 */
     orgTreeList,
     /** 设置组织树 */
     setOrgTreeList,
     /** 组织列表接口loading */
-    refreshOrgLoading,
+    refreshOrgLoading: orgListRequestHook.loading,
     refreshOrgList
   }
 }
