@@ -16,6 +16,13 @@ export function saveSysUserAPI(data: Record<string, any>) {
   })
 }
 
+/** 根据id查询用户信息 */
+export function sysUserQueryByIdAPI(id: string) {
+  return request<API.Response<API.SysUserVO>>(`/sys/user/queryById/${id}`, {
+    method: 'post'
+  })
+}
+
 /** 删除用户信息 */
 export function deleteSysUserAPI(data: Record<string, any>) {
   return request<API.Response<null>>('/sys/user/delete', {

@@ -1,24 +1,24 @@
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
-import { sysUserAccountLoginAPI } from '@/services/user'
+import { sysUserAccountLoginAPI, sysUserQueryByIdAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
-import { history, useRequest } from '@umijs/max'
-import { useSafeState } from 'ahooks'
+import { history } from '@umijs/max'
+import { useRequest, useSafeState } from 'ahooks'
+import { Result } from 'ahooks/lib/useRequest/src/types'
+import { isEmpty } from 'es-toolkit/compat'
+
+const queryUserInfoById = async (id: string) => {
+  const res = await sysUserQueryByIdAPI(id)
+  return res.data
+}
 
 export default () => {
   const [token, setToken] = useSafeState<string>(localGet(USER_TOKEN_KEY) || '')
   const [userId, setUserId] = useSafeState<string>(localGet(USER_ID_KEY) || '')
-  const [userInfo, setUserInfo] = useSafeState({})
 
-  const {} = useRequest(() => {
-    return new Promise<any>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          name: 'clx',
-          account: 'admin'
-        })
-      }, 1000)
-    })
+  const sysUserInfoRequestHook: Result<API.SysUserVO, any[]> = useRequest(queryUserInfoById, {
+    defaultParams: [userId],
+    ready: !isEmpty(token)
   })
 
   /** 获取权限 */
@@ -35,8 +35,8 @@ export default () => {
   const loginSuccessAfter = async (res: API.LoginVO) => {
     localSet(USER_TOKEN_KEY, res.token)
     localSet(USER_ID_KEY, res.user_id)
-    setToken(res.token || "")
-    setUserId(res.user_id || "")
+    setToken(res.token || '')
+    setUserId(res.user_id || '')
     antdUtil.message?.success('登录成功')
     await getAuth()
     history.push('/')
@@ -56,6 +56,6 @@ export default () => {
     userAccountLogin,
     token,
     userId,
-    userInfo
+    userInfo: sysUserInfoRequestHook.data
   }
 }

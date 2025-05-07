@@ -102,7 +102,7 @@ export const request: RequestConfig = {
     //   console.log('拦截错误>>>', res)
     // },
     errorHandler: (error: any) => {
-      // console.log('处理错误>>>', { error, opts })
+      // console.log('处理错误>>>', { error })
       const onNotificationError = (msg: string, errMsg: string) => {
         // if (!hideMsg) {
         // return ;
@@ -113,6 +113,7 @@ export const request: RequestConfig = {
         })
       }
       const res = error.response
+      if (!res) return
       const status = res.status
       if (status === 401) {
         noAuthHandle()

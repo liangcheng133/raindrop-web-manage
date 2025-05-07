@@ -16,37 +16,37 @@ export default () => {
   const orgListRequest = useRef<Promise<any> | undefined>() // 存储当前请求
   const [orgTreeList, setOrgTreeList] = useSafeState<OrgTreeItem[]>([])
 
-  const orgListRequestHook: Result<API.Response<API.SysOrgVO[]>, any[]> = useRequest(
-    () => {
-      const request = querySysOrgListAllAPI()
-      orgListRequest.current = request
-      return request
-    },
-    {
-      ready: !isEmpty(token),
-      manual: true,
-      onSuccess: (res) => {
-        if (!res) return
-        orgListRequest.current = undefined
-        /** 排序 */
-        const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
-          return list
-            .map((item) => {
-              const newItem: OrgTreeItem = { ...item }
-              if (item.children?.length) {
-                newItem.children = sortFn(item.children)
-              }
-              return newItem
-            })
-            .sort((a, b) => {
-              return a.order! - b.order!
-            })
-        }
-        const treeList = sortFn(listToTree(res.data))
-        setOrgTreeList(treeList)
+  const queryOrgListAll = async () => {
+    const request = querySysOrgListAllAPI()
+    orgListRequest.current = request
+    const res = await request
+    return res.data
+  }
+
+  const orgListRequestHook: Result<API.SysOrgVO[], any[]> = useRequest(queryOrgListAll, {
+    ready: !isEmpty(token),
+    manual: true,
+    onSuccess: (data) => {
+      if (!data) return
+      orgListRequest.current = undefined
+      /** 排序 */
+      const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
+        return list
+          .map((item) => {
+            const newItem: OrgTreeItem = { ...item }
+            if (item.children?.length) {
+              newItem.children = sortFn(item.children)
+            }
+            return newItem
+          })
+          .sort((a, b) => {
+            return a.order! - b.order!
+          })
       }
+      const treeList = sortFn(listToTree(data))
+      setOrgTreeList(treeList)
     }
-  )
+  })
 
   /**
    * 数据为空时，刷新组织列表
