@@ -1,9 +1,9 @@
-function menu({ ...rest }) {
-  return {
-    wrappers: ['@/wrappers/auth'],
-    ...rest
-  }
-}
+// function menu({ ...rest }) {
+//   return {
+//     wrappers: ['@/wrappers/auth'],
+//     ...rest
+//   }
+// }
 
 export default [
   {
@@ -74,6 +74,12 @@ export default [
                 name: '用户管理',
                 path: '/system/sys/user',
                 component: './System/Sys/User',
+                wrappers: ['@/wrappers/auth']
+              },
+              {
+                name: '角色管理',
+                path: '/system/sys/role',
+                component: './System/Sys/Role',
                 wrappers: ['@/wrappers/auth']
               }
             ]

@@ -1,13 +1,13 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
-import { deleteSysRoleApi, querySysRoleListAllApi, saveSysRoleOrderApi } from '@/services/role'
+import { deleteSysRoleAPI, saveSysRoleOrderAPI } from '@/services/role'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
-import { useRequest, useSafeState } from 'ahooks'
+import { useModel } from '@umijs/max'
+import { useSafeState } from 'ahooks'
 import { Card, Dropdown, Flex, MenuProps, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
-import { isEmpty } from 'es-toolkit/compat'
-import React, { forwardRef, useRef } from 'react'
+import React, { forwardRef, useEffect, useRef } from 'react'
 import {
   DragDropContext,
   Draggable,
@@ -21,10 +21,10 @@ import RoleEditModal, { RoleEditModalRef } from './RoleEditModal'
 
 export type RoleDragListProps = {
   /** 选中角色回调 */
-  onSelect?: (role: API.SystemRole) => void
+  onSelect?: (role: API.SysRoleVO) => void
 }
 
-export type RoleDragListRef = {}
+export type RoleDragListRef = Record<string, never>
 
 const cx = classNameBind(styles)
 
@@ -37,48 +37,34 @@ const DropdownOptions: MenuProps['items'] = [
 const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref) => {
   const { onSelect } = props
 
+  const { list: roleListOrigin, loading: getRoleLoading, refresh: refreshRoleList } = useModel('role')
+
   const roleEditModalRef = useRef<RoleEditModalRef>(null)
-  const [selectedInfo, setSelectedInfo] = useSafeState<API.SystemRole>({})
+  const [selectedInfo, setSelectedInfo] = useSafeState<API.SysRoleVO>({})
+  const [roleList, setRoleList] = useSafeState<API.SysRoleVO[]>([])
 
-  const {
-    data: roleDataList,
-    mutate: setRoleDataList,
-    loading: refreshRoleDataListLoading,
-    run: refreshRoleDataList
-  } = useRequest(() => {
-    return new Promise<API.SystemRole[]>(async (resolve, reject) => {
-      try {
-        const res = await querySysRoleListAllApi()
-        const data = res.data.sort((a, b) => a.order! - b.order!)
-        if (isEmpty(selectedInfo) && data.length) {
-          handleSelect(data[0])
-        }
-        resolve(data)
-      } catch (error) {
-        console.log(error)
-        resolve([])
-      }
-    })
-  })
-
-  // 调整排序
-  const setRoleOrder = (dataList: API.SystemRole[]) => {
-    const roleList = dataList.map((role, index) => ({ ...role, order: index + 1 }))
-    saveSysRoleOrderApi(roleList).then((res) => {
-      if (res.status !== 0) return
-      antdUtil.message?.success('保存成功')
-      refreshRoleDataList()
-    })
-  }
+  useEffect(() => {
+    setRoleList(roleListOrigin)
+  }, [roleListOrigin])
 
   // 处理选中角色
-  const handleSelect = (record: API.SystemRole) => {
+  const handleSelect = (record: API.SysRoleVO) => {
     setSelectedInfo(cloneDeep(record))
-    onSelect && onSelect(cloneDeep(record))
+    onSelect?.(cloneDeep(record))
+  }
+
+  // 调整排序
+  const onUpdateRoleOrder = (dataList: API.SysRoleVO[]) => {
+    const sortRoleList = dataList.map((role, index) => ({ ...role, order: index + 1 }))
+    saveSysRoleOrderAPI(sortRoleList).then((res) => {
+      if (res.status !== 0) return
+      antdUtil.message?.success('排序成功')
+      refreshRoleList(true)
+    })
   }
 
   // 处理下拉菜单点击事件
-  const handleDropdownClick = ({ key }: { key: string }, record: API.SystemRole) => {
+  const handleDropdownClick = ({ key }: { key: string }, record: API.SysRoleVO) => {
     switch (key) {
       case 'editRole':
         roleEditModalRef.current?.open(record)
@@ -89,10 +75,10 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
           content: `此操作将删除角色【${record.name}】，确定删除？`,
           onOk: async () => {
             try {
-              await deleteSysRoleApi({ id: record.id })
-              if (record.id === selectedInfo.id) handleSelect(roleDataList![0])
+              await deleteSysRoleAPI({ id: record.id })
+              if (record.id === selectedInfo.id) handleSelect(roleList[0])
               antdUtil.message?.success('删除成功')
-              refreshRoleDataList()
+              refreshRoleList()
             } catch (error) {
               console.log(error)
             }
@@ -107,22 +93,28 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
     if (!result.destination) {
       return
     }
-    const items = Array.from(roleDataList || [])
+    const items = Array.from(roleList)
     const [reorderedItem] = items.splice(result.source.index, 1)
     items.splice(result.destination.index, 0, reorderedItem)
-    setRoleDataList(items)
-    setRoleOrder(items)
+    setRoleList(items)
+    onUpdateRoleOrder(items)
   }
 
-  // 组织架构卡片extra
-  const orgCardExtra = roleDataList?.length ? (
+  // 处理角色编辑成功事件
+  const onRoleEditSuccess = async () => {
+    const data = await refreshRoleList(true)
+    handleSelect(data[0])
+  }
+
+  // 角色卡片extra
+  const CardExtraRender = (
     <CardExtraOptions
       items={[
         {
           key: 'add',
           icon: 'icon-plus',
           title: '新增组织',
-          onClick: (e) => {
+          onClick: () => {
             roleEditModalRef.current?.open?.()
           }
         },
@@ -130,20 +122,22 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
           key: 'reload',
           icon: 'icon-reload',
           title: '刷新',
-          onClick: refreshRoleDataList
+          onClick: () => {
+            refreshRoleList(true)
+          }
         }
       ]}
     />
-  ) : null
+  )
 
   return (
-    <Card className={cx('organizational-container')} title='角色' extra={orgCardExtra}>
-      <Spin spinning={refreshRoleDataListLoading}>
+    <Card className={cx('organizational-container')} title='角色' extra={CardExtraRender}>
+      <Spin spinning={getRoleLoading}>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId='role-list'>
             {(provided: DroppableProvided) => (
               <div className={cx('role-drag-list-container')} {...provided.droppableProps} ref={provided.innerRef}>
-                {roleDataList?.map((role, index) => (
+                {roleList.map((role, index) => (
                   <Draggable key={role.id} draggableId={role.id!} index={index}>
                     {(provided: DraggableProvided) => (
                       <div
@@ -173,7 +167,7 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
           </Droppable>
         </DragDropContext>
 
-        <RoleEditModal ref={roleEditModalRef} onSuccess={refreshRoleDataList} />
+        <RoleEditModal ref={roleEditModalRef} onSuccess={onRoleEditSuccess} />
       </Spin>
     </Card>
   )

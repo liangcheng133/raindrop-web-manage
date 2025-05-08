@@ -1,4 +1,3 @@
-import { querySysRoleListAllAPI } from '@/services/role'
 import { saveSysUserAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
@@ -37,7 +36,8 @@ export type SysUserForm = Omit<API.SysUserVO, 'role_ids'> & {
 const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, ref) => {
   const { onSuccess, orgId } = props
 
-  const { orgTreeList, refreshOrgList } = useModel('org')
+  const { treeList: orgTreeList, refresh: refreshOrgList } = useModel('org')
+  const { list: roleList, refresh: refreshRoleList } = useModel('role')
   const [form] = Form.useForm()
 
   const [baseFormData, setBaseFormData] = useSafeState<API.SysUserVO>()
@@ -176,8 +176,8 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           }}
           request={async () => {
             try {
-              const res = await querySysRoleListAllAPI()
-              return res.data
+              await refreshRoleList()
+              return roleList
             } catch (error) {
               return []
             }

@@ -1,3 +1,10 @@
+/*
+ * @Date: 2025-02-08 13:47:20
+ * @LastEditTime: 2025-05-08 11:09:30
+ * @Author: CLX
+ * @LastEditors: CLX
+ * @Description: 权限处理工具
+ */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 import React from 'react'
 import { history } from 'umi'

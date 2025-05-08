@@ -1,7 +1,7 @@
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */
-export function getSysUserListAPI(data: Record<string, any>) {
+export function querySysUserListAPI(data: Record<string, any>) {
   return request<API.Response<null>>('/sys/user/list', {
     method: 'post',
     data

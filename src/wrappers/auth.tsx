@@ -2,7 +2,6 @@ import React from 'react'
 import { Navigate, Outlet, useAccess, useLocation, useModel, useSelectedRoutes } from 'umi'
 
 const AuthWrappers: React.FC = () => {
-  const {} = useModel('global')
   const selectedRoutes = useSelectedRoutes()
   const access = useAccess()
   const location = useLocation()

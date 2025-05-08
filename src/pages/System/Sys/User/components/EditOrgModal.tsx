@@ -30,7 +30,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
   const { onSuccess, onFail, orgId } = props
 
   const [form] = Form.useForm()
-  const { orgTreeList, refreshOrgList } = useModel('org')
+  const { treeList: orgTreeList, refresh: refreshOrgList } = useModel('org')
 
   const [visible, setVisible] = useSafeState(false)
   const [baseFormData, setBaseFormData] = useSafeState<API.SysOrgVO>()

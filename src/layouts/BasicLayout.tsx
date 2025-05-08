@@ -10,12 +10,15 @@ import React, { useEffect } from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [isShow, setIsShow] = useSafeState(false)
   const { token } = useModel('user')
-  const { refreshOrgList } = useModel('org')
+  const { refresh: refreshOrgList } = useModel('org')
+  const { refresh: refreshRoleList } = useModel('role')
+
+  const [isShow, setIsShow] = useSafeState(false)
 
   useEffect(() => {
     refreshOrgList(true)
+    refreshRoleList(true)
   }, [token])
 
   return (

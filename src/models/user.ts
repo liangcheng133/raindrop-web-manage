@@ -1,3 +1,10 @@
+/*
+ * @Date: 2025-04-01 16:40:20
+ * @LastEditTime: 2025-05-08 11:28:40
+ * @Author: CLX
+ * @LastEditors: CLX
+ * @Description: 用户、权限信息
+ */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
 import { sysUserAccountLoginAPI, sysUserQueryByIdAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
@@ -33,13 +40,18 @@ export default () => {
 
   /** 登录成功后回调 */
   const loginSuccessAfter = async (res: API.LoginVO) => {
-    localSet(USER_TOKEN_KEY, res.token)
-    localSet(USER_ID_KEY, res.user_id)
-    setToken(res.token || '')
-    setUserId(res.user_id || '')
-    antdUtil.message?.success('登录成功')
-    await getAuth()
-    history.push('/')
+    try {
+      localSet(USER_TOKEN_KEY, res.token)
+      localSet(USER_ID_KEY, res.user_id)
+      setToken(res.token || '')
+      setUserId(res.user_id || '')
+      antdUtil.message?.success('登录成功')
+      await sysUserInfoRequestHook.runAsync()
+      await getAuth()
+      history.push('/')
+    } catch (error) {
+      console.log('[ 登录回调错误 ] >', error)
+    }
   }
 
   /** 用户账号登录 */

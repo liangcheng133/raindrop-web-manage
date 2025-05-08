@@ -37,6 +37,13 @@ declare namespace API {
     parent_id?: string
     order?: integer
   }
+  /** 系统角色 */
+  type SysRoleVO = BasicField & {
+    id?: string
+    name?: string
+    parent_id?: string
+    order?: integer
+  }
   /** 登录 */
   type LoginVO = {
     token?: string

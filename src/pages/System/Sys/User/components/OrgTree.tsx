@@ -34,7 +34,7 @@ const orgTreeTitleOptions: MenuProps['items'] = [
 
 /** 系统组织树 */
 const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
-  const { orgTreeList, refreshOrgLoading, refreshOrgList } = useModel('org')
+  const { treeList: orgTreeList, loading: refreshOrgLoading, refresh: refreshOrgList } = useModel('org')
 
   const [isOrgTreeDrop, setIsOrgTreeDrop] = useSafeState<boolean>(false) // 是否使用组织树拖曳
   const [selectOrgId, setSelectOrgId] = useSafeState<string>() // 选中的组织id
@@ -99,7 +99,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
 
   /** 处理节点设置是否可拖动 */
   const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData: OrgTreeItem) => {
-    if (nodeData.id === 'root_node') return false // 根节点不允许拖动
+    if (nodeData.id === '01') return false // 根节点不允许拖动
     return isOrgTreeDrop
   }
 

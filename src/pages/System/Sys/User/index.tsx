@@ -1,7 +1,6 @@
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
-import { querySysRoleListAllAPI } from '@/services/role'
-import { deleteSysUserAPI, getSysUserListAPI } from '@/services/user'
+import { deleteSysUserAPI, querySysUserListAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
@@ -17,6 +16,7 @@ const cx = classNameBind(styles)
 
 const UserList: React.FC = () => {
   const { ValueEnum } = useModel('dict')
+  const { list: roleList, refresh: refreshRoleList } = useModel('role')
 
   const tableRef = useRef<ActionType>()
   const editUserRef = useRef<EditUserModalRef>(null)
@@ -37,8 +37,9 @@ const UserList: React.FC = () => {
   /** 表格配置 */
   const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
-    api: getSysUserListAPI,
+    api: querySysUserListAPI,
     columns: [
+      { title: '关键字', dataIndex: 'key', hideInTable: true },
       {
         title: '状态',
         dataIndex: 'status',
@@ -46,10 +47,10 @@ const UserList: React.FC = () => {
         fixed: 'left',
         valueEnum: ValueEnum.isActive
       },
-      { title: '名称', dataIndex: 'name' },
-      { title: '账号', dataIndex: 'account', width: 200 },
-      { title: '手机号', dataIndex: 'mobile_phone', width: 160 },
-      { title: '邮箱', dataIndex: 'email', width: 200 },
+      { title: '名称', dataIndex: 'name', search: false },
+      { title: '账号', dataIndex: 'account', width: 200, search: false },
+      { title: '手机号', dataIndex: 'mobile_phone', width: 160, search: false },
+      { title: '邮箱', dataIndex: 'email', width: 200, search: false },
       {
         title: '角色',
         dataIndex: 'role_id',
@@ -61,8 +62,8 @@ const UserList: React.FC = () => {
         },
         request: async () => {
           try {
-            const res = await querySysRoleListAllAPI()
-            return res.data
+            await refreshRoleList()
+            return roleList
           } catch (error) {
             console.log(error)
             return []
