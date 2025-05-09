@@ -49,7 +49,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
   const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
     if (!isEdit) {
       form.setFieldsValue({
-        parent_id: orgId || '0'
+        parent_id: orgId || orgTreeList[0].id
       })
     }
     setVisible(visible)
@@ -81,6 +81,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
       onOpenChange={onOpenChange}
       modalProps={{ destroyOnClose: true, forceRender: true }}>
       <ProFormText name='id' hidden />
+      <ProFormText name='sort' hidden />
       <ProFormText
         rules={[{ required: true, message: '请输入组织名称' }]}
         name='name'
@@ -92,7 +93,6 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
         rules={[{ required: true, message: '请选择上级组织' }]}
         name='parent_id'
         label='上级组织'
-        initialValue='0'
         placeholder='请选择上级组织'
         fieldProps={{
           fieldNames: { label: 'name', value: 'id' },
@@ -101,7 +101,8 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
         request={async () => {
           try {
             await refreshOrgList()
-            return [{ name: '顶级', id: '0', children: orgTreeList }]
+            // return [{ name: '顶级', id: '0', children: orgTreeList }]
+            return orgTreeList
           } catch (error) {
             return []
           }

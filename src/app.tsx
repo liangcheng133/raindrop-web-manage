@@ -1,6 +1,7 @@
 // 运行时配置
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { history, RuntimeAntdConfig, RunTimeLayoutConfig } from '@umijs/max'
+import type { SiderMenuProps } from '@ant-design/pro-layout/es/components/SiderMenu/SiderMenu.d.ts'
+import { history, RuntimeAntdConfig, RunTimeLayoutConfig, useModel } from '@umijs/max'
 import { Badge, Dropdown } from 'antd/lib'
 import { isString } from 'es-toolkit'
 import React from 'react'
@@ -13,7 +14,7 @@ import { noAuthHandle } from './utils/auth'
 import { localGet } from './utils/localStorage'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 
-// 过滤 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
+// 过滤开发环境 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 if (process.env.NODE_ENV === 'development') {
   setupGlobalErrorHandling()
 }
@@ -34,32 +35,7 @@ export const layout: RunTimeLayoutConfig = () => {
     layout: 'mix', // 混合菜单结构
     splitMenus: true, // 自动分离顶部与侧边菜单
     fixSiderbar: true, // 固定侧边栏
-    avatarProps: {
-      src: 'https://wallpapershome.com/images/pages/ico_h/27018.jpg',
-      size: 'small',
-      title: 'Dylan',
-      render: (props, dom) => {
-        const toUserInfo = () => {
-          console.log('用户信息')
-          history.push(appendQueryParams('/personalCenter'))
-        }
-        const onLogout = () => {
-          console.log('退出登录')
-        }
-        return (
-          <Dropdown
-            menu={{
-              items: [
-                { key: 'userInfo', icon: <UserOutlined />, label: '个人信息', onClick: toUserInfo },
-                { type: 'divider' },
-                { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: onLogout }
-              ]
-            }}>
-            {dom}
-          </Dropdown>
-        )
-      }
-    },
+    avatarProps: handleAvatarProps(),
     actionsRender: () => {
       return [
         <Badge key='InfoCircleFilled' count={87} size='small' offset={[0, 10]}>
@@ -148,4 +124,37 @@ export const request: RequestConfig = {
       return response
     }
   ]
+}
+
+/** 处理右上角用户头像以及用户名的渲染配置 */
+const handleAvatarProps = (): SiderMenuProps['avatarProps'] => {
+  const { userInfo } = useModel('user')
+
+  const toUserInfo = () => {
+    history.push(appendQueryParams('/personalCenter'))
+  }
+
+  const onLogout = () => {
+    console.log('退出登录')
+  }
+
+  return {
+    src: userInfo.avatar_url || 'https://wallpapershome.com/images/pages/ico_h/27018.jpg',
+    size: 'small',
+    title: userInfo.name,
+    render: (props, dom) => {
+      return (
+        <Dropdown
+          menu={{
+            items: [
+              { key: 'userInfo', icon: <UserOutlined />, label: '个人信息', onClick: toUserInfo },
+              { type: 'divider' },
+              { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: onLogout }
+            ]
+          }}>
+          {dom}
+        </Dropdown>
+      )
+    }
+  }
 }

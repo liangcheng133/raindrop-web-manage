@@ -26,7 +26,7 @@
     .check-node {
       margin-bottom: 0;
       &.main {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
       }
     }
@@ -53,14 +53,17 @@
       }
       &:hover {
         .dropdown-btn {
-          display: inline-block;
+          visibility: visible;
         }
       }
+      .suffix {
+        margin-left: auto;
+      }
       .dropdown-btn {
-        display: none;
+        visibility: hidden;
         padding: 0 4px;
         &.hide {
-          display: none;
+          visibility: hidden;
         }
         &:hover {
           color: @primary-color;

@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-04-01 16:40:20
- * @LastEditTime: 2025-05-08 11:28:40
+ * @LastEditTime: 2025-05-09 10:04:10
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 用户、权限信息
@@ -12,7 +12,7 @@ import { localGet, localSet } from '@/utils/localStorage'
 import { history } from '@umijs/max'
 import { useRequest, useSafeState } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'
-import { isEmpty } from 'es-toolkit/compat'
+import { useEffect } from 'react'
 
 const queryUserInfoById = async (id: string) => {
   const res = await sysUserQueryByIdAPI(id)
@@ -25,29 +25,37 @@ export default () => {
 
   const sysUserInfoRequestHook: Result<API.SysUserVO, any[]> = useRequest(queryUserInfoById, {
     defaultParams: [userId],
-    ready: !isEmpty(token)
+    manual: true
   })
 
-  /** 获取权限 */
-  const getAuth = () => {
+  useEffect(() => {
+    if (userId) {
+      getUserInfoAndAuth(userId)
+    }
+  }, [])
+
+  /** 获取用户信息以及权限 */
+  const getUserInfoAndAuth = (userId: string) => {
     return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('获取到权限数据')
+      const fetch = async () => {
+        await sysUserInfoRequestHook.runAsync(userId)
+        console.log('获取到用户数据')
         resolve({})
-      }, 1000)
+      }
+      fetch()
     })
   }
 
   /** 登录成功后回调 */
   const loginSuccessAfter = async (res: API.LoginVO) => {
     try {
-      localSet(USER_TOKEN_KEY, res.token)
-      localSet(USER_ID_KEY, res.user_id)
-      setToken(res.token || '')
-      setUserId(res.user_id || '')
+      const { token, user_id } = res
+      localSet(USER_TOKEN_KEY, token)
+      localSet(USER_ID_KEY, user_id)
+      setToken(token!)
+      setUserId(user_id!)
       antdUtil.message?.success('登录成功')
-      await sysUserInfoRequestHook.runAsync()
-      await getAuth()
+      await getUserInfoAndAuth(user_id!)
       history.push('/')
     } catch (error) {
       console.log('[ 登录回调错误 ] >', error)
@@ -68,6 +76,6 @@ export default () => {
     userAccountLogin,
     token,
     userId,
-    userInfo: sysUserInfoRequestHook.data
+    userInfo: sysUserInfoRequestHook.data || {}
   }
 }

@@ -1,24 +1,38 @@
 import { useTable, UseTableColumnsType } from '@/hooks'
+import { querySysUserListAPI } from '@/services/user'
 import { classNameBind } from '@/utils/classnamesBind'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
 import { Flex, Tabs, TabsProps } from 'antd'
-import React, { useRef } from 'react'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
 import RoleAuth from './components/RoleAuth'
 import RoleDragList from './components/RoleDragList'
 import styles from './index.less'
-import { querySysUserListAPI } from '@/services/user'
 
 const cx = classNameBind(styles)
 
-const RolePage: React.FC = () => {
+type UserListTableProps = {
+  roleId?: string
+}
+
+interface UserListTableRef {
+  refresh: () => void
+}
+
+/** 根据角色id查询用户列表 */
+const UserListTable = forwardRef<UserListTableRef, UserListTableProps>(({ roleId }, ref) => {
   const tableRef = useRef<ActionType>()
 
-  const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<API.SysRoleVO>({})
+  const refresh = () => {
+    tableRef.current?.reload()
+  }
+
+  useImperativeHandle(ref, () => ({ refresh }), [])
 
   // 表格列配置
   const columns: UseTableColumnsType<API.SysUserVO>[] = [
-    { title: '名称', dataIndex: 'name' },
+    { title: '关键字', dataIndex: 'key', hideInTable: true },
+    { title: '名称', dataIndex: 'name', search: false },
     { title: '组织', dataIndex: 'org_name', search: false },
     { title: '角色', dataIndex: 'role_names', width: 140, search: false },
     {
@@ -45,25 +59,31 @@ const RolePage: React.FC = () => {
   const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
     api: querySysUserListAPI,
-    manualRequest: true,
     columns: columns,
-    persistenceColumnsKey: 'sys.role.index',
+    persistenceColumnsKey: 'sys.role.user.index',
     handleParams: (params) => {
       return {
         ...params,
-        role_id: [roleSelectedInfo.id]
+        role_id: [roleId]
       }
     }
   })
+  return <ProTable {...tableProps} />
+})
+
+const RolePage: React.FC = () => {
+  const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<API.SysRoleVO>({})
+  const userListTableRef = useRef<UserListTableRef>(null)
 
   const tabItems: TabsProps['items'] = [
-    { key: '1', label: '角色用户', children: <ProTable {...tableProps} /> },
+    { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo.id} /> },
     { key: '2', label: '角色权限', children: <RoleAuth /> }
   ]
 
   const handleRoleDragListSelect = (role: API.SysRoleVO) => {
+    if (role.id === roleSelectedInfo.id) return
     setRoleSelectedInfo(role)
-    tableRef.current?.reload()
+    userListTableRef.current?.refresh()
   }
 
   return (

@@ -69,6 +69,7 @@ const RoleEditModal = forwardRef<RoleEditModalRef, RoleEditModalProps>((props, r
       onOpenChange={onOpenChange}
       modalProps={{ destroyOnClose: true, forceRender: true }}>
       <ProFormText name='id' hidden />
+      <ProFormText name='sort' hidden />
       <ProFormText
         rules={[{ required: true, message: '请输入角色名称' }]}
         name='name'

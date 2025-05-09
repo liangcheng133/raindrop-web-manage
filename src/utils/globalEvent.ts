@@ -6,14 +6,6 @@
  * @Description: 全局事件监听 GlobalEvent(发布订阅者)
  */
 
-/** 发布订阅枚举 */
-export const EventKeyEnum = {
-  // 测试键值
-  test: 'test',
-}
-
-type EventKeyType = keyof typeof EventKeyEnum
-
 /** 发布订阅者 */
 class GlobalEvent {
   private static instance: GlobalEvent
@@ -21,16 +13,20 @@ class GlobalEvent {
   constructor() {
     this.eventObject = {}
   }
-  /** 订阅 */
-  public subscribe(eventKey: EventKeyType, callBack: (...args: any[]) => any) {
+  /** 订阅 - 事件监听 */
+  public subscribe(eventKey: string, callBack: (...args: any[]) => any) {
     if (this.eventObject[eventKey]) {
       this.eventObject[eventKey] = [...this.eventObject[eventKey], callBack]
     } else {
       this.eventObject[eventKey] = [callBack]
     }
   }
-  /** 发布 */
-  public submit(eventKey: EventKeyType, ...params: any) {
+  /** 取消订阅 */
+  public unSubscribe(eventKey: string) {
+    delete this.eventObject[eventKey]
+  }
+  /** 发布 - 事件发出响应 */
+  public submit(eventKey: string, ...params: any) {
     const callBack = this.eventObject[eventKey]
     if (callBack && callBack.length) {
       callBack.forEach((cb: (...args: any[]) => any) => {

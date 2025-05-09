@@ -7,6 +7,7 @@ import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Card, Dropdown, Flex, MenuProps, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import React, { forwardRef, useEffect, useRef } from 'react'
 import {
   DragDropContext,
@@ -45,7 +46,14 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
 
   useEffect(() => {
     setRoleList(roleListOrigin)
+    if (isEmpty(selectedInfo.id)) {
+      handleSelect(roleListOrigin[0])
+    }
   }, [roleListOrigin])
+
+  useEffect(() => {
+    handleSelect(roleListOrigin[0])
+  }, [])
 
   // 处理选中角色
   const handleSelect = (record: API.SysRoleVO) => {
@@ -55,7 +63,7 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
 
   // 调整排序
   const onUpdateRoleOrder = (dataList: API.SysRoleVO[]) => {
-    const sortRoleList = dataList.map((role, index) => ({ ...role, order: index + 1 }))
+    const sortRoleList = dataList.map((role, index) => ({ ...role, sort: index + 1 }))
     saveSysRoleOrderAPI(sortRoleList).then((res) => {
       if (res.status !== 0) return
       antdUtil.message?.success('排序成功')
@@ -64,7 +72,7 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
   }
 
   // 处理下拉菜单点击事件
-  const handleDropdownClick = ({ key }: { key: string }, record: API.SysRoleVO) => {
+  const handleDropdownClick = (key: string, record: API.SysRoleVO) => {
     switch (key) {
       case 'editRole':
         roleEditModalRef.current?.open(record)
@@ -148,9 +156,9 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
                         {...provided.dragHandleProps}>
                         <Flex className={cx('content', selectedInfo.id === role.id && 'active')}>
                           <span className={cx('label')}>{role.name}</span>
-                          <span onClick={(e) => e.stopPropagation()}>
+                          <span className={cx('suffix')} onClick={(e) => e.stopPropagation()}>
                             <Dropdown
-                              menu={{ items: DropdownOptions, onClick: (e) => handleDropdownClick(e, role) }}
+                              menu={{ items: DropdownOptions, onClick: (e) => handleDropdownClick(e.key, role) }}
                               placement='bottomLeft'
                               trigger={['click']}>
                               <IconFont className={cx('dropdown-btn')} type='icon-setting-fill' />

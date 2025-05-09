@@ -99,7 +99,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
 
   /** 处理节点设置是否可拖动 */
   const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData: OrgTreeItem) => {
-    if (nodeData.id === '01') return false // 根节点不允许拖动
+    if (nodeData.id === '007') return false // 根节点不允许拖动
     return isOrgTreeDrop
   }
 

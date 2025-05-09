@@ -44,6 +44,14 @@ declare namespace API {
     parent_id?: string
     order?: integer
   }
+  /** 系统菜单 */
+  type SysMenuVO = BasicField & {
+    id?: string
+    name?: string
+    number?: string
+    type?: number
+    parent_id?: string
+  }
   /** 登录 */
   type LoginVO = {
     token?: string
