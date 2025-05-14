@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-04-07 16:55:00
- * @LastEditTime: 2025-05-08 11:37:05
+ * @LastEditTime: 2025-05-14 10:00:38
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 系统角色数据
@@ -39,7 +39,7 @@ export default () => {
     if (requestRef.current) {
       return requestRef.current
     }
-    if (!isEmpty(token) && (isEmpty(requestHook.data) || isReload)) {
+    if (isEmpty(requestHook.data) || isReload) {
       return requestHook.runAsync()
     }
   }

@@ -10,7 +10,7 @@ type OrgUpdateOrderType = {
 
 const data = [
   {
-    id: '007',
+    id: '1',
     name: '雨滴',
     parent_id: '0',
     order: 1
@@ -30,7 +30,7 @@ const data = [
   {
     id: '4',
     name: '测试组',
-    parent_id: '007',
+    parent_id: '1',
     order: 2
   }
 ]

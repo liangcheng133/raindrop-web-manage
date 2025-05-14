@@ -22,7 +22,7 @@ import RoleEditModal, { RoleEditModalRef } from './RoleEditModal'
 
 export type RoleDragListProps = {
   /** 选中角色回调 */
-  onSelect?: (role: API.SysRoleVO) => void
+  onSelect?: (role?: API.SysRoleVO) => void
 }
 
 export type RoleDragListRef = Record<string, never>
@@ -56,9 +56,11 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
   }, [])
 
   // 处理选中角色
-  const handleSelect = (record: API.SysRoleVO) => {
-    setSelectedInfo(cloneDeep(record))
-    onSelect?.(cloneDeep(record))
+  const handleSelect = (record?: API.SysRoleVO) => {
+    if (record) {
+      setSelectedInfo(cloneDeep(record))
+      onSelect?.(cloneDeep(record))
+    }
   }
 
   // 调整排序

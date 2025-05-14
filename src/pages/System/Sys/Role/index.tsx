@@ -77,13 +77,15 @@ const RolePage: React.FC = () => {
 
   const tabItems: TabsProps['items'] = [
     { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo.id} /> },
-    { key: '2', label: '角色权限', children: <RoleAuth /> }
+    { key: '2', label: '角色权限', children: <RoleAuth roleId={roleSelectedInfo.id} /> }
   ]
 
-  const handleRoleDragListSelect = (role: API.SysRoleVO) => {
-    if (role.id === roleSelectedInfo.id) return
-    setRoleSelectedInfo(role)
-    userListTableRef.current?.refresh()
+  const handleRoleDragListSelect = (role?: API.SysRoleVO) => {
+    if (role) {
+      if (role.id === roleSelectedInfo.id) return
+      setRoleSelectedInfo(role)
+      userListTableRef.current?.refresh()
+    }
   }
 
   return (

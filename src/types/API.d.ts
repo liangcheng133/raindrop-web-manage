@@ -51,6 +51,7 @@ declare namespace API {
     number?: string
     type?: number
     parent_id?: string
+    auth?: number
   }
   /** 登录 */
   type LoginVO = {
