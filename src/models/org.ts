@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-04-07 16:55:00
- * @LastEditTime: 2025-05-14 09:56:06
+ * @LastEditTime: 2025-05-15 10:15:02
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 系统组织数据
@@ -31,7 +31,6 @@ export default () => {
   }
 
   const requestHook: Result<API.SysOrgVO[], any[]> = useRequest(queryOrgListAll, {
-    ready: !isEmpty(token),
     manual: true,
     onSuccess: (data) => {
       requestRef.current = undefined

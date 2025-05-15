@@ -118,13 +118,4 @@ export default {
     }
     res.status(200).json({ status: 0, msg: null, data: null })
   },
-  /** 根据id删除用户 */
-  'POST /sys/user/delete': (req: Request, res: Response) => {
-    const params = req.body
-    data.splice(
-      data.findIndex((item) => item.id === params.id),
-      1
-    )
-    res.status(200).json({ status: 0, msg: null, data: null })
-  }
 }

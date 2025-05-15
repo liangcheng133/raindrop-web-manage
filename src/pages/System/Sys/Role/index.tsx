@@ -64,7 +64,7 @@ const UserListTable = forwardRef<UserListTableRef, UserListTableProps>(({ roleId
     handleParams: (params) => {
       return {
         ...params,
-        role_id: [roleId]
+        role_ids: [roleId]
       }
     }
   })

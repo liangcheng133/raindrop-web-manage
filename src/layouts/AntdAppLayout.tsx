@@ -5,7 +5,7 @@ import React, { useEffect } from 'react'
 
 type AntdAppLayoutProps = {
   children?: React.ReactNode
-  /** 挂载useApp 后触发 */
+  /** 挂载 useApp 后触发 */
   onAfterMount?: () => void
 }
 

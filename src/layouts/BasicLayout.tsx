@@ -9,17 +9,21 @@ import { cloneDeep } from 'es-toolkit'
 import React, { useEffect } from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
+/** 系统布局 */
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { token } = useModel('user')
+  const { token, refresh: refreshUserAndAuthInfo } = useModel('user')
   const { refresh: refreshOrgList } = useModel('org')
   const { refresh: refreshRoleList } = useModel('role')
 
   const [isShow, setIsShow] = useSafeState(false)
 
   useEffect(() => {
-    refreshOrgList(true)
-    refreshRoleList(true)
-  }, [token])
+    if (isShow && token) {
+      refreshOrgList(true)
+      refreshRoleList(true)
+      refreshUserAndAuthInfo()
+    }
+  }, [token, isShow])
 
   return (
     <App>

@@ -6,40 +6,33 @@
  * @Description: 用户、权限信息
  */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
-import { sysUserAccountLoginAPI, sysUserQueryByIdAPI } from '@/services/user'
+import { sysUserAccountLoginAPI } from '@/services/user'
 import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
 import { history } from '@umijs/max'
 import { useRequest, useSafeState } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'
-import { useEffect } from 'react'
 
 const queryUserInfoById = async (id: string) => {
-  const res = await sysUserQueryByIdAPI(id)
-  return res.data
+  // const res = await sysUserQueryByIdAPI(id)
+  // return res.data
+  return Promise.resolve()
 }
 
 export default () => {
   const [token, setToken] = useSafeState<string>(localGet(USER_TOKEN_KEY) || '')
   const [userId, setUserId] = useSafeState<string>(localGet(USER_ID_KEY) || '')
 
-  const sysUserInfoRequestHook: Result<API.SysUserVO, any[]> = useRequest(queryUserInfoById, {
-    defaultParams: [userId],
+  const sysUserInfoRequestHook: Result<any, any[]> = useRequest(queryUserInfoById, {
     manual: true
   })
 
-  useEffect(() => {
-    if (userId) {
-      getUserInfoAndAuth(userId)
-    }
-  }, [])
-
-  /** 获取用户信息以及权限 */
-  const getUserInfoAndAuth = (userId: string) => {
+  /** 刷新用户信息以及权限 */
+  const refresh = () => {
     return new Promise((resolve) => {
       const fetch = async () => {
-        await sysUserInfoRequestHook.runAsync(userId)
-        console.log('获取到用户数据')
+        // await sysUserInfoRequestHook.runAsync(userId)
+        console.log('获取用户数据')
         resolve({})
       }
       fetch()
@@ -52,10 +45,10 @@ export default () => {
       const { token, user_id } = res
       localSet(USER_TOKEN_KEY, token)
       localSet(USER_ID_KEY, user_id)
-      setToken(token!)
-      setUserId(user_id!)
+      setToken(token || '')
+      setUserId(user_id || '')
       antdUtil.message?.success('登录成功')
-      await getUserInfoAndAuth(user_id!)
+      await refresh()
       history.push('/')
     } catch (error) {
       console.log('[ 登录回调错误 ] >', error)
@@ -74,6 +67,7 @@ export default () => {
 
   return {
     userAccountLogin,
+    refresh,
     token,
     userId,
     userInfo: sysUserInfoRequestHook.data || {}

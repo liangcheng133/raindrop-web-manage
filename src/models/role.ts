@@ -24,7 +24,6 @@ export default () => {
   }
 
   const requestHook: Result<API.SysRoleVO[], any[]> = useRequest(queryRoleListAll, {
-    ready: !isEmpty(token),
     manual: true,
     onSuccess: () => {
       requestRef.current = undefined

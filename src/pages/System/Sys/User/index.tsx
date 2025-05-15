@@ -1,12 +1,13 @@
+import { AuthButtons } from '@/components'
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
-import { deleteSysUserAPI, querySysUserListAPI } from '@/services/user'
-import { antdUtil } from '@/utils/antdUtil'
+import { querySysUserListAPI } from '@/services/user'
 import { classNameBind } from '@/utils/classnamesBind'
+import { PlusOutlined } from '@ant-design/icons'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { Flex, Space } from 'antd'
+import { Button, Flex } from 'antd'
 import React, { useRef } from 'react'
 import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
@@ -75,6 +76,7 @@ const UserList: React.FC = () => {
       { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
       {
         valueType: 'option',
+        width: 60,
         renderOperation: (text, record) => {
           return [
             {
@@ -82,20 +84,6 @@ const UserList: React.FC = () => {
               key: 'edit',
               onClick: () => {
                 editUserRef.current?.open(record)
-              }
-            },
-            {
-              name: '删除',
-              key: 'delete',
-              type: 'deleteConfirm',
-              onClick: async () => {
-                try {
-                  await deleteSysUserAPI({ id: record.id })
-                  antdUtil.message?.success('删除成功')
-                  tableRef.current?.reload()
-                } catch (error) {
-                  console.log(error)
-                }
               }
             }
           ]
@@ -110,16 +98,21 @@ const UserList: React.FC = () => {
       }
     },
     rowSelection: {},
-    tableAlertOptionRender: () => {
+    tableAlertOptionRender: ({ selectedRows }) => {
       return (
-        <Space size={16}>
-          <a>编辑角色</a>
-          <a>重置部门</a>
-        </Space>
+        <AuthButtons
+          items={[
+            { title: '启用', buttonProps: { type: 'link', size: 'small' } },
+            { title: '禁用', buttonProps: { type: 'link', size: 'small' } },
+            { title: '编辑', buttonProps: { type: 'link', size: 'small' } }
+          ]}
+        />
       )
     },
     toolBarRender: () => [
-      <EditUserModal ref={editUserRef} key='editUserModal' orgId={orgInfo?.id} onSuccess={onUserSaveSuccess} />
+      <Button key='button' icon={<PlusOutlined />} type='primary' onClick={() => editUserRef.current?.open()}>
+        新建
+      </Button>
     ]
   })
 
@@ -129,6 +122,7 @@ const UserList: React.FC = () => {
         <OrgTree onSelect={onOrgTreeSelect} />
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
+      <EditUserModal ref={editUserRef} key='editUserModal' orgId={orgInfo?.id} onSuccess={onUserSaveSuccess} />
     </PageContainer>
   )
 }
