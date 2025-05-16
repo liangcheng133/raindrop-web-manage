@@ -1,21 +1,20 @@
-import { Button, ButtonProps } from 'antd'
-import React, { MouseEventHandler } from 'react'
-
-type AuthButtonsItems = {
-  key?: string
-  title?: string
-  hide?: boolean
-  buttonProps?: ButtonProps
-  onClick?: MouseEventHandler<HTMLDivElement>
-}
-
-type AuthButtonsProps = React.PropsWithChildren & {
-  items?: AuthButtonsItems[]
-}
+import { Button } from 'antd'
+import { debounce } from 'es-toolkit'
+import React from 'react'
+import { AuthButtonsItem, AuthButtonsProps, ItemClickType } from '../type'
 
 const AuthButtons: React.FC<AuthButtonsProps> = ({ items }) => {
+  const onItemClick: ItemClickType<AuthButtonsItem> = ({ onClick, key }, index) =>
+    debounce(
+      (event) => {
+        onClick?.(event)
+      },
+      300,
+      { edges: ['leading'] }
+    )
+
   return items?.map((item, index) => (
-    <Button key={item.key || `authButton_${index}`} {...item.buttonProps}>
+    <Button key={item.key || `authButton_${index}`} {...item.buttonProps} onClick={onItemClick(item, index)}>
       {item.title}
     </Button>
   ))

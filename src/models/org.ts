@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-04-07 16:55:00
- * @LastEditTime: 2025-05-15 10:15:02
+ * @LastEditTime: 2025-05-16 10:27:52
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 系统组织数据
@@ -18,8 +18,6 @@ export type OrgTreeItem = API.SysOrgVO & {
 }
 
 export default () => {
-  const { token } = useModel('user')
-
   const requestRef = useRef<Promise<any> | undefined>() // 存储当前请求
   const [treeList, setTreeList] = useSafeState<OrgTreeItem[]>([])
 
@@ -33,7 +31,6 @@ export default () => {
   const requestHook: Result<API.SysOrgVO[], any[]> = useRequest(queryOrgListAll, {
     manual: true,
     onSuccess: (data) => {
-      requestRef.current = undefined
       if (!data) return
       /** 排序 */
       const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
@@ -51,6 +48,9 @@ export default () => {
       }
       const treeList = sortFn(listToTree(data))
       setTreeList(treeList)
+    },
+    onFinally: () => {
+      requestRef.current = undefined
     }
   })
 

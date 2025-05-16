@@ -31,6 +31,14 @@ export function deleteSysUserAPI(data: Record<string, any>) {
   })
 }
 
+/** 修改用户状态 */
+export function updateSysUserStatusAPI(data: Record<string, any>) {
+  return request<API.Response<null>>('/sys/user/updateStatus', {
+    method: 'post',
+    data
+  })
+}
+
 /** 用户账号登录 */
 export function sysUserAccountLoginAPI(data: Record<string, any>) {
   return request<API.Response<API.LoginVO>>('/public/accountLogin', {

@@ -13,6 +13,7 @@ import {
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
+import { BaseOptionType } from 'antd/es/select'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
 export type EditUserModalProps = {
@@ -39,6 +40,8 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
   const { treeList: orgTreeList, refresh: refreshOrgList } = useModel('org')
   const { list: roleList, refresh: refreshRoleList } = useModel('role')
   const [form] = Form.useForm()
+
+  console.log('[ EditUserModal ] >', orgTreeList)
 
   const [baseFormData, setBaseFormData] = useSafeState<API.SysUserVO>()
   const [visible, setVisible] = useSafeState(false)
@@ -154,15 +157,8 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           width='md'
           fieldProps={{
             fieldNames: { value: 'id', label: 'name' },
-            treeDefaultExpandAll: true
-          }}
-          request={async () => {
-            try {
-              await refreshOrgList()
-              return orgTreeList
-            } catch (error) {
-              return []
-            }
+            treeDefaultExpandAll: true,
+            treeData: orgTreeList
           }}
         />
         <ProFormSelect
@@ -172,15 +168,8 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
           width='md'
           fieldProps={{
             fieldNames: { value: 'id', label: 'name' },
-            mode: 'multiple'
-          }}
-          request={async () => {
-            try {
-              await refreshRoleList()
-              return roleList
-            } catch (error) {
-              return []
-            }
+            mode: 'multiple',
+            options: roleList as BaseOptionType[]
           }}
         />
       </ProFormGroup>

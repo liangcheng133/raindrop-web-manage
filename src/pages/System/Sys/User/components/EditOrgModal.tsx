@@ -96,16 +96,8 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
         placeholder='请选择上级组织'
         fieldProps={{
           fieldNames: { label: 'name', value: 'id' },
-          treeDefaultExpandAll: true
-        }}
-        request={async () => {
-          try {
-            await refreshOrgList()
-            // return [{ name: '顶级', id: '0', children: orgTreeList }]
-            return orgTreeList
-          } catch (error) {
-            return []
-          }
+          treeDefaultExpandAll: true,
+          treeData: orgTreeList
         }}
       />
     </ModalForm>

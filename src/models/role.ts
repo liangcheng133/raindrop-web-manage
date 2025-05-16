@@ -13,7 +13,6 @@ import { isEmpty } from 'es-toolkit/compat'
 import { useRef } from 'react'
 
 export default () => {
-  const { token } = useModel('user')
   const requestRef = useRef<Promise<any> | undefined>() // 存储当前请求
 
   const queryRoleListAll = async () => {
@@ -25,7 +24,7 @@ export default () => {
 
   const requestHook: Result<API.SysRoleVO[], any[]> = useRequest(queryRoleListAll, {
     manual: true,
-    onSuccess: () => {
+    onFinally: () => {
       requestRef.current = undefined
     }
   })

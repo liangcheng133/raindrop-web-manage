@@ -14,6 +14,8 @@ import { noAuthHandle } from './utils/auth'
 import { localGet } from './utils/localStorage'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
 
+console.log('app start')
+
 // 过滤开发环境 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 if (process.env.NODE_ENV === 'development') {
   setupGlobalErrorHandling()

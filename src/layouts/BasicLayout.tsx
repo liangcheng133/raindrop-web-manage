@@ -6,6 +6,7 @@ import WebTracing from '@web-tracing/core'
 import { useSafeState } from 'ahooks'
 import { App, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import React, { useEffect } from 'react'
 import AntdAppLayout from './AntdAppLayout'
 
@@ -18,7 +19,7 @@ const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isShow, setIsShow] = useSafeState(false)
 
   useEffect(() => {
-    if (isShow && token) {
+    if (isShow && !isEmpty(token)) {
       refreshOrgList(true)
       refreshRoleList(true)
       refreshUserAndAuthInfo()

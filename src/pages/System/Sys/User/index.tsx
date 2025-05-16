@@ -1,7 +1,9 @@
 import { AuthButtons } from '@/components'
+import { AuthButtonsItem } from '@/components/type'
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
-import { querySysUserListAPI } from '@/services/user'
+import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
+import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PlusOutlined } from '@ant-design/icons'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
@@ -14,6 +16,10 @@ import OrgTree from './components/OrgTree'
 import styles from './index.less'
 
 const cx = classNameBind(styles)
+
+const updateStatusRequest = (ids: string[], status: number) => {
+  return updateSysUserStatusAPI({ ids, status })
+}
 
 const UserList: React.FC = () => {
   const { ValueEnum } = useModel('dict')
@@ -52,9 +58,10 @@ const UserList: React.FC = () => {
       { title: '账号', dataIndex: 'account', width: 200, search: false },
       { title: '手机号', dataIndex: 'mobile_phone', width: 160, search: false },
       { title: '邮箱', dataIndex: 'email', width: 200, search: false },
+      { title: '组织', dataIndex: 'org_name', width: 200, search: false },
       {
         title: '角色',
-        dataIndex: 'role_id',
+        dataIndex: 'role_ids',
         width: 140,
         valueType: 'select',
         fieldProps: {
@@ -70,7 +77,7 @@ const UserList: React.FC = () => {
             return []
           }
         },
-        renderText: (text, record) => record.role_name || ''
+        renderText: (text, record) => record.role_names || ''
       },
       { title: '创建时间', dataIndex: 'create_time', width: 200, search: false },
       { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
@@ -82,6 +89,7 @@ const UserList: React.FC = () => {
             {
               name: '编辑',
               key: 'edit',
+              hide: record.is_admin === 1,
               onClick: () => {
                 editUserRef.current?.open(record)
               }
@@ -99,12 +107,54 @@ const UserList: React.FC = () => {
     },
     rowSelection: {},
     tableAlertOptionRender: ({ selectedRows }) => {
+      const itemsRender = ({ buttonProps, ...rest }: AuthButtonsItem): AuthButtonsItem => ({
+        buttonProps: { type: 'link', size: 'small', ...buttonProps },
+        ...rest
+      })
+
+      // 管理员账号不支持修改
+      if (selectedRows.some((item) => item.is_admin === 1)) {
+        return null
+      }
       return (
         <AuthButtons
           items={[
-            { title: '启用', buttonProps: { type: 'link', size: 'small' } },
-            { title: '禁用', buttonProps: { type: 'link', size: 'small' } },
-            { title: '编辑', buttonProps: { type: 'link', size: 'small' } }
+            itemsRender({
+              title: '启用',
+              onClick: () => {
+                antdUtil.modal?.confirm({
+                  title: '提示',
+                  content: '这些账号将被启用, 是否继续?',
+                  onOk: async () => {
+                    await updateStatusRequest(
+                      selectedRows.map((item) => item.id!),
+                      0
+                    )
+                    antdUtil.message?.success(`启用成功`)
+                    tableRef.current?.reload()
+                  }
+                })
+              }
+            }),
+            itemsRender({
+              title: '禁用',
+              onClick: () => {
+                antdUtil.modal?.confirm({
+                  title: '提示',
+                  content: '禁用后，这些账号将无法登陆系统, 是否继续?',
+                  onOk: async () => {
+                    await updateStatusRequest(
+                      selectedRows.map((item) => item.id!),
+                      1
+                    )
+                    antdUtil.message?.success(`禁用成功`)
+                    tableRef.current?.reload()
+                  }
+                })
+              }
+            }),
+            itemsRender({ title: '编辑组织' }),
+            itemsRender({ title: '编辑角色' })
           ]}
         />
       )

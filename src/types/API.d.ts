@@ -29,6 +29,7 @@ declare namespace API {
     org_id?: string
     org_name?: string
     status?: integer
+    is_admin?: number
   }
   /** 系统组织 */
   type SysOrgVO = BasicField & {
