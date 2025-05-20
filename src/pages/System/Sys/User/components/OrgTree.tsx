@@ -11,18 +11,8 @@ import { cloneDeep } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import React, { useEffect, useRef } from 'react'
 import styles from '../index.less'
-import EditOrgModal, { EditOrgModalRef } from './EditOrgModal'
-
-type OrgUpdateOrderType = {
-  id?: string
-  parent_id?: string
-  sort?: number
-}
-
-interface OrgTreeProps extends React.PropsWithChildren {
-  /** 选中树节点回调 */
-  onSelect?: (node?: OrgTreeItem) => void
-}
+import { EditOrgModalRef, OrgTreeProps, OrgUpdateOrderType } from '../type'
+import EditOrgModal from './EditOrgModal'
 
 const cx = classNameBind(styles)
 

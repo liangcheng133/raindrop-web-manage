@@ -9,11 +9,12 @@ import { PlusOutlined } from '@ant-design/icons'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { Button, Flex } from 'antd'
+import { Button, Card, Flex } from 'antd'
 import React, { useRef } from 'react'
-import EditUserModal, { EditUserModalRef } from './components/EditUserModal'
+import EditUserModal from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
 import styles from './index.less'
+import { EditUserModalRef } from './type'
 
 const cx = classNameBind(styles)
 
@@ -23,12 +24,12 @@ const updateStatusRequest = (ids: string[], status: number) => {
 
 const UserList: React.FC = () => {
   const { ValueEnum } = useModel('dict')
-  const { list: roleList, refresh: refreshRoleList } = useModel('role')
 
   const tableRef = useRef<ActionType>()
   const editUserRef = useRef<EditUserModalRef>(null)
 
   const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItem | undefined>() // 选中的组织
+  const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
 
   /** 设置树形选中项并更新列表 */
   const onOrgTreeSelect = (node?: OrgTreeItem) => {
@@ -45,8 +46,12 @@ const UserList: React.FC = () => {
   const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
     api: querySysUserListAPI,
+    search: {
+      labelWidth: 'auto',
+      layout: 'inline'
+    },
     columns: [
-      { title: '关键字', dataIndex: 'key', hideInTable: true },
+      // { title: '关键字', dataIndex: 'key', hideInTable: true }, // 改在表格左上方展示
       {
         title: '状态',
         dataIndex: 'status',
@@ -58,29 +63,12 @@ const UserList: React.FC = () => {
       { title: '账号', dataIndex: 'account', width: 200, search: false },
       { title: '手机号', dataIndex: 'mobile_phone', width: 160, search: false },
       { title: '邮箱', dataIndex: 'email', width: 200, search: false },
-      { title: '组织', dataIndex: 'org_name', width: 200, search: false },
-      {
-        title: '角色',
-        dataIndex: 'role_ids',
-        width: 140,
-        valueType: 'select',
-        fieldProps: {
-          fieldNames: { value: 'id', label: 'name' },
-          mode: 'multiple'
-        },
-        request: async () => {
-          try {
-            await refreshRoleList()
-            return roleList
-          } catch (error) {
-            console.log(error)
-            return []
-          }
-        },
-        renderText: (text, record) => record.role_names || ''
-      },
-      { title: '创建时间', dataIndex: 'create_time', width: 200, search: false },
-      { title: '修改时间', dataIndex: 'update_time', width: 200, search: false },
+      { title: '组织', dataIndex: 'org_name', width: 140, search: false },
+      { title: '角色', dataIndex: 'role_names', width: 140, search: false },
+      { title: '创建时间', dataIndex: 'create_time', width: 170, search: false },
+      { title: '修改时间', dataIndex: 'update_time', width: 170, search: false },
+      { title: '创建人', dataIndex: 'create_time1', width: 160, search: false },
+      { title: '修改人', dataIndex: 'update_time1', width: 160, search: false },
       {
         valueType: 'option',
         width: 60,
@@ -102,6 +90,7 @@ const UserList: React.FC = () => {
     handleParams: (params) => {
       return {
         ...params,
+        key: searchValue,
         org_id: orgInfo?.id
       }
     },
@@ -159,6 +148,16 @@ const UserList: React.FC = () => {
         />
       )
     },
+    toolbar: {
+      search: {
+        allowClear: true,
+        placeholder: '名称/账号/手机号/邮箱',
+        onSearch: (value: string) => {
+          setSearchValue(value)
+          tableRef.current?.reload()
+        }
+      }
+    },
     toolBarRender: () => [
       <Button key='button' icon={<PlusOutlined />} type='primary' onClick={() => editUserRef.current?.open()}>
         新建
@@ -168,7 +167,7 @@ const UserList: React.FC = () => {
 
   return (
     <PageContainer ghost className={cx('user-list-container')}>
-      <Flex gap={16}>
+      <Flex  gap={16}>
         <OrgTree onSelect={onOrgTreeSelect} />
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>

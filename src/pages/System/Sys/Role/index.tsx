@@ -90,7 +90,7 @@ const RolePage: React.FC = () => {
 
   return (
     <PageContainer ghost className={cx('role-list-container')}>
-      <Flex gap={16}>
+      <Flex gap={16} >
         <RoleDragList onSelect={handleRoleDragListSelect} />
         <Tabs className={cx('tabs-container')} items={tabItems} />
       </Flex>

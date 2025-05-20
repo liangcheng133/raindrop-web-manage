@@ -15,30 +15,14 @@ import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import { BaseOptionType } from 'antd/es/select'
 import React, { forwardRef, useImperativeHandle } from 'react'
-
-export type EditUserModalProps = {
-  /** 组织id，不传递时默认顶级组织 */
-  orgId?: string
-  /** 接口成功时回调 */
-  onSuccess?: () => void
-  /** 接口失败时回调 */
-  onFail?: (error: any) => void
-}
-
-export type EditUserModalRef = {
-  open: (data?: API.SysUserVO) => void
-}
-
-export type SysUserForm = Omit<API.SysUserVO, 'role_ids'> & {
-  role_ids?: string[]
-}
+import { EditUserModalProps, EditUserModalRef, SysUserForm } from '../type'
 
 /** 新建、编辑用户信息弹框 */
 const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, ref) => {
   const { onSuccess, orgId } = props
 
-  const { treeList: orgTreeList, refresh: refreshOrgList } = useModel('org')
-  const { list: roleList, refresh: refreshRoleList } = useModel('role')
+  const { treeList: orgTreeList } = useModel('org')
+  const { list: roleList } = useModel('role')
   const [form] = Form.useForm()
 
   console.log('[ EditUserModal ] >', orgTreeList)
