@@ -9,19 +9,32 @@
     }
     .tabs-container {
       width: 1px;
+      height: 100%;
       flex: 1;
       .ant-tabs-nav {
         .ant-tabs-nav-wrap {
           padding: 0 16px;
           background-color: #fff;
-          border-radius: 8px;
+          border-radius: @base-border-radius;
         }
+      }
+    }
+  }
+  .table-container {
+    min-height: calc(70vh - 46px);
+    border-radius: @base-border-radius;
+    background: #fff;
+    :global {
+      .ant-pro-table-search {
+        display: none;
       }
     }
   }
 }
 
 .role-auth-container {
+  height: calc(70vh - 46px);
+  overflow-y: auto;
   :global {
     .check-node {
       margin-bottom: 0;
@@ -37,13 +50,12 @@
 }
 
 .role-drag-list-container {
-  height: 100%;
   .role-drag-list-item {
     padding: 0 0 4px 0;
     line-height: 28px;
     .content {
       padding: 0 0 0 4px;
-      border-radius: 6px;
+      border-radius: @base-border-radius;
       cursor: pointer;
       user-select: none;
       transition: background-color 0.3s;

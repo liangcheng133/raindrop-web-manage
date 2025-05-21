@@ -1,18 +1,31 @@
 import { saveSysOrgAPI } from '@/services/org'
+import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/Type'
 import { antdUtil } from '@/utils/antdUtil'
-import { ModalForm, ModalFormProps, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
+import { ModalForm, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
-import { EditOrgModalProps, EditOrgModalRef } from '../type'
+
+export type EditOrgModalPropsType = {
+  /** 组织id，不传递时默认顶级组织 */
+  orgId?: string
+  onSuccess?: () => void
+  onFail?: (error: any) => void
+}
+export type EditOrgModalRefType = {
+  /**
+   * 打开弹框
+   * @param {*} data 编辑数据，传递时则为编辑模式
+   */
+  open: (data?: API.SysOrgVO) => void
+  close: () => void
+}
 
 /** 新建、编辑组织弹框 */
-const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref) => {
-  const { onSuccess, onFail, orgId } = props
-
+const EditOrgModal = forwardRef<EditOrgModalRefType, EditOrgModalPropsType>(({ onSuccess, onFail, orgId }, ref) => {
   const [form] = Form.useForm()
-  const { treeList: orgTreeList, refresh: refreshOrgList } = useModel('org')
+  const { treeList: orgTreeList } = useModel('org')
 
   const [visible, setVisible] = useSafeState(false)
   const [baseFormData, setBaseFormData] = useSafeState<API.SysOrgVO>()
@@ -28,7 +41,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
     setVisible(false)
   }
 
-  const onOpenChange: ModalFormProps['onOpenChange'] = (visible) => {
+  const onOpenChange: ModalFormOnOpenChangeType = (visible) => {
     if (!isEdit) {
       form.setFieldsValue({
         parent_id: orgId || orgTreeList[0].id
@@ -37,7 +50,7 @@ const EditOrgModal = forwardRef<EditOrgModalRef, EditOrgModalProps>((props, ref)
     setVisible(visible)
   }
 
-  const onFinish: ModalFormProps['onFinish'] = async (values) => {
+  const onFinish: ModalFormOnFinishType = async (values) => {
     try {
       await saveSysOrgAPI(values)
       antdUtil.message?.success('保存成功')

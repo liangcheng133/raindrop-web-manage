@@ -5,23 +5,26 @@ import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
 import { Flex, Tabs, TabsProps } from 'antd'
 import React, { forwardRef, useImperativeHandle, useRef } from 'react'
+import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from '../User/components/EditOrgOrRoleModal'
 import RoleAuth from './components/RoleAuth'
 import RoleDragList from './components/RoleDragList'
 import styles from './index.less'
 
-const cx = classNameBind(styles)
-
-type UserListTableProps = {
+type UserListTablePropsType = {
   roleId?: string
 }
-
-interface UserListTableRef {
+type UserListTableRefType = {
   refresh: () => void
 }
 
+const cx = classNameBind(styles)
+
 /** 根据角色id查询用户列表 */
-const UserListTable = forwardRef<UserListTableRef, UserListTableProps>(({ roleId }, ref) => {
+const UserListTable = forwardRef<UserListTableRefType, UserListTablePropsType>(({ roleId }, ref) => {
   const tableRef = useRef<ActionType>()
+  const editOrgOrRoleRef = useRef<EditOrgOrRoleModalRefType>(null)
+
+  const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
 
   const refresh = () => {
     tableRef.current?.reload()
@@ -31,24 +34,21 @@ const UserListTable = forwardRef<UserListTableRef, UserListTableProps>(({ roleId
 
   // 表格列配置
   const columns: UseTableColumnsType<API.SysUserVO>[] = [
-    { title: '关键字', dataIndex: 'key', hideInTable: true },
     { title: '名称', dataIndex: 'name', search: false },
     { title: '组织', dataIndex: 'org_name', search: false },
     { title: '角色', dataIndex: 'role_names', width: 140, search: false },
     {
       valueType: 'option',
+      width: 100,
       renderOperation: (text, record, index, action, colProps) => {
         return [
           {
             name: '编辑',
             key: 'edit',
-            onClick: () => {}
-          },
-          {
-            name: '删除',
-            key: 'delete',
-            type: 'deleteConfirm',
-            onClick: async () => {}
+            hide: record.is_admin === 1,
+            onClick: () => {
+              editOrgOrRoleRef.current?.open({ data: record, type: 'role' })
+            }
           }
         ]
       }
@@ -58,22 +58,43 @@ const UserListTable = forwardRef<UserListTableRef, UserListTableProps>(({ roleId
   // 表格配置
   const tableProps = useTable<API.SysUserVO>({
     actionRef: tableRef,
+    search: {
+      labelWidth: 'auto',
+      layout: 'inline',
+      optionRender: false
+    },
     api: querySysUserListAPI,
     columns: columns,
     persistenceColumnsKey: 'sys.role.user.index',
+    toolbar: {
+      search: {
+        allowClear: true,
+        placeholder: '名称/账号/手机号/邮箱',
+        onSearch: (value: string) => {
+          setSearchValue(value)
+          tableRef.current?.reload()
+        }
+      }
+    },
     handleParams: (params) => {
       return {
         ...params,
+        key: searchValue,
         role_ids: [roleId]
       }
     }
   })
-  return <ProTable {...tableProps} />
+  return (
+    <>
+      <ProTable className={cx('table-container')} {...tableProps} />
+      <EditOrgOrRoleModal ref={editOrgOrRoleRef} onSuccess={refresh} />
+    </>
+  )
 })
 
-const RolePage: React.FC = () => {
+const RolePageIndex: React.FC = () => {
   const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<API.SysRoleVO>({})
-  const userListTableRef = useRef<UserListTableRef>(null)
+  const userListTableRef = useRef<UserListTableRefType>(null)
 
   const tabItems: TabsProps['items'] = [
     { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo.id} /> },
@@ -90,7 +111,7 @@ const RolePage: React.FC = () => {
 
   return (
     <PageContainer ghost className={cx('role-list-container')}>
-      <Flex gap={16} >
+      <Flex className={cx('flex-container')} gap={16}>
         <RoleDragList onSelect={handleRoleDragListSelect} />
         <Tabs className={cx('tabs-container')} items={tabItems} />
       </Flex>
@@ -98,4 +119,4 @@ const RolePage: React.FC = () => {
   )
 }
 
-export default RolePage
+export default RolePageIndex

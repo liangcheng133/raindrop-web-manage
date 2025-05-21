@@ -1,5 +1,6 @@
 import { CardExtraOptions } from '@/components'
 import { IconFont } from '@/components/rd-ui'
+import { ROLE_ID_MAIN } from '@/constants'
 import { deleteSysRoleAPI, saveSysRoleOrderAPI } from '@/services/role'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
@@ -7,7 +8,6 @@ import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Card, Dropdown, Flex, MenuProps, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
-import { isEmpty } from 'es-toolkit/compat'
 import React, { forwardRef, useEffect, useRef } from 'react'
 import {
   DragDropContext,
@@ -18,14 +18,14 @@ import {
   DropResult
 } from 'react-beautiful-dnd'
 import styles from '../index.less'
-import RoleEditModal, { RoleEditModalRef } from './RoleEditModal'
+import RoleEditModal, { RoleEditModalRefType } from './RoleEditModal'
+import { isEmpty } from 'es-toolkit/compat'
 
-export type RoleDragListProps = {
+export type RoleDragListPropsType = {
   /** 选中角色回调 */
   onSelect?: (role?: API.SysRoleVO) => void
 }
-
-export type RoleDragListRef = Record<string, never>
+export type RoleDragListRefType = {}
 
 const cx = classNameBind(styles)
 
@@ -35,12 +35,12 @@ const DropdownOptions: MenuProps['items'] = [
 ]
 
 /** 角色可拖动排序列表 */
-const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref) => {
+const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((props, ref) => {
   const { onSelect } = props
 
   const { list: roleListOrigin, loading: getRoleLoading, refresh: refreshRoleList } = useModel('role')
 
-  const roleEditModalRef = useRef<RoleEditModalRef>(null)
+  const roleEditModalRef = useRef<RoleEditModalRefType>(null)
   const [selectedInfo, setSelectedInfo] = useSafeState<API.SysRoleVO>({})
   const [roleList, setRoleList] = useSafeState<API.SysRoleVO[]>([])
 
@@ -58,8 +58,13 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
   // 处理选中角色
   const handleSelect = (record?: API.SysRoleVO) => {
     if (record) {
-      setSelectedInfo(cloneDeep(record))
-      onSelect?.(cloneDeep(record))
+      let data = record || {}
+      if (selectedInfo.id === data.id) {
+        // 取消选中
+        data = {}
+      }
+      setSelectedInfo(cloneDeep(data))
+      onSelect?.(cloneDeep(data))
     }
   }
 
@@ -158,14 +163,16 @@ const RoleDragList = forwardRef<RoleDragListRef, RoleDragListProps>((props, ref)
                         {...provided.dragHandleProps}>
                         <Flex className={cx('content', selectedInfo.id === role.id && 'active')}>
                           <span className={cx('label')}>{role.name}</span>
-                          <span className={cx('suffix')} onClick={(e) => e.stopPropagation()}>
-                            <Dropdown
-                              menu={{ items: DropdownOptions, onClick: (e) => handleDropdownClick(e.key, role) }}
-                              placement='bottomLeft'
-                              trigger={['click']}>
-                              <IconFont className={cx('dropdown-btn')} type='icon-setting-fill' />
-                            </Dropdown>
-                          </span>
+                          {role.id !== ROLE_ID_MAIN && (
+                            <span className={cx('suffix')} onClick={(e) => e.stopPropagation()}>
+                              <Dropdown
+                                menu={{ items: DropdownOptions, onClick: (e) => handleDropdownClick(e.key, role) }}
+                                placement='bottomLeft'
+                                trigger={['click']}>
+                                <IconFont className={cx('dropdown-btn')} type='icon-setting-fill' />
+                              </Dropdown>
+                            </span>
+                          )}
                         </Flex>
                       </div>
                     )}

@@ -15,10 +15,22 @@ import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import { BaseOptionType } from 'antd/es/select'
 import React, { forwardRef, useImperativeHandle } from 'react'
-import { EditUserModalProps, EditUserModalRef, SysUserForm } from '../type'
+
+export type EditUserModalPropsType = {
+  /** 组织id，不传递时默认顶级组织 */
+  orgId?: string
+  onSuccess?: () => void
+  onFail?: (error: any) => void
+}
+export type EditUserModalRefType = {
+  open: (data?: API.SysUserVO) => void
+}
+export type SysUserFormType = Omit<API.SysUserVO, 'role_ids'> & {
+  role_ids?: string[]
+}
 
 /** 新建、编辑用户信息弹框 */
-const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, ref) => {
+const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((props, ref) => {
   const { onSuccess, orgId } = props
 
   const { treeList: orgTreeList } = useModel('org')
@@ -34,7 +46,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
   const isEdit = !!baseFormData
 
   const open = (data?: API.SysUserVO) => {
-    const formData: SysUserForm = {
+    const formData: SysUserFormType = {
       ...data,
       role_ids: data?.role_ids?.split(',')
     }
@@ -54,7 +66,7 @@ const EditUserModal = forwardRef<EditUserModalRef, EditUserModalProps>((props, r
     setVisible(visible)
   }
 
-  const onFinish = async (values: SysUserForm) => {
+  const onFinish = async (values: SysUserFormType) => {
     try {
       console.log('[ values ] >', values)
       const params: API.SysUserVO = {

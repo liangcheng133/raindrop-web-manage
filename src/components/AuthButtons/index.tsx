@@ -13,11 +13,13 @@ const AuthButtons: React.FC<AuthButtonsProps> = ({ items }) => {
       { edges: ['leading'] }
     )
 
-  return items?.map((item, index) => (
-    <Button key={item.key || `authButton_${index}`} {...item.buttonProps} onClick={onItemClick(item, index)}>
-      {item.title}
-    </Button>
-  ))
+  return items
+    ?.filter((item) => !item.hide)
+    .map((item, index) => (
+      <Button key={item.key || `authButton_${index}`} {...item.buttonProps} onClick={onItemClick(item, index)}>
+        {item.title}
+      </Button>
+    ))
 }
 
 export default AuthButtons

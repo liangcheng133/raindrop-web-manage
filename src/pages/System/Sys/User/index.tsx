@@ -9,12 +9,12 @@ import { PlusOutlined } from '@ant-design/icons'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { Button, Card, Flex } from 'antd'
+import { Button, Flex } from 'antd'
 import React, { useRef } from 'react'
-import EditUserModal from './components/EditUserModal'
+import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from './components/EditOrgOrRoleModal'
+import EditUserModal, { EditUserModalRefType } from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
 import styles from './index.less'
-import { EditUserModalRef } from './type'
 
 const cx = classNameBind(styles)
 
@@ -22,11 +22,12 @@ const updateStatusRequest = (ids: string[], status: number) => {
   return updateSysUserStatusAPI({ ids, status })
 }
 
-const UserList: React.FC = () => {
+const UserPageIndex: React.FC = () => {
   const { ValueEnum } = useModel('dict')
 
   const tableRef = useRef<ActionType>()
-  const editUserRef = useRef<EditUserModalRef>(null)
+  const editOrgOrRoleRef = useRef<EditOrgOrRoleModalRefType>(null)
+  const editUserRef = useRef<EditUserModalRefType>(null)
 
   const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItem | undefined>() // 选中的组织
   const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
@@ -37,8 +38,8 @@ const UserList: React.FC = () => {
     tableRef.current?.reload()
   }
 
-  /** 处理编辑用户成功回调 */
-  const onUserSaveSuccess = () => {
+  /** 处理成功回调 */
+  const handleOnSuccess = () => {
     tableRef.current?.reload()
   }
 
@@ -142,8 +143,20 @@ const UserList: React.FC = () => {
                 })
               }
             }),
-            itemsRender({ title: '编辑组织' }),
-            itemsRender({ title: '编辑角色' })
+            itemsRender({
+              title: '编辑组织',
+              hide: selectedRows.length > 1,
+              onClick: () => {
+                editOrgOrRoleRef.current?.open({ data: selectedRows[0], type: 'org' })
+              }
+            }),
+            itemsRender({
+              title: '编辑角色',
+              hide: selectedRows.length > 1,
+              onClick: () => {
+                editOrgOrRoleRef.current?.open({ data: selectedRows[0], type: 'role' })
+              }
+            })
           ]}
         />
       )
@@ -167,13 +180,14 @@ const UserList: React.FC = () => {
 
   return (
     <PageContainer ghost className={cx('user-list-container')}>
-      <Flex  gap={16}>
+      <Flex gap={16}>
         <OrgTree onSelect={onOrgTreeSelect} />
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
-      <EditUserModal ref={editUserRef} key='editUserModal' orgId={orgInfo?.id} onSuccess={onUserSaveSuccess} />
+      <EditUserModal ref={editUserRef} orgId={orgInfo?.id} onSuccess={handleOnSuccess} />
+      <EditOrgOrRoleModal ref={editOrgOrRoleRef} onSuccess={handleOnSuccess} />
     </PageContainer>
   )
 }
 
-export default UserList
+export default UserPageIndex

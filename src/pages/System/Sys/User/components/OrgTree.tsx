@@ -11,8 +11,18 @@ import { cloneDeep } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import React, { useEffect, useRef } from 'react'
 import styles from '../index.less'
-import { EditOrgModalRef, OrgTreeProps, OrgUpdateOrderType } from '../type'
-import EditOrgModal from './EditOrgModal'
+import EditOrgModal, { EditOrgModalRefType } from './EditOrgModal'
+import { ORG_ID_MAIN } from '@/constants'
+
+export type OrgTreePropsType = React.PropsWithChildren & {
+  /** 选中树节点回调 */
+  onSelect?: (node?: OrgTreeItem) => void
+}
+export type OrgUpdateOrderParamType = {
+  id?: string
+  parent_id?: string
+  sort?: number
+}
 
 const cx = classNameBind(styles)
 
@@ -23,14 +33,14 @@ const orgTreeTitleOptions: MenuProps['items'] = [
 ]
 
 /** 系统组织树 */
-const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
+const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
   const { treeList: orgTreeList, loading: refreshOrgLoading, refresh: refreshOrgList } = useModel('org')
 
   const [isOrgTreeDrop, setIsOrgTreeDrop] = useSafeState<boolean>(false) // 是否使用组织树拖曳
   const [selectOrgId, setSelectOrgId] = useSafeState<string>() // 选中的组织id
   const [orgTreeListCopy, setOrgTreeListCopy] = useSafeState<OrgTreeItem[]>([]) // 组织树数据
 
-  const editOrgModalRef = useRef<EditOrgModalRef>(null)
+  const editOrgModalRef = useRef<EditOrgModalRefType>(null)
 
   useEffect(() => {
     setOrgTreeListCopy(orgTreeList)
@@ -89,7 +99,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
 
   /** 处理节点设置是否可拖动 */
   const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData: OrgTreeItem) => {
-    if (nodeData.id === '1') return false // 根节点不允许拖动
+    if (nodeData.id === ORG_ID_MAIN) return false // 根节点不允许拖动
     return isOrgTreeDrop
   }
 
@@ -144,14 +154,16 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
     return (
       <div className={cx('tree-title')}>
         <span className={cx('tree-title-txt')}> {data.name}</span>
-        <span onClick={(e) => e.stopPropagation()}>
-          <Dropdown
-            menu={{ items: orgTreeTitleOptions, onClick: (e) => onOrgTreeTitleClick(e, data) }}
-            placement='bottomLeft'
-            trigger={['click']}>
-            <IconFont className={cx('tree-title-icon', isOrgTreeDrop && 'hide')} type='icon-setting-fill' />
-          </Dropdown>
-        </span>
+        {data.id !== ORG_ID_MAIN && (
+          <span onClick={(e) => e.stopPropagation()}>
+            <Dropdown
+              menu={{ items: orgTreeTitleOptions, onClick: (e) => onOrgTreeTitleClick(e, data) }}
+              placement='bottomLeft'
+              trigger={['click']}>
+              <IconFont className={cx('tree-title-icon', isOrgTreeDrop && 'hide')} type='icon-setting-fill' />
+            </Dropdown>
+          </span>
+        )}
       </div>
     )
   }
@@ -178,7 +190,7 @@ const OrgTree: React.FC<OrgTreeProps> = ({ onSelect }) => {
           hide: !isOrgTreeDrop,
           onClick: async () => {
             try {
-              const data: OrgUpdateOrderType[] = []
+              const data: OrgUpdateOrderParamType[] = []
               // 递归树，并且更新排序
               const loop = (orgList: OrgTreeItem[], parent_id: string) => {
                 orgList.forEach((item, index) => {

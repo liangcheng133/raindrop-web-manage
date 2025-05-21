@@ -4,9 +4,20 @@ import { classNameBind } from '@/utils/classnamesBind'
 import { useRequest, useSafeState } from 'ahooks'
 import { Button, Card, Checkbox, Spin } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
-import React, { forwardRef, ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import styles from '../index.less'
-import { MenuOptionsItemType, MenuTreeItemType, RoleAuthProps, RoleAuthRef } from '../type'
+
+export type MenuTreeItemType = API.SysMenuVO & {
+  children?: MenuTreeItemType[]
+}
+export type MenuOptionsItemType = Omit<MenuTreeItemType, 'children'> & {
+  label: string
+  value: string
+  children?: MenuOptionsItemType[]
+}
+export type RoleAuthPropsType = React.FC<{
+  roleId?: string
+}>
 
 const cx = classNameBind(styles)
 
@@ -18,7 +29,7 @@ const queryMenuListAll = (roleIds?: Array<String>) => {
 }
 
 /** 角色权限配置 */
-const RoleAuth = forwardRef<RoleAuthRef, RoleAuthProps>(({ roleId }, ref) => {
+const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   const { data, loading, runAsync } = useRequest(queryMenuListAll(roleId ? [roleId] : []), {
     refreshDeps: [roleId]
   })
@@ -175,6 +186,6 @@ const RoleAuth = forwardRef<RoleAuthRef, RoleAuthProps>(({ roleId }, ref) => {
       </Spin>
     </Card>
   )
-})
+}
 
 export default RoleAuth

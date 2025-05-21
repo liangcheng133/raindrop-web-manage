@@ -5,7 +5,7 @@ import { useSafeState } from 'ahooks'
 import { Form } from 'antd'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
-export type RoleEditModalRef = {
+export type RoleEditModalRefType = {
   /**
    * 打开弹框
    * @param {*} data 编辑数据，传递时则为编辑模式
@@ -15,7 +15,7 @@ export type RoleEditModalRef = {
   close: () => void
 }
 
-export type RoleEditModalProps = {
+export type RoleEditModalPropsType = {
   /** 接口成功时回调 */
   onSuccess?: () => void
   /** 接口失败时回调 */
@@ -23,7 +23,7 @@ export type RoleEditModalProps = {
 }
 
 /** 新建、编辑角色弹框 */
-const RoleEditModal = forwardRef<RoleEditModalRef, RoleEditModalProps>((props, ref) => {
+const RoleEditModal = forwardRef<RoleEditModalRefType, RoleEditModalPropsType>((props, ref) => {
   const { onSuccess, onFail } = props
   const [form] = Form.useForm()
   const [visible, setVisible] = useSafeState(false)

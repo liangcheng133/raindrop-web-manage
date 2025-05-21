@@ -74,7 +74,7 @@ export default function useTable<T>(useTableProps: UseTableType<T, any>): ProTab
       const params = handleTableParams(...args, options)
 
       try {
-        const res = await api(params) as RequestData<T>
+        const res = (await api(params)) as RequestData<T>
 
         const response = {
           data: res.data,

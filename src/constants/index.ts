@@ -9,3 +9,12 @@ export const USER_TOKEN_KEY = 'token'
 
 /** localstorage用户id的key */
 export const USER_ID_KEY = 'user_id'
+
+/** 系统级管理员id（或者可以判断用户信息中的is_admin字段） */
+export const USER_ID_MAIN = "1"
+
+/** 顶级组织id */
+export const ORG_ID_MAIN = "1"
+
+/** 系统级管理员角色id */
+export const ROLE_ID_MAIN = "1"
