@@ -1,4 +1,5 @@
 import { saveSysUserAPI } from '@/services/user'
+import { SysUserVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -23,9 +24,9 @@ export type EditUserModalPropsType = {
   onFail?: (error: any) => void
 }
 export type EditUserModalRefType = {
-  open: (data?: API.SysUserVO) => void
+  open: (data?: SysUserVOType) => void
 }
-export type SysUserFormType = Omit<API.SysUserVO, 'role_ids'> & {
+export type SysUserFormType = Omit<SysUserVOType, 'role_ids'> & {
   role_ids?: string[]
 }
 
@@ -37,15 +38,13 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
   const { list: roleList } = useModel('role')
   const [form] = Form.useForm()
 
-  console.log('[ EditUserModal ] >', orgTreeList)
-
-  const [baseFormData, setBaseFormData] = useSafeState<API.SysUserVO>()
+  const [baseFormData, setBaseFormData] = useSafeState<SysUserVOType>()
   const [visible, setVisible] = useSafeState(false)
 
   // 是否编辑数据
   const isEdit = !!baseFormData
 
-  const open = (data?: API.SysUserVO) => {
+  const open = (data?: SysUserVOType) => {
     const formData: SysUserFormType = {
       ...data,
       role_ids: data?.role_ids?.split(',')
@@ -68,8 +67,7 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
 
   const onFinish = async (values: SysUserFormType) => {
     try {
-      console.log('[ values ] >', values)
-      const params: API.SysUserVO = {
+      const params: SysUserVOType = {
         ...values,
         role_ids: values.role_ids?.join(',')
       }
@@ -78,7 +76,6 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
       onSuccess?.()
       return true
     } catch (error) {
-      console.log(error)
       return false
     }
   }

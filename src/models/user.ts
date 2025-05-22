@@ -6,7 +6,7 @@
  * @Description: 用户、权限信息
  */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
-import { sysUserAccountLoginAPI } from '@/services/user'
+import { LoginVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
 import { history } from '@umijs/max'
@@ -40,7 +40,7 @@ export default () => {
   }
 
   /** 登录成功后回调 */
-  const loginSuccessAfter = async (res: API.LoginVO) => {
+  const handleLoginSuccess = async (res: LoginVOType) => {
     try {
       const { token, user_id } = res
       localSet(USER_TOKEN_KEY, token)
@@ -55,18 +55,8 @@ export default () => {
     }
   }
 
-  /** 用户账号登录 */
-  const userAccountLogin = async (params: any) => {
-    try {
-      const res = await sysUserAccountLoginAPI(params)
-      loginSuccessAfter(res.data)
-    } catch (error) {
-      console.log('登录失败', error)
-    }
-  }
-
   return {
-    userAccountLogin,
+    handleLoginSuccess,
     refresh,
     token,
     userId,

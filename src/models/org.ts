@@ -6,6 +6,7 @@
  * @Description: 系统组织数据
  */
 import { querySysOrgListAllAPI } from '@/services/org'
+import { SysOrgVOType } from '@/types/API'
 import { listToTree } from '@/utils'
 import { useModel } from '@umijs/max'
 import { useRequest, useSafeState } from 'ahooks'
@@ -13,7 +14,7 @@ import { Result } from 'ahooks/lib/useRequest/src/types'
 import { isEmpty } from 'es-toolkit/compat'
 import { useRef } from 'react'
 
-export type OrgTreeItem = API.SysOrgVO & {
+export type OrgTreeItem = SysOrgVOType & {
   children?: OrgTreeItem[]
 }
 
@@ -28,7 +29,7 @@ export default () => {
     return res.data || []
   }
 
-  const requestHook: Result<API.SysOrgVO[], any[]> = useRequest(queryOrgListAll, {
+  const requestHook: Result<SysOrgVOType[], any[]> = useRequest(queryOrgListAll, {
     manual: true,
     onSuccess: (data) => {
       if (!data) return

@@ -15,6 +15,7 @@ import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from './components/Edit
 import EditUserModal, { EditUserModalRefType } from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
 import styles from './index.less'
+import { SysUserVOType } from '@/types/API'
 
 const cx = classNameBind(styles)
 
@@ -44,7 +45,7 @@ const UserPageIndex: React.FC = () => {
   }
 
   /** 表格配置 */
-  const tableProps = useTable<API.SysUserVO>({
+  const tableProps = useTable<SysUserVOType>({
     actionRef: tableRef,
     api: querySysUserListAPI,
     search: {

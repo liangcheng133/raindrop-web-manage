@@ -20,10 +20,11 @@ import {
 import styles from '../index.less'
 import RoleEditModal, { RoleEditModalRefType } from './RoleEditModal'
 import { isEmpty } from 'es-toolkit/compat'
+import { SysRoleVOType } from '@/types/API'
 
 export type RoleDragListPropsType = {
   /** 选中角色回调 */
-  onSelect?: (role?: API.SysRoleVO) => void
+  onSelect?: (role?: SysRoleVOType) => void
 }
 export type RoleDragListRefType = {}
 
@@ -41,8 +42,8 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   const { list: roleListOrigin, loading: getRoleLoading, refresh: refreshRoleList } = useModel('role')
 
   const roleEditModalRef = useRef<RoleEditModalRefType>(null)
-  const [selectedInfo, setSelectedInfo] = useSafeState<API.SysRoleVO>({})
-  const [roleList, setRoleList] = useSafeState<API.SysRoleVO[]>([])
+  const [selectedInfo, setSelectedInfo] = useSafeState<SysRoleVOType>({})
+  const [roleList, setRoleList] = useSafeState<SysRoleVOType[]>([])
 
   useEffect(() => {
     setRoleList(roleListOrigin)
@@ -56,20 +57,16 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   }, [])
 
   // 处理选中角色
-  const handleSelect = (record?: API.SysRoleVO) => {
+  const handleSelect = (record?: SysRoleVOType) => {
     if (record) {
-      let data = record || {}
-      if (selectedInfo.id === data.id) {
-        // 取消选中
-        data = {}
-      }
+      let data = record
       setSelectedInfo(cloneDeep(data))
       onSelect?.(cloneDeep(data))
     }
   }
 
   // 调整排序
-  const onUpdateRoleOrder = (dataList: API.SysRoleVO[]) => {
+  const onUpdateRoleOrder = (dataList: SysRoleVOType[]) => {
     const sortRoleList = dataList.map((role, index) => ({ ...role, sort: index + 1 }))
     saveSysRoleOrderAPI(sortRoleList).then((res) => {
       if (res.status !== 0) return
@@ -79,7 +76,7 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   }
 
   // 处理下拉菜单点击事件
-  const handleDropdownClick = (key: string, record: API.SysRoleVO) => {
+  const handleDropdownClick = (key: string, record: SysRoleVOType) => {
     switch (key) {
       case 'editRole':
         roleEditModalRef.current?.open(record)

@@ -1,4 +1,5 @@
 import { saveSysRoleAPI } from '@/services/role'
+import { SysRoleVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ModalFormProps, ProFormText } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'
@@ -10,7 +11,7 @@ export type RoleEditModalRefType = {
    * 打开弹框
    * @param {*} data 编辑数据，传递时则为编辑模式
    */
-  open: (data?: API.SysRoleVO) => void
+  open: (data?: SysRoleVOType) => void
   /** 关闭弹框 */
   close: () => void
 }
@@ -27,10 +28,10 @@ const RoleEditModal = forwardRef<RoleEditModalRefType, RoleEditModalPropsType>((
   const { onSuccess, onFail } = props
   const [form] = Form.useForm()
   const [visible, setVisible] = useSafeState(false)
-  const [baseFormData, setBaseFormData] = useSafeState<API.SysRoleVO>()
+  const [baseFormData, setBaseFormData] = useSafeState<SysRoleVOType>()
   const isEdit = !!baseFormData
 
-  const open = (data?: API.SysRoleVO) => {
+  const open = (data?: SysRoleVOType) => {
     form.setFieldsValue(data)
     setBaseFormData(data)
     setVisible(true)

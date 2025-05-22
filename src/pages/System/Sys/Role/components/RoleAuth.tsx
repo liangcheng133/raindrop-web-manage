@@ -1,13 +1,16 @@
 import { querySysMenuListAllAPI } from '@/services/menu'
+import { saveRoleMenuAPI } from '@/services/roleMenu'
+import { SysMenuVOType, SysRoleMenuSaveDTOSchema, SysRoleMenuSaveDTOType } from '@/types/API'
 import { listToTree } from '@/utils'
+import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
-import { useRequest, useSafeState } from 'ahooks'
+import { useBoolean, useRequest, useSafeState } from 'ahooks'
 import { Button, Card, Checkbox, Spin } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import React, { ReactNode, useEffect } from 'react'
 import styles from '../index.less'
 
-export type MenuTreeItemType = API.SysMenuVO & {
+export type MenuTreeItemType = SysMenuVOType & {
   children?: MenuTreeItemType[]
 }
 export type MenuOptionsItemType = Omit<MenuTreeItemType, 'children'> & {
@@ -21,9 +24,9 @@ export type RoleAuthPropsType = React.FC<{
 
 const cx = classNameBind(styles)
 
-const queryMenuListAll = (roleIds?: Array<String>) => {
+const queryMenuListAll = (roleIds?: String[]) => {
   return async () => {
-    const res = await querySysMenuListAllAPI({ roleIds })
+    const res = await querySysMenuListAllAPI({ role_ids: roleIds })
     return res.data
   }
 }
@@ -36,10 +39,38 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
 
   const [menuOptions, setMenuOptions] = useSafeState<MenuOptionsItemType[]>([])
   const [formData, setFormData] = useSafeState<Record<string, boolean>>({})
+  const [saveLoading, { toggle, setTrue: setSaveLoadingTrue, setFalse: setSaveLoadingFalse }] = useBoolean(false)
 
   /** 保存 */
-  const onSubmit = () => {
-    console.log('[ onSubmit ] >', formData)
+  const onSubmit = async () => {
+    try {
+      if (!roleId) {
+        throw new Error('请选择角色')
+      }
+
+      setSaveLoadingTrue()
+      const menuIds: string[] = []
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) {
+          const ids = key.split('-')
+          menuIds.push(ids[ids.length - 1])
+        }
+      })
+      const values: SysRoleMenuSaveDTOType = {
+        role_id: roleId,
+        menu_ids: menuIds.join(',')
+      }
+      const validData = SysRoleMenuSaveDTOSchema.parse(values)
+
+      await saveRoleMenuAPI(validData)
+      setSaveLoadingFalse()
+      antdUtil.message?.success('保存成功')
+      runAsync()
+    } catch (error) {
+      setSaveLoadingFalse()
+      antdUtil.message?.error('保存失败')
+      throw error
+    }
   }
 
   /** 处理树形选项 */
@@ -177,11 +208,11 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   return (
     <Card className={cx('role-auth-container')} loading={loading}>
       <div className={cx('header-options')}>
-        <Button type='primary' onClick={onSubmit}>
+        <Button type='primary' loading={saveLoading} onClick={onSubmit}>
           保存
         </Button>
       </div>
-      <Spin spinning={loading}>
+      <Spin spinning={saveLoading}>
         <div className={cx('auth-form-container')}>{renderMenuOptions(menuOptions)}</div>
       </Spin>
     </Card>

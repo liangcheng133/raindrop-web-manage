@@ -9,6 +9,7 @@ import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from '../User/component
 import RoleAuth from './components/RoleAuth'
 import RoleDragList from './components/RoleDragList'
 import styles from './index.less'
+import { SysRoleVOType, SysUserVOType } from '@/types/API'
 
 type UserListTablePropsType = {
   roleId?: string
@@ -33,7 +34,7 @@ const UserListTable = forwardRef<UserListTableRefType, UserListTablePropsType>((
   useImperativeHandle(ref, () => ({ refresh }), [])
 
   // 表格列配置
-  const columns: UseTableColumnsType<API.SysUserVO>[] = [
+  const columns: UseTableColumnsType<SysUserVOType>[] = [
     { title: '名称', dataIndex: 'name', search: false },
     { title: '组织', dataIndex: 'org_name', search: false },
     { title: '角色', dataIndex: 'role_names', width: 140, search: false },
@@ -56,7 +57,7 @@ const UserListTable = forwardRef<UserListTableRefType, UserListTablePropsType>((
   ]
 
   // 表格配置
-  const tableProps = useTable<API.SysUserVO>({
+  const tableProps = useTable<SysUserVOType>({
     actionRef: tableRef,
     search: {
       labelWidth: 'auto',
@@ -80,7 +81,7 @@ const UserListTable = forwardRef<UserListTableRefType, UserListTablePropsType>((
       return {
         ...params,
         key: searchValue,
-        role_ids: [roleId]
+        role_id: roleId
       }
     }
   })
@@ -93,17 +94,17 @@ const UserListTable = forwardRef<UserListTableRefType, UserListTablePropsType>((
 })
 
 const RolePageIndex: React.FC = () => {
-  const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<API.SysRoleVO>({})
+  const [roleSelectedInfo, setRoleSelectedInfo] = useSafeState<SysRoleVOType>()
   const userListTableRef = useRef<UserListTableRefType>(null)
 
   const tabItems: TabsProps['items'] = [
-    { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo.id} /> },
-    { key: '2', label: '角色权限', children: <RoleAuth roleId={roleSelectedInfo.id} /> }
+    { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo?.id} /> },
+    { key: '2', label: '角色权限', children: <RoleAuth roleId={roleSelectedInfo?.id} /> }
   ]
 
-  const handleRoleDragListSelect = (role?: API.SysRoleVO) => {
+  const handleRoleDragListSelect = (role?: SysRoleVOType) => {
     if (role) {
-      if (role.id === roleSelectedInfo.id) return
+      if (role.id === roleSelectedInfo?.id) return
       setRoleSelectedInfo(role)
       userListTableRef.current?.refresh()
     }

@@ -1,4 +1,5 @@
 import { saveSysUserAPI } from '@/services/user'
+import { SysUserVOType } from '@/types/API'
 import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/Type'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ProFormSelect, ProFormTreeSelect } from '@ant-design/pro-components'
@@ -10,7 +11,7 @@ import { pick } from 'es-toolkit'
 import React, { forwardRef, useImperativeHandle } from 'react'
 
 export type EditOrgOrRoleModalActionType = {
-  data: API.SysUserVO
+  data: SysUserVOType
   /**
    * 编辑类型
    * * org：编辑组织 role：编辑角色
@@ -62,7 +63,7 @@ const EditOrgOrRoleModal = forwardRef<EditOrgOrRoleModalRefType, EditOrgOrRoleMo
 
   const onFinish: ModalFormOnFinishType = async (values) => {
     try {
-      const params: API.SysUserVO = {
+      const params: SysUserVOType = {
         ...action?.data,
         ...values
       }

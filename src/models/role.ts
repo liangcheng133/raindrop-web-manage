@@ -6,6 +6,7 @@
  * @Description: 系统角色数据
  */
 import { querySysRoleListAllAPI } from '@/services/role'
+import { SysRoleVOType } from '@/types/API'
 import { useModel } from '@umijs/max'
 import { useRequest } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'
@@ -22,7 +23,7 @@ export default () => {
     return res.data || []
   }
 
-  const requestHook: Result<API.SysRoleVO[], any[]> = useRequest(queryRoleListAll, {
+  const requestHook: Result<SysRoleVOType[], any[]> = useRequest(queryRoleListAll, {
     manual: true,
     onFinally: () => {
       requestRef.current = undefined
