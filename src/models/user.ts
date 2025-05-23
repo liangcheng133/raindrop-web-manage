@@ -1,42 +1,31 @@
 /*
  * @Date: 2025-04-01 16:40:20
- * @LastEditTime: 2025-05-09 10:04:10
+ * @LastEditTime: 2025-05-23 18:01:43
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 用户、权限信息
  */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
+import { getLoginUserAPI } from '@/services/user'
 import { LoginVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
-import { history } from '@umijs/max'
-import { useRequest, useSafeState } from 'ahooks'
-import { Result } from 'ahooks/lib/useRequest/src/types'
-
-const queryUserInfoById = async (id: string) => {
-  // const res = await sysUserQueryByIdAPI(id)
-  // return res.data
-  return Promise.resolve()
-}
+import { history, useModel } from '@umijs/max'
+import { useSafeState } from 'ahooks'
+import { useRef } from 'react'
 
 export default () => {
+  const { initialState, loading, error, refresh, setInitialState } = useModel('@@initialState')
+
+  const requestRef = useRef<Promise<any> | undefined>() // 存储当前请求
   const [token, setToken] = useSafeState<string>(localGet(USER_TOKEN_KEY) || '')
   const [userId, setUserId] = useSafeState<string>(localGet(USER_ID_KEY) || '')
 
-  const sysUserInfoRequestHook: Result<any, any[]> = useRequest(queryUserInfoById, {
-    manual: true
-  })
-
-  /** 刷新用户信息以及权限 */
-  const refresh = () => {
-    return new Promise((resolve) => {
-      const fetch = async () => {
-        // await sysUserInfoRequestHook.runAsync(userId)
-        console.log('获取用户数据')
-        resolve({})
-      }
-      fetch()
-    })
+  const getLoginUser = async () => {
+    const request = getLoginUserAPI()
+    requestRef.current = request
+    const res = await request
+    return res.data || []
   }
 
   /** 登录成功后回调 */
@@ -48,7 +37,7 @@ export default () => {
       setToken(token || '')
       setUserId(user_id || '')
       antdUtil.message?.success('登录成功')
-      await refresh()
+      refresh()
       history.push('/')
     } catch (error) {
       console.log('[ 登录回调错误 ] >', error)
@@ -57,9 +46,8 @@ export default () => {
 
   return {
     handleLoginSuccess,
-    refresh,
     token,
     userId,
-    userInfo: sysUserInfoRequestHook.data || {}
+    userInfo: initialState?.userInfo || {}
   }
 }

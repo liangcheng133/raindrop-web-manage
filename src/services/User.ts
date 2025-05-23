@@ -1,4 +1,4 @@
-import { LoginVOType, ResponseType, SysUserVOType } from '@/types/API'
+import { LoginVOType, ResponseType, SysLoginUserVOType, SysUserVOType } from '@/types/API'
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */
@@ -14,13 +14,6 @@ export function saveSysUserAPI(data: Record<string, any>): Promise<ResponseType<
   return request<ResponseType<null>>('/sys/user/save', {
     method: 'post',
     data
-  })
-}
-
-/** 根据id查询用户信息 */
-export function sysUserQueryByIdAPI(id: string): Promise<ResponseType<SysUserVOType>> {
-  return request(`/sys/user/queryById/${id}`, {
-    method: 'post'
   })
 }
 
@@ -45,6 +38,13 @@ export function sysUserAccountLoginAPI(data: Record<string, any>): Promise<Respo
   return request('/public/accountLogin', {
     method: 'post',
     data
+  })
+}
+
+/** 获取当前登录用户信息、权限信息 */
+export function getLoginUserAPI(): Promise<ResponseType<SysLoginUserVOType>> {
+  return request(`/sys/user/getLoginUser`, {
+    method: 'post'
   })
 }
 

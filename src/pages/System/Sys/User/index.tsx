@@ -3,6 +3,7 @@ import { AuthButtonsItem } from '@/components/type'
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
 import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
+import { SysUserVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PlusOutlined } from '@ant-design/icons'
@@ -15,7 +16,6 @@ import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from './components/Edit
 import EditUserModal, { EditUserModalRefType } from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
 import styles from './index.less'
-import { SysUserVOType } from '@/types/API'
 
 const cx = classNameBind(styles)
 
@@ -24,6 +24,10 @@ const updateStatusRequest = (ids: string[], status: number) => {
 }
 
 const UserPageIndex: React.FC = () => {
+  const { initialState, loading, error, refresh, setInitialState } = useModel('@@initialState')
+  console.log('[ UserPageIndex initialState ] >', initialState)
+
+
   const { ValueEnum } = useModel('dict')
 
   const tableRef = useRef<ActionType>()

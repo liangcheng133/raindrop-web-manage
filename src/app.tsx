@@ -8,6 +8,8 @@ import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { IconFont } from './components/rd-ui'
 import { USER_TOKEN_KEY, WEB_NAME } from './constants'
+import { getLoginUserAPI } from './services/user'
+import { InitialStateType } from './types/Type'
 import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
@@ -23,8 +25,15 @@ if (process.env.NODE_ENV === 'development') {
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
-export async function getInitialState(): Promise<{ name: string }> {
-  return { name: WEB_NAME }
+// 这里不能使用useModel等hook，会使getInitialState返回undefined
+export async function getInitialState(): Promise<InitialStateType> {
+  try {
+    // 获取当前登录用户信息以及授权信息
+    const res = await getLoginUserAPI()
+    return { name: WEB_NAME, ...res.data }
+  } catch (error) {
+    return { name: WEB_NAME, userInfo: {}, auths: {} }
+  }
 }
 
 export const layout: RunTimeLayoutConfig = () => {

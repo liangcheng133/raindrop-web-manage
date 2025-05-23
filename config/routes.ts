@@ -74,12 +74,14 @@ export default [
                 name: '用户管理',
                 path: '/system/sys/user',
                 component: './System/Sys/User',
+                access: 'canSeeSysUser',
                 wrappers: ['@/wrappers/auth']
               },
               {
                 name: '角色管理',
                 path: '/system/sys/role',
                 component: './System/Sys/Role',
+                access: 'canSeeSysRole',
                 wrappers: ['@/wrappers/auth']
               }
             ]

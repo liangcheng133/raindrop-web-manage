@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { string, z } from 'zod'
 
 const BasicVOSchema = z.object({
   remark: z.string().optional(),
@@ -72,6 +72,16 @@ export const SysRoleMenuSaveDTOSchema = z.object({
   menu_ids: z.string()
 })
 
+/** 权限信息 */
+const AuthSchema: z.ZodType<any> = z.lazy(() =>
+  z.record(z.union([z.boolean(), AuthSchema]))
+);
+/** 登录用户信息、权限信息 */
+export const SysLoginUserVOSchema = z.object({
+  userInfo: SysUserVOSchema,
+  auths: AuthSchema
+})
+
 /** 响应信息 */
 export type ResponseType<T> = {
   status: number
@@ -91,5 +101,7 @@ export type SysRoleVOType = z.infer<typeof SysRoleVOSchema>
 export type SysMenuVOType = z.infer<typeof SysMenuVOSchema>
 /** 登录 */
 export type LoginVOType = z.infer<typeof LoginVOSchema>
-/** 保存角色菜单权限 */
+/** 保存角色关联菜单 */
 export type SysRoleMenuSaveDTOType = z.infer<typeof SysRoleMenuSaveDTOSchema>
+/** 登录用户信息、权限信息 */
+export type SysLoginUserVOType = z.infer<typeof SysLoginUserVOSchema>

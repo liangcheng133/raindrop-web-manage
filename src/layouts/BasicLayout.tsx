@@ -12,7 +12,7 @@ import AntdAppLayout from './AntdAppLayout'
 
 /** 系统布局 */
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { token, refresh: refreshUserAndAuthInfo } = useModel('user')
+  const { token } = useModel('user')
   const { refresh: refreshOrgList } = useModel('org')
   const { refresh: refreshRoleList } = useModel('role')
 
@@ -22,7 +22,6 @@ const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     if (isShow && !isEmpty(token)) {
       refreshOrgList(true)
       refreshRoleList(true)
-      refreshUserAndAuthInfo()
     }
   }, [token, isShow])
 

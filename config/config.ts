@@ -9,9 +9,9 @@ export default defineConfig({
     configProvider: {}
   },
   access: {},
+  initialState: {},
   model: {},
   clientLoader: {}, // 路由数据加载（数据预加载方案）
-  initialState: {},
   request: {},
   layout: {},
   routes,
