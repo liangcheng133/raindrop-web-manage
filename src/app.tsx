@@ -27,12 +27,16 @@ if (process.env.NODE_ENV === 'development') {
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 // 这里不能使用useModel等hook，会使getInitialState返回undefined
 export async function getInitialState(): Promise<InitialStateType> {
+  const defaultState = { name: WEB_NAME, user_info: {}, auths: {} }
   try {
+    if (!localGet(USER_TOKEN_KEY) && window.location.pathname === '/login') {
+      throw new Error('登录页不请求用户信息')
+    }
     // 获取当前登录用户信息以及授权信息
     const res = await getLoginUserAPI()
-    return { name: WEB_NAME, ...res.data }
+    return { ...defaultState, ...res.data }
   } catch (error) {
-    return { name: WEB_NAME, userInfo: {}, auths: {} }
+    return defaultState
   }
 }
 
@@ -91,9 +95,10 @@ export const request: RequestConfig = {
     errorHandler: (error: any) => {
       // console.log('处理错误>>>', { error })
       const onNotificationError = (msg: string, errMsg: string) => {
-        // if (!hideMsg) {
-        // return ;
-        // }
+        // 是否展示提示文本
+        if (error.config?.isShowNotification === false) {
+          return
+        }
         antdUtil.notification?.error({
           message: msg,
           description: errMsg || '请求错误，请联系管理员'
@@ -103,7 +108,10 @@ export const request: RequestConfig = {
       if (!res) return
       const status = res.status
       if (status === 401) {
-        noAuthHandle()
+        // 未授权时是否跳转登录页
+        if (error.config?.isReplaceLoginPage !== false) {
+          noAuthHandle()
+        }
       } else if ([403, 404].includes(status) || res.data.status === 1) {
         onNotificationError('请求错误', res.data.msg || res.data.error)
       } else if (status === 504) {
@@ -139,7 +147,8 @@ export const request: RequestConfig = {
 
 /** 处理右上角用户头像以及用户名的渲染配置 */
 const handleAvatarProps = (): SiderMenuProps['avatarProps'] => {
-  const { userInfo } = useModel('user')
+  const { initialState } = useModel('@@initialState')
+  const userInfo = initialState?.user_info || {}
 
   const toUserInfo = () => {
     history.push(appendQueryParams('/personalCenter'))

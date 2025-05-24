@@ -8,7 +8,7 @@
 export default [
   {
     path: '/',
-    component: '@/layouts/BasicLayout',
+    // component: '@/layouts/BasicLayout',
     flatMenu: true, // 隐藏当前菜单，子级菜单提升
     routes: [
       {
@@ -28,14 +28,14 @@ export default [
         path: '/home',
         component: './Home',
         hideInBreadcrumb: true, // 在面包屑隐藏
-        wrappers: ['@/wrappers/auth']
+        // wrappers: ['@/wrappers/auth']
       },
       {
         name: '个人信息',
         path: '/personalCenter',
         component: './PersonalCenter',
         hideInMenu: true, // 在菜单隐藏
-        wrappers: ['@/wrappers/auth']
+        // wrappers: ['@/wrappers/auth']
       },
       {
         name: '成员',
@@ -49,7 +49,7 @@ export default [
             name: '成员管理',
             path: '/member/members',
             component: './Member/Members',
-            wrappers: ['@/wrappers/auth']
+            // wrappers: ['@/wrappers/auth']
           }
         ]
       },
@@ -57,14 +57,6 @@ export default [
         name: '系统',
         path: '/system',
         routes: [
-          {
-            path: '/system',
-            redirect: '/system/sys/user'
-          },
-          {
-            path: '/system/sys',
-            redirect: '/system/sys/user'
-          },
           {
             name: '系统管理',
             path: '/system/sys',
@@ -74,15 +66,15 @@ export default [
                 name: '用户管理',
                 path: '/system/sys/user',
                 component: './System/Sys/User',
-                access: 'canSeeSysUser',
-                wrappers: ['@/wrappers/auth']
+                access: 'canSeeSysUser' // 访问权限控制，在 src\access.ts 里处理。
+                // wrappers: ['@/wrappers/auth']
               },
               {
                 name: '角色管理',
                 path: '/system/sys/role',
                 component: './System/Sys/Role',
-                access: 'canSeeSysRole',
-                wrappers: ['@/wrappers/auth']
+                access: 'canSeeSysRole'
+                // wrappers: ['@/wrappers/auth']
               }
             ]
           },
@@ -99,19 +91,19 @@ export default [
                 name: '登陆日志',
                 path: '/system/log/loginLog',
                 component: './System/Log/LoginLog',
-                wrappers: ['@/wrappers/auth']
+                // wrappers: ['@/wrappers/auth']
               },
               {
                 name: '操作日志',
                 path: '/system/log/operationLog',
                 component: './System/Log/OperationLog',
-                wrappers: ['@/wrappers/auth']
+                // wrappers: ['@/wrappers/auth']
               },
               {
                 name: '错误日志',
                 path: '/system/log/errorLog',
                 component: './System/Log/ErrorLog',
-                wrappers: ['@/wrappers/auth']
+                // wrappers: ['@/wrappers/auth']
               }
             ]
           }

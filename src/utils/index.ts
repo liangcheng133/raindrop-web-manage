@@ -1,4 +1,4 @@
-import { isNil } from 'es-toolkit'
+import { isNil, isPlainObject } from 'es-toolkit'
 import { isObject } from 'es-toolkit/compat'
 
 /**
@@ -99,4 +99,25 @@ export function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+/**
+ * 根据键名或键名正则表达式获取对象中的值
+ * @param obj 要查询的对象
+ * @param key 键名字符串，可以是多级键名，用点号分隔
+ * @param keyRegexp 可选的正则表达式，用于分割键名字符串，默认是点号
+ * @returns 返回对象中与键名对应的值，如果找不到则返回空字符串
+ */
+export function getObjectValue(obj: any, key: string, keyRegexp?: RegExp) {
+  if (obj && key) {
+    const keys = key.split(`${keyRegexp || '.'}`)
+    let value = obj
+    for (let i = 0; i < keys.length; i++) {
+      if (value && isPlainObject(value)) {
+        value = value[keys[i]]
+      }
+    }
+    return value
+  }
+  return ''
 }

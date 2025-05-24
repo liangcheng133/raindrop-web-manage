@@ -47,6 +47,27 @@
   .header-options {
     text-align: right;
   }
+  .auth-form-container {
+    .check-node {
+      display: inline-block;
+      width: 150px;
+      &.main {
+        display: block;
+        width: 100%;
+        margin-top: 12px;
+        margin-bottom: 8px;
+        font-weight: bold;
+        :global {
+          .ant-checkbox-wrapper {
+            font-size: 16px;
+          }
+        }
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+    }
+  }
 }
 
 .role-drag-list-container {

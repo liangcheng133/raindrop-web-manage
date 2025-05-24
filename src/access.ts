@@ -1,12 +1,11 @@
-import { useModel } from '@umijs/max'
-import { isNil } from 'es-toolkit'
+import { InitialStateType } from './types/Type'
+import { getObjectValue } from './utils'
 
 // 在这里按照初始化数据定义项目中的权限，统一管理
 // 参考文档 https://umijs.org/docs/max/access
 
-export default (initialState: any) => {
-  console.log('[ initialState ] >', initialState)
-  const auths = null;
+export default (initialState: InitialStateType) => {
+  const auths = initialState.auths || {}
 
   /**
    * 权限校验
@@ -14,18 +13,13 @@ export default (initialState: any) => {
    * @returns true 表示有权限，false 表示无权限
    */
   const checkPermission = (auth: string) => {
-    if (!auths) return true;
-    const authKeys = auth.split('.')
-    console.log(
-      '权限校验',
-      authKeys.every((key) => !isNil(auths[key]))
-    )
-    return authKeys.every((key) => !isNil(auths[key]))
+    if (!auths) return false
+    return getObjectValue(auths, auth)
   }
 
   return {
     checkPermission,
     canSeeSysUser: checkPermission('sys.user.index'),
-    canSeeSysRole: checkPermission('sys.role.index'),
+    canSeeSysRole: checkPermission('sys.role.index')
   }
 }

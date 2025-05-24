@@ -78,7 +78,7 @@ const AuthSchema: z.ZodType<any> = z.lazy(() =>
 );
 /** 登录用户信息、权限信息 */
 export const SysLoginUserVOSchema = z.object({
-  userInfo: SysUserVOSchema,
+  user_info: SysUserVOSchema,
   auths: AuthSchema
 })
 

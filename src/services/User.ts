@@ -1,4 +1,4 @@
-import { LoginVOType, ResponseType, SysLoginUserVOType, SysUserVOType } from '@/types/API'
+import { LoginVOType, ResponseType, SysLoginUserVOType } from '@/types/API'
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */

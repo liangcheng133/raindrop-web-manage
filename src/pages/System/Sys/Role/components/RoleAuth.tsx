@@ -160,7 +160,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
       data.forEach((item) => {
         if ([1, 2].includes(item.type!)) {
           renders.push(
-            <div key={item.value} className={cx('check-node main')}>
+            <div key={item.value} className={cx('check-node', 'main')}>
               <Checkbox {...getCheckboxProps(item)} onChange={(e) => handleCheckChange(e, item)}>
                 {item.name}
               </Checkbox>

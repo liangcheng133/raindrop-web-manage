@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-02-08 13:47:20
- * @LastEditTime: 2025-05-08 11:09:30
+ * @LastEditTime: 2025-05-24 11:31:34
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 权限处理工具
@@ -32,7 +32,12 @@ export function noAuthHandle() {
     logoutHandle()
     history.replace(appendQueryParams('/login', { redirect: window.location.pathname }))
   }
-  if (postNum === 1 || !antdUtil.modal) return
+  if (postNum === 1) return
+  // 处理layout没有加载时就触发的情况
+  if (!antdUtil.modal) {
+    handleOk()
+    return
+  }
   postNum = 1
   antdUtil.modal?.confirm({
     title: '系统提示',

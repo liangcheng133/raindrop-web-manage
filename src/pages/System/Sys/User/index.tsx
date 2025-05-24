@@ -1,5 +1,5 @@
 import { AuthButtons } from '@/components'
-import { AuthButtonsItem } from '@/components/type'
+import { AuthButtonsItem } from '@/components/AuthButtons'
 import { useTable } from '@/hooks'
 import { OrgTreeItem } from '@/models/org'
 import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
@@ -10,7 +10,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { ActionType, PageContainer, ProTable } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { Button, Flex } from 'antd'
+import { Flex } from 'antd'
 import React, { useRef } from 'react'
 import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from './components/EditOrgOrRoleModal'
 import EditUserModal, { EditUserModalRefType } from './components/EditUserModal'
@@ -24,10 +24,6 @@ const updateStatusRequest = (ids: string[], status: number) => {
 }
 
 const UserPageIndex: React.FC = () => {
-  const { initialState, loading, error, refresh, setInitialState } = useModel('@@initialState')
-  console.log('[ UserPageIndex initialState ] >', initialState)
-
-
   const { ValueEnum } = useModel('dict')
 
   const tableRef = useRef<ActionType>()
@@ -116,6 +112,7 @@ const UserPageIndex: React.FC = () => {
           items={[
             itemsRender({
               title: '启用',
+              auth: 'sys.user.status',
               onClick: () => {
                 antdUtil.modal?.confirm({
                   title: '提示',
@@ -133,6 +130,7 @@ const UserPageIndex: React.FC = () => {
             }),
             itemsRender({
               title: '禁用',
+              auth: 'sys.user.status',
               onClick: () => {
                 antdUtil.modal?.confirm({
                   title: '提示',
@@ -150,6 +148,7 @@ const UserPageIndex: React.FC = () => {
             }),
             itemsRender({
               title: '编辑组织',
+              auth: 'sys.user.edit',
               hide: selectedRows.length > 1,
               onClick: () => {
                 editOrgOrRoleRef.current?.open({ data: selectedRows[0], type: 'org' })
@@ -157,6 +156,7 @@ const UserPageIndex: React.FC = () => {
             }),
             itemsRender({
               title: '编辑角色',
+              auth: 'sys.user.edit',
               hide: selectedRows.length > 1,
               onClick: () => {
                 editOrgOrRoleRef.current?.open({ data: selectedRows[0], type: 'role' })
@@ -177,9 +177,19 @@ const UserPageIndex: React.FC = () => {
       }
     },
     toolBarRender: () => [
-      <Button key='button' icon={<PlusOutlined />} type='primary' onClick={() => editUserRef.current?.open()}>
-        新建
-      </Button>
+      <AuthButtons
+        items={[
+          {
+            title: '新建',
+            auth: 'sys.user.create',
+            buttonProps: {
+              type: 'primary',
+              icon: <PlusOutlined />
+            },
+            onClick: () => editUserRef.current?.open()
+          }
+        ]}
+      />
     ]
   })
 

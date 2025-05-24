@@ -1,7 +1,7 @@
 import { WEB_NAME } from '@/constants'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
-import { Outlet, useModel } from '@umijs/max'
+import { Outlet, useLocation, useModel } from '@umijs/max'
 import WebTracing from '@web-tracing/core'
 import { useSafeState } from 'ahooks'
 import { App, Spin } from 'antd'
@@ -12,6 +12,7 @@ import AntdAppLayout from './AntdAppLayout'
 
 /** 系统布局 */
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const location = useLocation()
   const { token } = useModel('user')
   const { refresh: refreshOrgList } = useModel('org')
   const { refresh: refreshRoleList } = useModel('role')
@@ -24,7 +25,6 @@ const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
       refreshRoleList(true)
     }
   }, [token, isShow])
-
   return (
     <App>
       <Spin spinning={!isShow}>{isShow && <Outlet />}</Spin>
