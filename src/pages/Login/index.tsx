@@ -4,7 +4,7 @@ import { classNameBind } from '@/utils/classnamesBind'
 import { localGet } from '@/utils/localStorage'
 import { Helmet, history } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { Tabs, TabsProps } from 'antd'
+import { Modal, Tabs, TabsProps } from 'antd'
 import React, { useEffect } from 'react'
 import AccountForm from './components/AccountForm'
 import EmailForm from './components/EmailForm'
@@ -21,6 +21,8 @@ const Login: React.FC = () => {
   const [tabKey, setTabKey] = useSafeState('account')
 
   useEffect(() => {
+    // 销毁所有弹窗
+    Modal.destroyAll()
     // 有登录时，自动跳转首页
     if (localGet(USER_TOKEN_KEY)) {
       history.replace('/')

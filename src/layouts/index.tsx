@@ -1,7 +1,7 @@
-import { WEB_NAME } from '@/constants'
+import { USER_ID_KEY, WEB_NAME } from '@/constants'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
-import { Outlet, useLocation, useModel } from '@umijs/max'
+import { Outlet, useModel } from '@umijs/max'
 import WebTracing from '@web-tracing/core'
 import { useSafeState } from 'ahooks'
 import { App, Spin } from 'antd'
@@ -12,7 +12,6 @@ import AntdAppLayout from './AntdAppLayout'
 
 /** 系统布局 */
 const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const location = useLocation()
   const { token } = useModel('user')
   const { refresh: refreshOrgList } = useModel('org')
   const { refresh: refreshRoleList } = useModel('role')
@@ -47,7 +46,7 @@ WebTracing.init({
   event: false, // 是否采集点击事件
   cacheMaxLength: 10,
   cacheWatingTime: 1000,
-  userUuid: localGet('USER_ID'),
+  userUuid: localGet(USER_ID_KEY),
   scopeError: true,
   tracesSampleRate: 0.5,
   beforeSendData(data) {
@@ -62,7 +61,6 @@ WebTracing.init({
           }
         }
       } else {
-        console.log('[ item ] >', item)
         acc.push(item)
       }
       return acc

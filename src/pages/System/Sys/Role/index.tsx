@@ -98,7 +98,7 @@ const RolePageIndex: React.FC = () => {
   const userListTableRef = useRef<UserListTableRefType>(null)
 
   const tabItems: TabsProps['items'] = [
-    { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo?.id} /> },
+    // { key: '1', label: '角色用户', children: <UserListTable ref={userListTableRef} roleId={roleSelectedInfo?.id} /> },
     { key: '2', label: '角色权限', children: <RoleAuth roleId={roleSelectedInfo?.id} /> }
   ]
 
