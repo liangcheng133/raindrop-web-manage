@@ -1,16 +1,16 @@
-import { LoginVOType, ResponseType, SysLoginUserVOType } from '@/types/API'
+import { LoginVOType, ResponseType, SysLoginUserVOType, SysUserVOType } from '@/types/API'
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */
-export function querySysUserListAPI(data: Record<string, any>): Promise<ResponseType<null>> {
-  return request<ResponseType<null>>('/sys/user/list', {
+export function querySysUserListAPI(data: Record<string, any>) {
+  return request<ResponseType<SysUserVOType>>('/sys/user/list', {
     method: 'post',
     data
   })
 }
 
 /** 新建、编辑用户信息 */
-export function saveSysUserAPI(data: Record<string, any>): Promise<ResponseType<null>> {
+export function saveSysUserAPI(data: Record<string, any>) {
   return request<ResponseType<null>>('/sys/user/save', {
     method: 'post',
     data
@@ -18,7 +18,7 @@ export function saveSysUserAPI(data: Record<string, any>): Promise<ResponseType<
 }
 
 /** 删除用户信息 */
-export function deleteSysUserAPI(data: Record<string, any>): Promise<ResponseType<null>> {
+export function deleteSysUserAPI(data: Record<string, any>) {
   return request<ResponseType<null>>('/sys/user/delete', {
     method: 'post',
     data
@@ -26,7 +26,7 @@ export function deleteSysUserAPI(data: Record<string, any>): Promise<ResponseTyp
 }
 
 /** 修改用户状态 */
-export function updateSysUserStatusAPI(data: Record<string, any>): Promise<ResponseType<null>> {
+export function updateSysUserStatusAPI(data: Record<string, any>) {
   return request<ResponseType<null>>('/sys/user/updateStatus', {
     method: 'post',
     data
@@ -34,23 +34,23 @@ export function updateSysUserStatusAPI(data: Record<string, any>): Promise<Respo
 }
 
 /** 用户账号登录 */
-export function sysUserAccountLoginAPI(data: Record<string, any>): Promise<ResponseType<LoginVOType>> {
-  return request('/public/accountLogin', {
+export function sysUserAccountLoginAPI(data: Record<string, any>) {
+  return request<ResponseType<LoginVOType>>('/public/accountLogin', {
     method: 'post',
     data
   })
 }
 
 /** 获取当前登录用户信息、权限信息 */
-export function getLoginUserAPI(): Promise<ResponseType<SysLoginUserVOType>> {
-  return request(`/sys/user/getLoginUser`, {
+export function getLoginUserAPI() {
+  return request<ResponseType<SysLoginUserVOType>>(`/sys/user/getLoginUser`, {
     method: 'post'
   })
 }
 
 /** 获取RSA公钥 */
-export function getRsaPublicKeyAPI(): Promise<ResponseType<string>> {
-  return request('/public/getRSAPublicKey', {
+export function getRsaPublicKeyAPI() {
+  return request<ResponseType<string>>('/public/getRSAPublicKey', {
     method: 'post'
   })
 }

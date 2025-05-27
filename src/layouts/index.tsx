@@ -1,4 +1,5 @@
-import { USER_ID_KEY, WEB_NAME } from '@/constants'
+import { USER_ID_KEY, WEB_CODE, WEB_NAME } from '@/constants'
+import { TrackType } from '@/types/API'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
 import { Outlet, useModel } from '@umijs/max'
@@ -34,41 +35,61 @@ const BasicLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
 export default BasicLayout
 
+type TrackListType = TrackType & {
+  errMessage: string
+}
+
 /** 前端监控上报 */
 WebTracing.init({
-  dsn: '/sys/track',
+  dsn: '/api/public/track',
   appName: WEB_NAME,
+  appCode: WEB_CODE,
   debug: true,
   recordScreen: true, // 是否开启录屏
   pv: false, // 是否采集页面跳转相关数据
   performance: false, // 是否采集资源、接口、首次进入页面的数据
   error: true, // 是否采集错误信息
   event: false, // 是否采集点击事件
-  cacheMaxLength: 10,
-  cacheWatingTime: 1000,
+  cacheMaxLength: 5,
+  cacheWatingTime: 5000,
   userUuid: localGet(USER_ID_KEY),
   scopeError: true,
   tracesSampleRate: 0.5,
   beforeSendData(data) {
-    const newData: any = cloneDeep(data)
+    const { eventInfo, baseInfo }: any = cloneDeep(data)
+    const trackList: TrackListType[] = []
     // react 有报错上抛第一次错误的机制，这里给它规避掉
-    newData.eventInfo = newData.eventInfo?.reduce((acc: any, item: any) => {
-      if (item.eventType === 'error') {
-        if (!acc.some((accItem: any) => accItem.sendTime === item.sendTime)) {
-          // 如果报错时间相同 且 含被忽略的报错，不添加到上报
-          if (!IGNORED_WARNING_MESSAGES.some((warningMsg) => item.errMessage.includes(warningMsg))) {
-            acc.push(item)
-          }
+    eventInfo.forEach((item: any) => {
+      if (['error', 'custom'].includes(item.eventType)) {
+        console.log(item)
+        // 过滤的错误信息不上传
+        if (IGNORED_WARNING_MESSAGES.some((warningMsg) => item.errMessage.includes(warningMsg))) {
+          return
         }
-      } else {
-        acc.push(item)
+        // 相同错误信息不上报
+        if (trackList.find((fItem) => fItem.event_source === item.eventId && fItem.errMessage === item.errMessage)) {
+          return
+        }
+        trackList.push({
+          event_type: item.eventType,
+          event_source: item.eventId,
+          url: item.triggerPageUrl,
+          user_id: baseInfo.userUuid,
+          app_code: baseInfo.appCode,
+          app_name: baseInfo.appName,
+          ip_address: baseInfo.ip,
+          device: baseInfo.platform,
+          browser: baseInfo.vendor,
+          send_time: baseInfo.sendTime,
+          data: JSON.stringify(item),
+          errMessage: item.errMessage
+        })
       }
-      return acc
-    }, [])
+    })
 
+    console.log('上报信息', trackList)
     // 返回false代表sdk不再发送
-    if (newData.eventInfo.length === 0) return false
-    console.log('上报信息', newData)
-    return newData
+    if (trackList.length === 0) return false
+    return trackList
   }
 })
