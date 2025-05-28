@@ -4,11 +4,11 @@ import { Button, ButtonProps } from 'antd'
 import { debounce } from 'es-toolkit'
 import React, { MouseEventHandler } from 'react'
 
-export type AuthButtonsItem = NormalBehaviorType & {
+export type AuthButtonsItemType = NormalBehaviorType & {
   buttonProps?: Omit<ButtonProps, 'onClick'>
 }
-export type AuthButtonsProps = React.PropsWithChildren & {
-  items?: AuthButtonsItem[]
+export type AuthButtonsPropsType = React.PropsWithChildren & {
+  items?: AuthButtonsItemType[]
 }
 export type ItemClickType<T> = (record: T, index: number) => MouseEventHandler<HTMLDivElement>
 
@@ -16,9 +16,9 @@ export type ItemClickType<T> = (record: T, index: number) => MouseEventHandler<H
  * 按钮组
  * * 可通过传递auth来设定权限（如：sys.user.create）
  */
-const AuthButtons: React.FC<AuthButtonsProps> = ({ items }) => {
+const AuthButtons: React.FC<AuthButtonsPropsType> = ({ items }) => {
   const access = useAccess()
-  const onItemClick: ItemClickType<AuthButtonsItem> = ({ onClick, key }, index) =>
+  const onItemClick: ItemClickType<AuthButtonsItemType> = ({ onClick, key }, index) =>
     debounce(
       (event) => {
         onClick?.(event)

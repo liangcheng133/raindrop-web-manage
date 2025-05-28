@@ -8,6 +8,7 @@ import React from 'react'
 import type { AxiosResponse, RequestConfig, RequestOptions } from 'umi'
 import { IconFont } from './components/rd-ui'
 import { USER_TOKEN_KEY, WEB_NAME } from './constants'
+import AppLayout from './layouts/AppLayout'
 import { getLoginUserAPI } from './services/user'
 import { InitialStateType } from './types/Type'
 import { appendQueryParams } from './utils'
@@ -40,6 +41,11 @@ export async function getInitialState(): Promise<InitialStateType> {
   }
 }
 
+/** 入口配置项 */
+export function rootContainer(container?: React.ReactNode) {
+  return React.createElement(AppLayout, null, container)
+}
+
 export const layout: RunTimeLayoutConfig = () => {
   return {
     title: WEB_NAME,
@@ -65,17 +71,15 @@ export const layout: RunTimeLayoutConfig = () => {
       ]
     },
     postMenuData: (menuData) => {
-      return menuData?.map((item) => {
-        if (item.icon && isString(item.icon)) {
-          return { ...item, icon: <IconFont type={item.icon} /> }
-        }
-        return item
-      })
+      return (
+        menuData?.map((item) => {
+          if (item.icon && isString(item.icon)) {
+            return { ...item, icon: <IconFont type={item.icon} /> }
+          }
+          return item
+        }) || []
+      )
     }
-
-    // breadcrumbRender: (routers: BreadcrumbProps[]) => {
-    //   return [{ path: '/', breadcrumbName: '首页' }, ...routers]   // 面包屑增加首页路由
-    // }
   }
 }
 
@@ -89,11 +93,8 @@ export const request: RequestConfig = {
   timeout: 10 * 1000,
   headers: { 'Content-Type': 'application/json' },
   errorConfig: {
-    // errorThrower: (res: any) => {
-    //   console.log('拦截错误>>>', res)
-    // },
     errorHandler: (error: any) => {
-      // console.log('处理错误>>>', { error })
+      console.log('处理错误>>>', { error })
       const onNotificationError = (msg: string, errMsg: string) => {
         // 是否展示提示文本
         if (error.config?.isShowNotification === false) {
@@ -105,17 +106,18 @@ export const request: RequestConfig = {
         })
       }
       const res = error.response
-      if (!res) return
-      const status = res.status
-      if (status === 401) {
-        // 未授权时是否跳转登录页
-        if (error.config?.isReplaceLoginPage !== false) {
-          noAuthHandle()
+      if (res) {
+        const status = res.status
+        if (status === 401) {
+          // 未授权时是否跳转登录页
+          if (error.config?.isReplaceLoginPage !== false) {
+            noAuthHandle()
+          }
+        } else if ([403, 404].includes(status) || res.data.status === 1) {
+          onNotificationError('请求错误', res.data.msg || res.data.error)
+        } else if (status === 504) {
+          onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
         }
-      } else if ([403, 404].includes(status) || res.data.status === 1) {
-        onNotificationError('请求错误', res.data.msg || res.data.error)
-      } else if (status === 504) {
-        onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
       }
     }
   },
@@ -124,10 +126,13 @@ export const request: RequestConfig = {
       (config: RequestOptions) => {
         // 请求前缀
         config.baseURL = '/api'
-        // 拼接 token
-        config.headers = {
-          ...config.headers,
-          Authorization: 'Bearer ' + localGet(USER_TOKEN_KEY) || ''
+        const token = localGet(USER_TOKEN_KEY) || ''
+        if (token) {
+          // 拼接 token
+          config.headers = {
+            ...config.headers,
+            Authorization: `Bearer ${token}`
+          }
         }
         return config
       }

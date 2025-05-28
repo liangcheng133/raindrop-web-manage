@@ -1,7 +1,6 @@
-import { AuthButtons } from '@/components'
-import { AuthButtonsItem } from '@/components/AuthButtons'
+import { AuthButtons, AuthButtonsItemType } from '@/components'
 import { useTable } from '@/hooks'
-import { OrgTreeItem } from '@/models/org'
+import { OrgTreeItemType } from '@/models/org'
 import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
 import { SysUserVOType } from '@/types/API'
 import { antdUtil } from '@/utils/antdUtil'
@@ -30,11 +29,11 @@ const UserPageIndex: React.FC = () => {
   const editOrgOrRoleRef = useRef<EditOrgOrRoleModalRefType>(null)
   const editUserRef = useRef<EditUserModalRefType>(null)
 
-  const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItem | undefined>() // 选中的组织
+  const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItemType | undefined>() // 选中的组织
   const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
 
   /** 设置树形选中项并更新列表 */
-  const onOrgTreeSelect = (node?: OrgTreeItem) => {
+  const onOrgTreeSelect = (node?: OrgTreeItemType) => {
     setOrgInfo(node)
     tableRef.current?.reload()
   }
@@ -53,7 +52,6 @@ const UserPageIndex: React.FC = () => {
       layout: 'inline'
     },
     columns: [
-      // { title: '关键字', dataIndex: 'key', hideInTable: true }, // 改在表格左上方展示
       {
         title: '状态',
         dataIndex: 'status',
@@ -98,7 +96,7 @@ const UserPageIndex: React.FC = () => {
     },
     rowSelection: {},
     tableAlertOptionRender: ({ selectedRows }) => {
-      const itemsRender = ({ buttonProps, ...rest }: AuthButtonsItem): AuthButtonsItem => ({
+      const itemsRender = ({ buttonProps, ...rest }: AuthButtonsItemType): AuthButtonsItemType => ({
         buttonProps: { type: 'link', size: 'small', ...buttonProps },
         ...rest
       })

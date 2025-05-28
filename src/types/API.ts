@@ -1,4 +1,4 @@
-import { string, z } from 'zod'
+import { z } from 'zod'
 
 const BasicVOSchema = z.object({
   remark: z.string().optional(),
@@ -73,32 +73,12 @@ export const SysRoleMenuSaveDTOSchema = z.object({
 })
 
 /** 权限信息 */
-const AuthSchema: z.ZodType<any> = z.lazy(() =>
-  z.record(z.union([z.boolean(), AuthSchema]))
-);
+const AuthSchema: z.ZodType<any> = z.lazy(() => z.record(z.union([z.boolean(), AuthSchema])))
 /** 登录用户信息、权限信息 */
 export const SysLoginUserVOSchema = z.object({
   user_info: SysUserVOSchema,
   auths: AuthSchema
 })
-
-/** 行为跟踪信息 */
-export const TrackSchema = z.object({
-  id: z.string().optional(),
-  event_type: z.string().optional(),
-  event_source: z.string().optional(),
-  url: z.string().optional(),
-  user_id: z.string().optional(),
-  user_name: z.string().optional(),
-  app_code: z.string().optional(),
-  app_name: z.string().optional(),
-  ip_address: z.string().optional(),
-  data: z.string().optional(),
-  device: z.string().optional(),
-  browser: z.string().optional(),
-  send_time: z.number().optional(),
-})
-
 
 /** 响应信息 */
 export type ResponseType<T> = {
@@ -123,5 +103,3 @@ export type LoginVOType = z.infer<typeof LoginVOSchema>
 export type SysRoleMenuSaveDTOType = z.infer<typeof SysRoleMenuSaveDTOSchema>
 /** 登录用户信息、权限信息 */
 export type SysLoginUserVOType = z.infer<typeof SysLoginUserVOSchema>
-/** 行为跟踪信息 */
-export type TrackType = z.infer<typeof TrackSchema>

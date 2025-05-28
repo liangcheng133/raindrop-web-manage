@@ -14,13 +14,13 @@ import { Result } from 'ahooks/lib/useRequest/src/types'
 import { isEmpty } from 'es-toolkit/compat'
 import { useRef } from 'react'
 
-export type OrgTreeItem = SysOrgVOType & {
-  children?: OrgTreeItem[]
+export type OrgTreeItemType = SysOrgVOType & {
+  children?: OrgTreeItemType[]
 }
 
 export default () => {
   const requestRef = useRef<Promise<any> | undefined>() // 存储当前请求
-  const [treeList, setTreeList] = useSafeState<OrgTreeItem[]>([])
+  const [treeList, setTreeList] = useSafeState<OrgTreeItemType[]>([])
 
   const queryOrgListAll = async () => {
     const request = querySysOrgListAllAPI()
@@ -34,10 +34,10 @@ export default () => {
     onSuccess: (data) => {
       if (!data) return
       /** 排序 */
-      const sortFn = (list: OrgTreeItem[]): OrgTreeItem[] => {
+      const sortFn = (list: OrgTreeItemType[]): OrgTreeItemType[] => {
         return list
           .map((item) => {
-            const newItem: OrgTreeItem = { ...item }
+            const newItem: OrgTreeItemType = { ...item }
             if (item.children?.length) {
               newItem.children = sortFn(item.children)
             }

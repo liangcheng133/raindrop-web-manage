@@ -12,7 +12,6 @@ import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
 import { history, useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
-import { useRef } from 'react'
 
 export default () => {
   const initialStateModel = useModel('@@initialState')

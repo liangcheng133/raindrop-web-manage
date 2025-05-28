@@ -1,12 +1,21 @@
+import { NormalBehaviorType } from '@/types/Type'
 import { classNameBind } from '@/utils/classnamesBind'
 import { isPromise } from '@/utils/validate'
 import { useSetState } from 'ahooks'
 import { Spin, Tooltip } from 'antd'
 import { debounce } from 'es-toolkit'
-import React from 'react'
+import React, { MouseEventHandler } from 'react'
 import { IconFont } from '../rd-ui'
-import { CardExtraOptionsItem, CardExtraOptionsProps, ItemClickType, LoadingObjType } from '../type'
 import styles from './index.less'
+
+export type CardExtraOptionsItem = NormalBehaviorType & {
+  icon: string
+}
+export type CardExtraOptionsProps = React.PropsWithChildren & {
+  items: CardExtraOptionsItem[]
+}
+export type LoadingObjType = { [key: string]: boolean }
+export type ItemClickType<T> = (record: T, index: number) => MouseEventHandler<HTMLDivElement>
 
 const cx = classNameBind(styles)
 
