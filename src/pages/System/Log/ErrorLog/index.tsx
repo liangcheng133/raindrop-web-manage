@@ -45,7 +45,6 @@ const ErrorLogList: React.FC<React.PropsWithChildren> = (props) => {
                   if (!record.data || !dom) return
                   const data = JSON.parse(record.data)
                   const recordscreen = unzipRecordscreen(data.recordscreen)
-                  console.log('[ recordscreen ] >', recordscreen)
                   new rrwebPlayer({
                     target: dom,
                     props: {
