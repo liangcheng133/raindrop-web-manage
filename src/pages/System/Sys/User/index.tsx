@@ -44,13 +44,10 @@ const UserPageIndex: React.FC = () => {
   }
 
   /** 表格配置 */
-  const tableProps = useTable<SysUserVOType>({
-    actionRef: tableRef,
+  const { config: tableProps } = useTable<SysUserVOType, any>({
     api: querySysUserListAPI,
-    search: {
-      labelWidth: 'auto',
-      layout: 'inline'
-    },
+    persistenceColumnsKey: 'sys.user.index',
+    rowSelection: {},
     columns: [
       {
         title: '状态',
@@ -70,23 +67,27 @@ const UserPageIndex: React.FC = () => {
       { title: '创建人', dataIndex: 'create_time1', width: 160, search: false },
       { title: '修改人', dataIndex: 'update_time1', width: 160, search: false },
       {
-        valueType: 'option',
+        title: '操作',
+        dataIndex: 'option',
         width: 60,
-        renderOperation: (text, record) => {
-          return [
-            {
-              name: '编辑',
-              key: 'edit',
-              hide: record.is_admin === 1,
-              onClick: () => {
-                editUserRef.current?.open(record)
-              }
-            }
-          ]
+        fixed: 'right',
+        render: (_, record) => {
+          return (
+            <AuthButtons
+              items={[
+                {
+                  title: '编辑',
+                  type: 'link',
+                  auth: 'sys.user.edit',
+                  hide: record.is_admin === 1,
+                  onClick: () => editUserRef.current?.open(record)
+                }
+              ]}
+            />
+          )
         }
       }
     ],
-    persistenceColumnsKey: 'sys.user.index',
     handleParams: (params) => {
       return {
         ...params,
@@ -94,7 +95,6 @@ const UserPageIndex: React.FC = () => {
         org_id: orgInfo?.id
       }
     },
-    rowSelection: {},
     tableAlertOptionRender: ({ selectedRows }) => {
       const itemsRender = ({ buttonProps, ...rest }: AuthButtonsItemType): AuthButtonsItemType => ({
         buttonProps: { type: 'link', size: 'small', ...buttonProps },
