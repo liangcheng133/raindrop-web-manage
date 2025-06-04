@@ -12,7 +12,7 @@ export type ColumnsType<T> = ProColumns<T>
 export type ScrollType = TableProps<any>['scroll'] & {
   scrollToFirstRowOnChange?: boolean
 }
-export type RequestFunctionParams<T, U> = Parameters<ProTableProps<T, U>['request']>
+export type RequestFunctionParams<T, U> = Parameters<NonNullable<ProTableProps<T, U>['request']>>
 
 export type UserTableProps<T, U> = {
   /** 表格配置 */
@@ -58,11 +58,12 @@ const DEFAULT_TABLE_HEIGHT = 400
 const handleColumns = <T, U>(config: ProTableProps<T, U>, initialConfig: UseTableConfigType<T, U>) => {
   const { columns } = initialConfig
   config.columns = columns?.map((item) => {
-    const { width = DEFAULT_COLUMN_WIDTH, ...rest } = item
+    const { width = DEFAULT_COLUMN_WIDTH, search = false, ...rest } = item
 
     return {
       ...rest,
-      width
+      width,
+      search
     }
   })
 }

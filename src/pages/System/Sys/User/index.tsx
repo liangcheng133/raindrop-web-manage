@@ -32,14 +32,31 @@ const UserPageIndex: React.FC = () => {
   const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItemType | undefined>() // 选中的组织
   const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
 
+  /** 批量修改用户状态确认对话框 */
+  const changeUsersStatusConfirm = (ids: string[], status: 0 | 1) => {
+    const modalData = {
+      0: { title: '启用', content: '这些账号将被启用，是否继续？' },
+      1: { title: '禁用', content: '禁用后，这些账号将无法登陆系统, 是否继续?' }
+    }[status]
+    antdUtil.modal?.confirm({
+      title: '提示',
+      content: modalData.content,
+      onOk: async () => {
+        await updateStatusRequest(ids, 0)
+        antdUtil.message?.success(`${modalData.title}成功`)
+        tableRef.current?.reload()
+      }
+    })
+  }
+
   /** 设置树形选中项并更新列表 */
   const onOrgTreeSelect = (node?: OrgTreeItemType) => {
     setOrgInfo(node)
     tableRef.current?.reload()
   }
 
-  /** 处理成功回调 */
-  const handleOnSuccess = () => {
+  /** 组件处理成功回调 */
+  const onCommSuccess = () => {
     tableRef.current?.reload()
   }
 
@@ -54,18 +71,19 @@ const UserPageIndex: React.FC = () => {
         dataIndex: 'status',
         width: 100,
         fixed: 'left',
-        valueEnum: ValueEnum.isActive
+        valueEnum: ValueEnum.isActive,
+        search: true
       },
-      { title: '名称', dataIndex: 'name', search: false },
-      { title: '账号', dataIndex: 'account', width: 200, search: false },
-      { title: '手机号', dataIndex: 'mobile_phone', width: 160, search: false },
-      { title: '邮箱', dataIndex: 'email', width: 200, search: false },
-      { title: '组织', dataIndex: 'org_name', width: 140, search: false },
-      { title: '角色', dataIndex: 'role_names', width: 140, search: false },
-      { title: '创建时间', dataIndex: 'create_time', width: 170, search: false },
-      { title: '修改时间', dataIndex: 'update_time', width: 170, search: false },
-      { title: '创建人', dataIndex: 'create_time1', width: 160, search: false },
-      { title: '修改人', dataIndex: 'update_time1', width: 160, search: false },
+      { title: '名称', dataIndex: 'name' },
+      { title: '账号', dataIndex: 'account', width: 200 },
+      { title: '手机号', dataIndex: 'mobile_phone', width: 160 },
+      { title: '邮箱', dataIndex: 'email', width: 200 },
+      { title: '组织', dataIndex: 'org_name', width: 140 },
+      { title: '角色', dataIndex: 'role_names', width: 140 },
+      { title: '创建时间', dataIndex: 'create_time', width: 170 },
+      { title: '修改时间', dataIndex: 'update_time', width: 170 },
+      { title: '创建人', dataIndex: 'create_time1', width: 160 },
+      { title: '修改人', dataIndex: 'update_time1', width: 160 },
       {
         title: '操作',
         dataIndex: 'option',
@@ -112,36 +130,20 @@ const UserPageIndex: React.FC = () => {
               title: '启用',
               auth: 'sys.user.status',
               onClick: () => {
-                antdUtil.modal?.confirm({
-                  title: '提示',
-                  content: '这些账号将被启用, 是否继续?',
-                  onOk: async () => {
-                    await updateStatusRequest(
-                      selectedRows.map((item) => item.id!),
-                      0
-                    )
-                    antdUtil.message?.success(`启用成功`)
-                    tableRef.current?.reload()
-                  }
-                })
+                changeUsersStatusConfirm(
+                  selectedRows.map((item) => item.id!),
+                  0
+                )
               }
             }),
             itemsRender({
               title: '禁用',
               auth: 'sys.user.status',
               onClick: () => {
-                antdUtil.modal?.confirm({
-                  title: '提示',
-                  content: '禁用后，这些账号将无法登陆系统, 是否继续?',
-                  onOk: async () => {
-                    await updateStatusRequest(
-                      selectedRows.map((item) => item.id!),
-                      1
-                    )
-                    antdUtil.message?.success(`禁用成功`)
-                    tableRef.current?.reload()
-                  }
-                })
+                changeUsersStatusConfirm(
+                  selectedRows.map((item) => item.id!),
+                  1
+                )
               }
             }),
             itemsRender({
@@ -197,8 +199,8 @@ const UserPageIndex: React.FC = () => {
         <OrgTree onSelect={onOrgTreeSelect} />
         <ProTable className={cx('table-container')} {...tableProps} />
       </Flex>
-      <EditUserModal ref={editUserRef} orgId={orgInfo?.id} onSuccess={handleOnSuccess} />
-      <EditOrgOrRoleModal ref={editOrgOrRoleRef} onSuccess={handleOnSuccess} />
+      <EditUserModal ref={editUserRef} orgId={orgInfo?.id} onSuccess={onCommSuccess} />
+      <EditOrgOrRoleModal ref={editOrgOrRoleRef} onSuccess={onCommSuccess} />
     </PageContainer>
   )
 }
