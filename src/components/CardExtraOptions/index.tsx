@@ -5,7 +5,7 @@ import { useSetState } from 'ahooks'
 import { Spin, Tooltip } from 'antd'
 import { debounce } from 'es-toolkit'
 import React, { MouseEventHandler } from 'react'
-import { IconFont } from '../rd-ui'
+import { IconFont } from '../'
 import styles from './index.less'
 
 export type CardExtraOptionsItem = NormalBehaviorType & {

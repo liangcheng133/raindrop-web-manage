@@ -1,4 +1,4 @@
-import { IconFont } from '@/components/rd-ui'
+import { IconFont } from '@/components'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PageContainer, ProTable } from '@ant-design/pro-components'
 import { Card, Flex, Tree, TreeProps } from 'antd'

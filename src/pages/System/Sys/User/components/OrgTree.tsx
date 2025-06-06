@@ -1,5 +1,4 @@
-import { CardExtraOptions } from '@/components'
-import { IconFont } from '@/components/rd-ui'
+import { CardExtraOptions, IconFont } from '@/components'
 import { OrgTreeItem } from '@/models/org'
 import { deleteSysOrgAPI, sortSysOrgOrderAPI } from '@/services/org'
 import { antdUtil } from '@/utils/antdUtil'

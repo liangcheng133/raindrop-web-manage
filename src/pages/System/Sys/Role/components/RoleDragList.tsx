@@ -1,5 +1,4 @@
-import { CardExtraOptions } from '@/components'
-import { IconFont } from '@/components/rd-ui'
+import { CardExtraOptions, IconFont } from '@/components'
 import { ROLE_ID_MAIN } from '@/constants'
 import { deleteSysRoleAPI, saveSysRoleOrderAPI } from '@/services/role'
 import { antdUtil } from '@/utils/antdUtil'
