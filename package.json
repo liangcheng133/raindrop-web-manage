@@ -5,7 +5,6 @@
     "build": "cross-env UMI_ENV=production max build",
     "dev": "cross-env UMI_ENV=develop max dev",
     "mock": "cross-env UMI_ENV=mock max dev",
-    "export": "node ./scripts/autoExport.mjs",
     "format": "prettier --cache --write .",
     "postinstall": "max setup",
     "prepare": "husky",
