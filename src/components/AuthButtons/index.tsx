@@ -1,4 +1,4 @@
-import { NormalBehaviorType } from '@/types/Type'
+import { NormalBehaviorType } from '@/types/type'
 import { classNameBind } from '@/utils/classnamesBind'
 import { useAccess } from '@umijs/max'
 import { Button, ButtonProps } from 'antd'

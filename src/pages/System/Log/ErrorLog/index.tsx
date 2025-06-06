@@ -1,6 +1,6 @@
 import { useTable } from '@/hooks'
 import { queryTrackListAPI } from '@/services/track'
-import { TrackType } from '@/types/API'
+import { TrackType } from '@/types/api'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PageContainer, ProTable } from '@ant-design/pro-components'
 import { unzipRecordscreen } from '@web-tracing/core'

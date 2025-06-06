@@ -1,15 +1,15 @@
-import { ResponseType, SysRoleVOType } from '@/types/API'
+import { Response, SysRoleVO } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 获取所有角色列表 */
-export function querySysRoleListAllAPI(): Promise<ResponseType<SysRoleVOType[]>> {
+export function querySysRoleListAllAPI(): Promise<Response<SysRoleVO[]>> {
   return request('/sys/role/listAll', {
     method: 'post'
   })
 }
 
 /** 新建、编辑角色信息 */
-export function saveSysRoleAPI(data: any): Promise<ResponseType<null>> {
+export function saveSysRoleAPI(data: any): Promise<Response<null>> {
   return request('/sys/role/save', {
     method: 'post',
     data
@@ -17,7 +17,7 @@ export function saveSysRoleAPI(data: any): Promise<ResponseType<null>> {
 }
 
 /** 修改角色数据排序 */
-export function saveSysRoleOrderAPI(data: any): Promise<ResponseType<null>> {
+export function saveSysRoleOrderAPI(data: any): Promise<Response<null>> {
   return request('/sys/role/sort', {
     method: 'post',
     data
@@ -25,7 +25,7 @@ export function saveSysRoleOrderAPI(data: any): Promise<ResponseType<null>> {
 }
 
 /** 删除角色信息 */
-export function deleteSysRoleAPI(data: any): Promise<ResponseType<null>> {
+export function deleteSysRoleAPI(data: any): Promise<Response<null>> {
   return request('/sys/role/delete', {
     method: 'post',
     data

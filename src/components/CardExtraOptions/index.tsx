@@ -1,4 +1,4 @@
-import { NormalBehaviorType } from '@/types/Type'
+import { NormalBehaviorType } from '@/types/type'
 import { classNameBind } from '@/utils/classnamesBind'
 import { isPromise } from '@/utils/validate'
 import { useSetState } from 'ahooks'

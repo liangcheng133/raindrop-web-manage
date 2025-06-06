@@ -6,8 +6,8 @@
  * @Description: 用户、权限信息
  */
 import { USER_ID_KEY, USER_TOKEN_KEY } from '@/constants'
-import { LoginVOType } from '@/types/API'
-import { InitialStateType } from '@/types/Type'
+import { LoginVOType } from '@/types/api'
+import { InitialStateType } from '@/types/type'
 import { antdUtil } from '@/utils/antdUtil'
 import { localGet, localSet } from '@/utils/localStorage'
 import { history, useModel } from '@umijs/max'

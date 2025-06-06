@@ -10,12 +10,14 @@ import { IconFont } from './components'
 import { USER_TOKEN_KEY, WEB_NAME } from './constants'
 import AppLayout from './layouts/AppLayout'
 import { getLoginUserAPI } from './services/user'
-import { InitialStateType } from './types/Type'
+import { InitialStateType } from './types/type'
 import { appendQueryParams } from './utils'
 import { antdUtil } from './utils/antdUtil'
 import { noAuthHandle } from './utils/auth'
 import { localGet } from './utils/localStorage'
+import { ResError } from './utils/ResError'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
+import { isAxiosError, isResError } from './utils/validate'
 
 console.log('app start')
 
@@ -94,10 +96,9 @@ export const request: RequestConfig = {
   headers: { 'Content-Type': 'application/json' },
   errorConfig: {
     errorHandler: (error: any) => {
-      console.log('处理错误>>>', { error })
+      console.log('接口错误拦截 >>> ', error)
       const onNotificationError = (msg: string, errMsg: string) => {
-        // 是否展示提示文本
-        if (error.config?.isShowNotification === false) {
+        if (isResError(error) && error.response.config?.isShowNotification === false) {
           return
         }
         antdUtil.notification?.error({
@@ -105,18 +106,27 @@ export const request: RequestConfig = {
           description: errMsg || '请求错误，请联系管理员'
         })
       }
-      const res = error.response
-      if (res) {
-        const status = res.status
-        if (status === 401) {
-          // 未授权时是否跳转登录页
-          if (error.config?.isReplaceLoginPage !== false) {
-            noAuthHandle()
+      if (isResError(error)) {
+        const res = error.response
+        if (res) {
+          const status = res.status
+          if (status === 401) {
+            // 未授权时是否跳转登录页
+            if (res.config?.isReplaceLoginPage !== false) {
+              noAuthHandle()
+            }
+          } else if (res.data.status === 1) {
+            onNotificationError('请求错误', res.data.msg || res.data.error)
           }
-        } else if ([403, 404].includes(status) || res.data.status === 1) {
-          onNotificationError('请求错误', res.data.msg || res.data.error)
-        } else if (status === 504) {
-          onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
+        }
+      } else if (isAxiosError(error)) {
+        const res = error.response
+        if (res) {
+          if (res.status === 504) {
+            onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
+          } else if (res.status === 404) {
+            onNotificationError('请求错误', '地址资源不存在。')
+          }
         }
       }
     }
@@ -142,9 +152,8 @@ export const request: RequestConfig = {
     (response: AxiosResponse) => {
       const res = response.data
       if (res.status !== 0) {
-        return Promise.reject({ response })
+        throw new ResError(res.msg, response)
       }
-      // console.log('请求Response拦截器', response)
       return response
     }
   ]

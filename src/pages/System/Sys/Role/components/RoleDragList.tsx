@@ -1,12 +1,14 @@
 import { CardExtraOptions, IconFont } from '@/components'
 import { ROLE_ID_MAIN } from '@/constants'
 import { deleteSysRoleAPI, saveSysRoleOrderAPI } from '@/services/role'
+import { SysRoleVO } from '@/types/api'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { useModel } from '@umijs/max'
 import { useSafeState } from 'ahooks'
 import { Card, Dropdown, Flex, MenuProps, Spin } from 'antd'
 import { cloneDeep } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import React, { forwardRef, useEffect, useRef } from 'react'
 import {
   DragDropContext,
@@ -18,14 +20,11 @@ import {
 } from 'react-beautiful-dnd'
 import styles from '../index.less'
 import RoleEditModal, { RoleEditModalRefType } from './RoleEditModal'
-import { isEmpty } from 'es-toolkit/compat'
-import { SysRoleVOType } from '@/types/API'
 
-export type RoleDragListPropsType = {
+export interface RoleDragListProps {
   /** 选中角色回调 */
-  onSelect?: (role?: SysRoleVOType) => void
+  onSelect?: (role?: SysRoleVO) => void
 }
-export type RoleDragListRefType = {}
 
 const cx = classNameBind(styles)
 
@@ -35,14 +34,14 @@ const DropdownOptions: MenuProps['items'] = [
 ]
 
 /** 角色可拖动排序列表 */
-const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((props, ref) => {
+const RoleDragList = forwardRef<null, RoleDragListProps>((props, ref) => {
   const { onSelect } = props
 
   const { list: roleListOrigin, loading: getRoleLoading, refresh: refreshRoleList } = useModel('role')
 
   const roleEditModalRef = useRef<RoleEditModalRefType>(null)
-  const [selectedInfo, setSelectedInfo] = useSafeState<SysRoleVOType>({})
-  const [roleList, setRoleList] = useSafeState<SysRoleVOType[]>([])
+  const [selectedInfo, setSelectedInfo] = useSafeState<SysRoleVO>({})
+  const [roleList, setRoleList] = useSafeState<SysRoleVO[]>([])
 
   useEffect(() => {
     setRoleList(roleListOrigin)
@@ -56,7 +55,7 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   }, [])
 
   // 处理选中角色
-  const handleSelect = (record?: SysRoleVOType) => {
+  const handleSelect = (record?: SysRoleVO) => {
     if (record) {
       let data = record
       setSelectedInfo(cloneDeep(data))
@@ -65,7 +64,7 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   }
 
   // 调整排序
-  const onUpdateRoleOrder = (dataList: SysRoleVOType[]) => {
+  const onUpdateRoleOrder = (dataList: SysRoleVO[]) => {
     const sortRoleList = dataList.map((role, index) => ({ ...role, sort: index + 1 }))
     saveSysRoleOrderAPI(sortRoleList).then((res) => {
       if (res.status !== 0) return
@@ -75,7 +74,7 @@ const RoleDragList = forwardRef<RoleDragListRefType, RoleDragListPropsType>((pro
   }
 
   // 处理下拉菜单点击事件
-  const handleDropdownClick = (key: string, record: SysRoleVOType) => {
+  const handleDropdownClick = (key: string, record: SysRoleVO) => {
     switch (key) {
       case 'editRole':
         roleEditModalRef.current?.open(record)

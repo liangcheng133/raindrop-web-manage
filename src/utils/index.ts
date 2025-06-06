@@ -1,5 +1,7 @@
+import { FormInstance } from 'antd'
 import { isNil, isPlainObject } from 'es-toolkit'
 import { isObject } from 'es-toolkit/compat'
+import z from 'zod'
 
 /**
  * 将对象拼接到URL的查询字符串中
@@ -120,4 +122,34 @@ export function getObjectValue(obj: any, key: string, keyRegexp?: RegExp) {
     return value
   }
   return ''
+}
+
+/**
+ * 校验zod单个字段
+ * @param schema - zod schema
+ * @param field - 字段名
+ * @param value - 字段值
+ * @returns 错误信息，无错误时返回空字符串
+ */
+// export function validateZodField<TSchema extends z.AnyZodObject, TKey extends keyof z.infer<TSchema>>(
+//   schema: TSchema,
+//   field: TKey,
+//   value: z.infer<TSchema>[TKey]
+// ): string {
+//   const fieldSchema = schema.pick({ [field]: true } as Record<string, true>)
+//   const validResult = fieldSchema.safeParse({ [field]: value })
+//   return validResult.success ? '' : validResult.error.issues[0].message
+// }
+
+/**
+ * 将Zod验证错误信息发送到表单实例
+ * 此函数的作用是将Zod库生成的验证错误信息映射到表单的相应字段中
+ * 
+ * @param error - Zod验证错误对象，包含了验证失败的字段路径和错误消息
+ * @param form - 表单实例，通过该实例可以设置字段的错误信息
+ */
+export function zodErrorSendToForm(error: z.ZodError, form: FormInstance) {
+  error.issues.forEach((issue) => {
+    form.setFields([{ name: issue.path[0], errors: [issue.message] }])
+  })
 }

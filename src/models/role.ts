@@ -6,7 +6,7 @@
  * @Description: 系统角色数据
  */
 import { querySysRoleListAllAPI } from '@/services/role'
-import { SysRoleVOType } from '@/types/API'
+import { SysRoleVOType } from '@/types/api'
 import { useModel } from '@umijs/max'
 import { useRequest } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'

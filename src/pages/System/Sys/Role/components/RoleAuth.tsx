@@ -1,6 +1,6 @@
 import { querySysMenuListAllAPI } from '@/services/menu'
 import { saveRoleMenuAPI } from '@/services/roleMenu'
-import { SysMenuVOType, SysRoleMenuSaveDTOSchema, SysRoleMenuSaveDTOType } from '@/types/API'
+import { SysMenuVO, SysRoleMenuSaveDTO } from '@/types/api'
 import { listToTree } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
@@ -8,19 +8,24 @@ import { useBoolean, useRequest, useSafeState } from 'ahooks'
 import { Button, Card, Checkbox, Spin } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import React, { ReactNode, useEffect } from 'react'
+import z from 'zod'
 import styles from '../index.less'
 
-export type MenuTreeItemType = SysMenuVOType & {
-  children?: MenuTreeItemType[]
+export interface MenuTreeItem extends SysMenuVO {
+  children?: MenuTreeItem[]
 }
-export type MenuOptionsItemType = Omit<MenuTreeItemType, 'children'> & {
+export interface MenuOptionsItem extends Omit<MenuTreeItem, 'children'> {
   label: string
   value: string
-  children?: MenuOptionsItemType[]
+  children?: MenuOptionsItem[]
 }
-export type RoleAuthPropsType = React.FC<{
-  roleId?: string
-}>
+export type RoleAuthPropsType = React.FC<{ roleId?: string }>
+
+/** 保存权限类型校验 */
+const SysRoleMenuSaveDTOSchema = z.object({
+  role_id: z.string(),
+  menu_ids: z.string()
+})
 
 const cx = classNameBind(styles)
 
@@ -37,7 +42,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
     refreshDeps: [roleId]
   })
 
-  const [menuOptions, setMenuOptions] = useSafeState<MenuOptionsItemType[]>([])
+  const [menuOptions, setMenuOptions] = useSafeState<MenuOptionsItem[]>([])
   const [formData, setFormData] = useSafeState<Record<string, boolean>>({})
   const [saveLoading, { toggle, setTrue: setSaveLoadingTrue, setFalse: setSaveLoadingFalse }] = useBoolean(false)
 
@@ -56,7 +61,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
           menuIds.push(ids[ids.length - 1])
         }
       })
-      const values: SysRoleMenuSaveDTOType = {
+      const values: SysRoleMenuSaveDTO = {
         role_id: roleId,
         menu_ids: menuIds.join(',')
       }
@@ -74,13 +79,13 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   }
 
   /** 处理树形选项 */
-  const handleOption = (data: MenuTreeItemType[], numbers: string[]): MenuOptionsItemType[] => {
+  const handleOption = (data: MenuTreeItem[], numbers: string[]): MenuOptionsItem[] => {
     return data.map((item) => {
       const { children, ...rest } = item
       const number = [...numbers, item.id!]
       const value = number.join('-')
 
-      const result: MenuOptionsItemType = {
+      const result: MenuOptionsItem = {
         ...rest,
         label: item.name!,
         value
@@ -95,10 +100,10 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   }
 
   /** 处理选项变化 */
-  const handleCheckChange = (e: CheckboxChangeEvent, item: MenuOptionsItemType) => {
+  const handleCheckChange = (e: CheckboxChangeEvent, item: MenuOptionsItem) => {
     const checked = e.target.checked
     const values = { ...formData }
-    const loop = (data?: MenuOptionsItemType[]) => {
+    const loop = (data?: MenuOptionsItem[]) => {
       data?.forEach((child) => {
         values[child.value] = checked
         if (child.children?.length) loop(child.children)
@@ -115,7 +120,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   }
 
   const handleChecked = (values: Record<string, boolean> = formData) => {
-    const loop = (data?: MenuOptionsItemType[]) => {
+    const loop = (data?: MenuOptionsItem[]) => {
       if (!data) return
 
       data.forEach((item) => {
@@ -138,7 +143,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
   }
 
   /** 获取checkbox的是否选中但未全选状态 */
-  const getCheckboxProps = (item: MenuOptionsItemType) => {
+  const getCheckboxProps = (item: MenuOptionsItem) => {
     const keys: Record<string, boolean> = {}
     item.children?.forEach((child) => {
       keys[child.value] = formData[child.value] || false
@@ -153,10 +158,10 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
     }
   }
 
-  const renderMenuOptions = (menu: MenuOptionsItemType[]): ReactNode => {
+  const renderMenuOptions = (menu: MenuOptionsItem[]): ReactNode => {
     const renders: ReactNode[] = []
 
-    const loop = (data: MenuOptionsItemType[]) => {
+    const loop = (data: MenuOptionsItem[]) => {
       data.forEach((item) => {
         if ([1, 2].includes(item.type!)) {
           renders.push(
@@ -193,7 +198,7 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
 
       const initValues: Record<string, boolean> = {}
 
-      const loop = (data?: MenuOptionsItemType[]) => {
+      const loop = (data?: MenuOptionsItem[]) => {
         data?.forEach((item) => {
           initValues[item.value] = item.auth === 1
           if (item.children?.length) loop(item.children)

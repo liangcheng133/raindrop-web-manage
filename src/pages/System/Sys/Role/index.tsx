@@ -9,7 +9,7 @@ import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from '../User/component
 import RoleAuth from './components/RoleAuth'
 import RoleDragList from './components/RoleDragList'
 import styles from './index.less'
-import { SysRoleVOType, SysUserVOType } from '@/types/API'
+import { SysRoleVOType, SysUserVOType } from '@/types/api'
 
 type UserListTablePropsType = {
   roleId?: string

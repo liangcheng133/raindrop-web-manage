@@ -1,4 +1,4 @@
-import { ResponseType, SysRoleMenuSaveDTOType } from '@/types/API'
+import { ResponseType, SysRoleMenuSaveDTOType } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 保存角色权限 */

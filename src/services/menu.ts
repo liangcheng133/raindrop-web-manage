@@ -1,4 +1,4 @@
-import { ResponseType, SysMenuVOType } from '@/types/API'
+import { ResponseType, SysMenuVOType } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 获取所有菜单 */

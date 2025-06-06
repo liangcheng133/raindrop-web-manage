@@ -1,4 +1,4 @@
-import { InitialStateType } from './types/Type'
+import { InitialStateType } from './types/type'
 import { getObjectValue } from './utils'
 
 // 在这里按照初始化数据定义项目中的权限，统一管理

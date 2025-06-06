@@ -6,21 +6,16 @@
  * @Description: 系统组织数据
  */
 import { querySysOrgListAllAPI } from '@/services/org'
-import { SysOrgVOType } from '@/types/API'
+import { SysOrgTreeVO, SysOrgVO } from '@/types/api.zod'
 import { listToTree } from '@/utils'
-import { useModel } from '@umijs/max'
 import { useRequest, useSafeState } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'
 import { isEmpty } from 'es-toolkit/compat'
 import { useRef } from 'react'
 
-export type OrgTreeItemType = SysOrgVOType & {
-  children?: OrgTreeItemType[]
-}
-
 export default () => {
   const requestRef = useRef<Promise<any> | undefined>() // 存储当前请求
-  const [treeList, setTreeList] = useSafeState<OrgTreeItemType[]>([])
+  const [treeList, setTreeList] = useSafeState<SysOrgTreeVO[]>([])
 
   const queryOrgListAll = async () => {
     const request = querySysOrgListAllAPI()
@@ -29,15 +24,15 @@ export default () => {
     return res.data || []
   }
 
-  const requestHook: Result<SysOrgVOType[], any[]> = useRequest(queryOrgListAll, {
+  const requestHook: Result<SysOrgVO[], any[]> = useRequest(queryOrgListAll, {
     manual: true,
     onSuccess: (data) => {
       if (!data) return
       /** 排序 */
-      const sortFn = (list: OrgTreeItemType[]): OrgTreeItemType[] => {
+      const sortFn = (list: SysOrgTreeVO[]): SysOrgTreeVO[] => {
         return list
           .map((item) => {
-            const newItem: OrgTreeItemType = { ...item }
+            const newItem: SysOrgTreeVO = { ...item }
             if (item.children?.length) {
               newItem.children = sortFn(item.children)
             }

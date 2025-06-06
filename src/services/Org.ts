@@ -1,4 +1,4 @@
-import { ResponseType, SysOrgVOType } from '@/types/API'
+import { ResponseType, SysOrgVOType } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 获取所有组织列表 */

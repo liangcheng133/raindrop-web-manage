@@ -1,5 +1,5 @@
 import { saveSysRoleAPI } from '@/services/role'
-import { SysRoleVOType } from '@/types/API'
+import { SysRoleVOType } from '@/types/api'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ModalFormProps, ProFormText } from '@ant-design/pro-components'
 import { useSafeState } from 'ahooks'

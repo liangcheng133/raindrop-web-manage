@@ -1,4 +1,4 @@
-import { ResponseType, TrackType } from '@/types/API'
+import { ResponseType, TrackType } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 查询行为跟踪日志列表 */

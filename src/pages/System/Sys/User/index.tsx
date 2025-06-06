@@ -1,8 +1,7 @@
 import { AuthButtons, AuthButtonsItemType } from '@/components'
 import { useTable } from '@/hooks'
-import { OrgTreeItemType } from '@/models/org'
 import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
-import { SysUserVOType } from '@/types/API'
+import { SysOrgTreeVO, SysUserVO } from '@/types/api.zod'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PlusOutlined } from '@ant-design/icons'
@@ -18,10 +17,6 @@ import styles from './index.less'
 
 const cx = classNameBind(styles)
 
-const updateStatusRequest = (ids: string[], status: number) => {
-  return updateSysUserStatusAPI({ ids, status })
-}
-
 const UserPageIndex: React.FC = () => {
   const { ValueEnum } = useModel('dict')
 
@@ -29,7 +24,7 @@ const UserPageIndex: React.FC = () => {
   const editOrgOrRoleRef = useRef<EditOrgOrRoleModalRefType>(null)
   const editUserRef = useRef<EditUserModalRefType>(null)
 
-  const [orgInfo, setOrgInfo] = useSafeState<OrgTreeItemType | undefined>() // 选中的组织
+  const [orgInfo, setOrgInfo] = useSafeState<SysOrgTreeVO>() // 选中的组织
   const [searchValue, setSearchValue] = useSafeState<string>() // 表格关键字查询
 
   /** 批量修改用户状态确认对话框 */
@@ -42,7 +37,7 @@ const UserPageIndex: React.FC = () => {
       title: '提示',
       content: modalData.content,
       onOk: async () => {
-        await updateStatusRequest(ids, 0)
+        await updateSysUserStatusAPI({ ids, status })
         antdUtil.message?.success(`${modalData.title}成功`)
         tableRef.current?.reload()
       }
@@ -50,7 +45,7 @@ const UserPageIndex: React.FC = () => {
   }
 
   /** 设置树形选中项并更新列表 */
-  const onOrgTreeSelect = (node?: OrgTreeItemType) => {
+  const onOrgTreeSelect = (node?: SysOrgTreeVO) => {
     setOrgInfo(node)
     tableRef.current?.reload()
   }
@@ -61,7 +56,7 @@ const UserPageIndex: React.FC = () => {
   }
 
   /** 表格配置 */
-  const { config: tableProps } = useTable<SysUserVOType, any>({
+  const { config: tableProps } = useTable<SysUserVO, any>({
     api: querySysUserListAPI,
     persistenceColumnsKey: 'sys.user.index',
     rowSelection: {},
@@ -131,7 +126,7 @@ const UserPageIndex: React.FC = () => {
               auth: 'sys.user.status',
               onClick: () => {
                 changeUsersStatusConfirm(
-                  selectedRows.map((item) => item.id!),
+                  selectedRows.map((item) => item.id),
                   0
                 )
               }
@@ -141,7 +136,7 @@ const UserPageIndex: React.FC = () => {
               auth: 'sys.user.status',
               onClick: () => {
                 changeUsersStatusConfirm(
-                  selectedRows.map((item) => item.id!),
+                  selectedRows.map((item) => item.id),
                   1
                 )
               }

@@ -1,5 +1,5 @@
 import { saveSysUserAPI } from '@/services/user'
-import { SysUserVOType } from '@/types/API'
+import { SysUserSaveDTO, SysUserSaveDTOSchema, SysUserVO, SysUserVOSchema } from '@/types/api.zod'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -16,19 +16,22 @@ import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import { BaseOptionType } from 'antd/es/select'
 import React, { forwardRef, useImperativeHandle } from 'react'
+import { z } from 'zod'
 
-export type EditUserModalPropsType = {
+const SysUserFormSchema = SysUserVOSchema.extend({
+  role_ids: z.array(z.string()).optional()
+})
+
+export interface EditUserModalPropsType {
   /** 组织id，不传递时默认顶级组织 */
   orgId?: string
   onSuccess?: () => void
   onFail?: (error: any) => void
 }
-export type EditUserModalRefType = {
-  open: (data?: SysUserVOType) => void
+export interface EditUserModalRefType {
+  open: (data?: SysUserVO) => void
 }
-export type SysUserFormType = Omit<SysUserVOType, 'role_ids'> & {
-  role_ids?: string[]
-}
+export type SysUserFormType = z.infer<typeof SysUserFormSchema>
 
 /** 新建、编辑用户信息弹框 */
 const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((props, ref) => {
@@ -38,19 +41,32 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
   const { list: roleList } = useModel('role')
   const [form] = Form.useForm()
 
-  const [baseFormData, setBaseFormData] = useSafeState<SysUserVOType>()
+  const [baseFormData, setBaseFormData] = useSafeState<SysUserVO>()
   const [visible, setVisible] = useSafeState(false)
 
   // 是否编辑数据
   const isEdit = !!baseFormData
 
-  const open = (data?: SysUserVOType) => {
+  const open = (data?: SysUserVO) => {
     const formData: SysUserFormType = {
-      ...data,
-      role_ids: data?.role_ids?.split(',')
+      status: 0,
+      id: '',
+      account: '',
+      name: '',
+      mobile_phone: '',
+      email: '',
+      org_id: '',
+      org_name: '',
+      is_admin: 0
     }
-    if (!data) {
-      formData.org_id = orgId
+    if (data) {
+      Object.assign(formData, data, {
+        role_ids: data.role_ids?.split(',') ?? []
+      })
+    } else {
+      Object.assign(formData, {
+        org_id: orgId ?? '0'
+      })
     }
     form.setFieldsValue(formData)
     setBaseFormData(data)
@@ -67,16 +83,21 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
 
   const onFinish = async (values: SysUserFormType) => {
     try {
-      const params: SysUserVOType = {
+      const params: SysUserSaveDTO = {
         ...values,
         role_ids: values.role_ids?.join(',')
       }
+      SysUserSaveDTOSchema.parse(params)
       await saveSysUserAPI(params)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
     } catch (error) {
-      return false
+      if (error instanceof z.ZodError) {
+        console.log('[ error ] >', error.issues)
+      } else {
+        throw error
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 import { saveSysOrgAPI } from '@/services/org'
-import { SysOrgVOType } from '@/types/API'
-import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/Type'
+import { SysOrgVOType } from '@/types/api'
+import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/type'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
