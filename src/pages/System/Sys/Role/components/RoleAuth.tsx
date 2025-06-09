@@ -8,7 +8,6 @@ import { useBoolean, useRequest, useSafeState } from 'ahooks'
 import { Button, Card, Checkbox, Spin } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import React, { ReactNode, useEffect } from 'react'
-import z from 'zod'
 import styles from '../index.less'
 
 export interface MenuTreeItem extends SysMenuVO {
@@ -20,12 +19,6 @@ export interface MenuOptionsItem extends Omit<MenuTreeItem, 'children'> {
   children?: MenuOptionsItem[]
 }
 export type RoleAuthPropsType = React.FC<{ roleId?: string }>
-
-/** 保存权限类型校验 */
-const SysRoleMenuSaveDTOSchema = z.object({
-  role_id: z.string(),
-  menu_ids: z.string()
-})
 
 const cx = classNameBind(styles)
 
@@ -65,9 +58,8 @@ const RoleAuth: RoleAuthPropsType = ({ roleId }) => {
         role_id: roleId,
         menu_ids: menuIds.join(',')
       }
-      const validData = SysRoleMenuSaveDTOSchema.parse(values)
 
-      await saveRoleMenuAPI(validData)
+      await saveRoleMenuAPI(values)
       setSaveLoadingFalse()
       antdUtil.message?.success('保存成功')
       runAsync()

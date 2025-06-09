@@ -1,5 +1,5 @@
 import { saveSysUserAPI } from '@/services/user'
-import { SysUserVO } from '@/types/api.zod'
+import { SysUserVO } from '@/types/api'
 import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/type'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ProFormSelect, ProFormTreeSelect } from '@ant-design/pro-components'

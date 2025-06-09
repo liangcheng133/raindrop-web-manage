@@ -17,9 +17,8 @@ import { noAuthHandle } from './utils/auth'
 import { localGet } from './utils/localStorage'
 import { ResError } from './utils/ResError'
 import { setupGlobalErrorHandling } from './utils/setupGlobalErrorHandling'
-import { isAxiosError, isResError } from './utils/validate'
 
-console.log('app start')
+console.log('app run')
 
 // 过滤开发环境 React 和 Antd 常见控制台警告 详见：https://github.com/ant-design/pro-components/discussions/8837
 if (process.env.NODE_ENV === 'development') {
@@ -96,9 +95,10 @@ export const request: RequestConfig = {
   headers: { 'Content-Type': 'application/json' },
   errorConfig: {
     errorHandler: (error: any) => {
+      const errorData = error as ResError
       console.log('接口错误拦截 >>> ', error)
       const onNotificationError = (msg: string, errMsg: string) => {
-        if (isResError(error) && error.response.config?.isShowNotification === false) {
+        if (error.response.config?.isShowNotification === false) {
           return
         }
         antdUtil.notification?.error({
@@ -106,27 +106,21 @@ export const request: RequestConfig = {
           description: errMsg || '请求错误，请联系管理员'
         })
       }
-      if (isResError(error)) {
-        const res = error.response
-        if (res) {
-          const status = res.status
-          if (status === 401) {
-            // 未授权时是否跳转登录页
-            if (res.config?.isReplaceLoginPage !== false) {
-              noAuthHandle()
-            }
-          } else if (res.data.status === 1) {
-            onNotificationError('请求错误', res.data.msg || res.data.error)
+
+      const res = errorData.response
+      if (res) {
+        const status = res.status
+        if (status === 401) {
+          // 未授权时是否跳转登录页
+          if (res.config?.isReplaceLoginPage !== false) {
+            noAuthHandle()
           }
-        }
-      } else if (isAxiosError(error)) {
-        const res = error.response
-        if (res) {
-          if (res.status === 504) {
-            onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
-          } else if (res.status === 404) {
-            onNotificationError('请求错误', '地址资源不存在。')
-          }
+        } else if (res.status === 504) {
+          onNotificationError('请求错误', '服务器响应超时，请稍后再试。')
+        } else if (res.status === 404) {
+          onNotificationError('请求错误', '地址资源不存在。')
+        } else if (res.data.status === 1) {
+          onNotificationError('请求错误', res.data.msg || res.data.error)
         }
       }
     }

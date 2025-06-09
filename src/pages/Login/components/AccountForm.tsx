@@ -1,8 +1,7 @@
 import { sysUserAccountLoginAPI } from '@/services/user'
-import { AccountLoginDTO, AccountLoginDTOSchema } from '@/types/api.zod'
-import { zodErrorSendToForm } from '@/utils'
+import { AccountLoginDTO } from '@/types/api'
+import { handleError } from '@/utils'
 import { rsaEncrypt } from '@/utils/encrypt'
-import { isZodError } from '@/utils/validate'
 import { ProForm, ProFormText } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
 import { Button, Form } from 'antd'
@@ -16,15 +15,12 @@ const AccountForm: React.FC = () => {
 
   const onFinish = async (values: AccountLoginDTO) => {
     try {
-      AccountLoginDTOSchema.parse(values)
       values.password = await rsaEncrypt(values.password)
       const res = await sysUserAccountLoginAPI(values)
       handleLoginSuccess(res.data)
       return true
     } catch (error) {
-      if (isZodError(error)) {
-        zodErrorSendToForm(error, form)
-      }
+      handleError(error)
       console.log('[ 登录error ] >', error)
       return false
     }

@@ -1,5 +1,4 @@
 import { AxiosError } from 'axios'
-import z from 'zod'
 import { ResError } from './ResError'
 
 /**
@@ -21,14 +20,6 @@ export function isJSONString(val: unknown): boolean {
  */
 export function isPromise(val: any): val is Promise<any> {
   return val && typeof val.then === 'function'
-}
-
-/**
- * 判断是否为Zod的异常抛出
- * @returns
- */
-export function isZodError(val: any): val is z.ZodError {
-  return val && val instanceof z.ZodError
 }
 
 /**

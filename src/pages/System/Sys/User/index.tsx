@@ -1,7 +1,7 @@
 import { AuthButtons, AuthButtonsItemType } from '@/components'
 import { useTable } from '@/hooks'
 import { querySysUserListAPI, updateSysUserStatusAPI } from '@/services/user'
-import { SysOrgTreeVO, SysUserVO } from '@/types/api.zod'
+import { SysOrgTreeVO, SysUserVO } from '@/types/api'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PlusOutlined } from '@ant-design/icons'

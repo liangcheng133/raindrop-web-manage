@@ -5,7 +5,6 @@ import WebTracing from '@web-tracing/core'
 import { App } from 'antd'
 import { cloneDeep } from 'es-toolkit'
 import React from 'react'
-import { z } from 'zod'
 import AntdAppLayout from './AntdAppLayout'
 
 /** 系统入口布局 */
@@ -20,22 +19,20 @@ const AppLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
 export default AppLayout
 
-const TrackSchema = z.object({
-  event_type: z.string(),
-  event_source: z.string(),
-  url: z.string(),
-  app_code: z.string(),
-  app_name: z.string(),
-  user_id: z.string().optional(),
-  ip_address: z.string().optional(),
-  device: z.string().optional(),
-  browser: z.string().optional(),
-  send_time: z.number(),
-  data: z.string(),
-  err_message: z.string()
-})
-const TrackListSchema = z.array(TrackSchema)
-type TrackType = z.infer<typeof TrackSchema>
+interface TrackType {
+  event_type: string
+  event_source: string
+  url: string
+  app_code: string
+  app_name: string
+  user_id?: string
+  ip_address?: string
+  device?: string
+  browser?: string
+  send_time: number
+  data: string
+  err_message: string
+}
 
 /** 前端监控上报 */
 WebTracing.init({
@@ -50,7 +47,7 @@ WebTracing.init({
   event: false, // 是否采集点击事件
   cacheMaxLength: 5,
   cacheWatingTime: 5000,
-  userUuid: localGet(USER_ID_KEY),
+  userUuid: localGet(USER_ID_KEY) || '',
   scopeError: true,
   tracesSampleRate: 0.5,
   beforeSendData(data) {
@@ -90,7 +87,6 @@ WebTracing.init({
     // 返回false代表sdk不再发送
     if (trackList.length === 0) return false
 
-    const trackListValue = TrackListSchema.parse(trackList)
-    return trackListValue
+    return trackList
   }
 })

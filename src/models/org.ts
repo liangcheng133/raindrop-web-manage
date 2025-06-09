@@ -6,7 +6,7 @@
  * @Description: 系统组织数据
  */
 import { querySysOrgListAllAPI } from '@/services/org'
-import { SysOrgTreeVO, SysOrgVO } from '@/types/api.zod'
+import { SysOrgTreeVO, SysOrgVO } from '@/types/api'
 import { listToTree } from '@/utils'
 import { useRequest, useSafeState } from 'ahooks'
 import { Result } from 'ahooks/lib/useRequest/src/types'

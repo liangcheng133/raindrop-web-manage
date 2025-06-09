@@ -1,4 +1,4 @@
-import { AccountLoginDTO, AccountLoginVO, ResponseVO, SysLoginUserVO, SysUserVO } from '@/types/api.zod'
+import { AccountLoginDTO, AccountLoginVO, ResponseVO, SysLoginUserVO, SysUserVO } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */

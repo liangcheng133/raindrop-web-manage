@@ -1,7 +1,9 @@
-import { FormInstance } from 'antd'
-import { isNil, isPlainObject } from 'es-toolkit'
+import { traceError } from '@web-tracing/core'
+import { isError, isNil, isPlainObject } from 'es-toolkit'
 import { isObject } from 'es-toolkit/compat'
-import z from 'zod'
+import { antdUtil } from './antdUtil'
+import { isAxiosError } from './validate'
+import { HandleErrorConfigType, SendErrorToServerConfigType } from '@/types/type'
 
 /**
  * 将对象拼接到URL的查询字符串中
@@ -125,31 +127,42 @@ export function getObjectValue(obj: any, key: string, keyRegexp?: RegExp) {
 }
 
 /**
- * 校验zod单个字段
- * @param schema - zod schema
- * @param field - 字段名
- * @param value - 字段值
- * @returns 错误信息，无错误时返回空字符串
+ * 处理错误
+ * 该函数根据错误类型将错误信息发送到不同的处理渠道
+ * @param error 任意类型的错误对象，是函数处理的主要对象
+ * @param config 可选的错误处理配置对象，用于定制错误处理行为
  */
-// export function validateZodField<TSchema extends z.AnyZodObject, TKey extends keyof z.infer<TSchema>>(
-//   schema: TSchema,
-//   field: TKey,
-//   value: z.infer<TSchema>[TKey]
-// ): string {
-//   const fieldSchema = schema.pick({ [field]: true } as Record<string, true>)
-//   const validResult = fieldSchema.safeParse({ [field]: value })
-//   return validResult.success ? '' : validResult.error.issues[0].message
-// }
+export function handleError(error: any, config?: HandleErrorConfigType) {
+  if (!error || !isError(error)) return
+  if (!isAxiosError(error)) {
+    console.log('非接口异常，由handleError处理')
+    sendErrorToServer(error, config)
+  }
+}
 
 /**
- * 将Zod验证错误信息发送到表单实例
- * 此函数的作用是将Zod库生成的验证错误信息映射到表单的相应字段中
- * 
- * @param error - Zod验证错误对象，包含了验证失败的字段路径和错误消息
- * @param form - 表单实例，通过该实例可以设置字段的错误信息
+ * 将错误信息发送到服务器
+ *
+ * 此函数用于将捕获到的错误信息手动发送到服务器，并根据配置显示错误消息
+ * 它主要在应用程序中捕获到未处理的异常时使用，以便开发者能够得到错误的详细信息，
+ * 并根据这些信息进行调试和修复
+ *
+ * @param error 发生的错误对象，应包含错误消息和错误堆栈
+ * @param config 可选的配置对象，包含是否显示错误消息、是否将错误发送到服务器以及自定义错误消息
  */
-export function zodErrorSendToForm(error: z.ZodError, form: FormInstance) {
-  error.issues.forEach((issue) => {
-    form.setFields([{ name: issue.path[0], errors: [issue.message] }])
-  })
+export function sendErrorToServer(error: any, config?: SendErrorToServerConfigType) {
+  const { showMessage = true, sentToServer = true, message } = config || {}
+  if (sentToServer) {
+    traceError(
+      {
+        eventId: 'manual',
+        errMessage: error.message,
+        errStack: error.stack
+      },
+      true
+    )
+  }
+  if (showMessage) {
+    antdUtil?.message?.error(message || '程序异常，请稍后重试')
+  }
 }

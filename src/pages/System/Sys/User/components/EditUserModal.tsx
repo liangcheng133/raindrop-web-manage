@@ -1,5 +1,5 @@
 import { saveSysUserAPI } from '@/services/user'
-import { SysUserSaveDTO, SysUserSaveDTOSchema, SysUserVO, SysUserVOSchema } from '@/types/api.zod'
+import { SysUserSaveDTO, SysUserVO } from '@/types/api'
 import { antdUtil } from '@/utils/antdUtil'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -16,11 +16,6 @@ import { useSafeState } from 'ahooks'
 import { Button, Form } from 'antd'
 import { BaseOptionType } from 'antd/es/select'
 import React, { forwardRef, useImperativeHandle } from 'react'
-import { z } from 'zod'
-
-const SysUserFormSchema = SysUserVOSchema.extend({
-  role_ids: z.array(z.string()).optional()
-})
 
 export interface EditUserModalPropsType {
   /** 组织id，不传递时默认顶级组织 */
@@ -31,7 +26,9 @@ export interface EditUserModalPropsType {
 export interface EditUserModalRefType {
   open: (data?: SysUserVO) => void
 }
-export type SysUserFormType = z.infer<typeof SysUserFormSchema>
+export interface SysUserFormType extends Omit<SysUserVO, 'role_ids'> {
+  role_ids?: string[]
+}
 
 /** 新建、编辑用户信息弹框 */
 const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((props, ref) => {
@@ -87,17 +84,12 @@ const EditUserModal = forwardRef<EditUserModalRefType, EditUserModalPropsType>((
         ...values,
         role_ids: values.role_ids?.join(',')
       }
-      SysUserSaveDTOSchema.parse(params)
       await saveSysUserAPI(params)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.log('[ error ] >', error.issues)
-      } else {
-        throw error
-      }
+      console.log('[ error ] >', error)
     }
   }
 
