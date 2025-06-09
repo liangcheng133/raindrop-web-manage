@@ -104,3 +104,19 @@ export interface SysLoginUserVO {
 export interface SysOrgTreeVO extends SysOrgVO {
   children?: SysOrgVO[]
 }
+
+/** 轨迹信息类型 */
+export interface TrackVO {
+  event_type: string
+  event_source: string
+  url: string
+  app_code: string
+  app_name: string
+  user_id?: string
+  ip_address?: string
+  device?: string
+  browser?: string
+  send_time: number
+  data: string
+  err_message: string
+}

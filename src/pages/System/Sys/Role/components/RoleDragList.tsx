@@ -40,7 +40,7 @@ const RoleDragList = forwardRef<null, RoleDragListProps>((props, ref) => {
   const { list: roleListOrigin, loading: getRoleLoading, refresh: refreshRoleList } = useModel('role')
 
   const roleEditModalRef = useRef<RoleEditModalRefType>(null)
-  const [selectedInfo, setSelectedInfo] = useSafeState<SysRoleVO>({})
+  const [selectedInfo, setSelectedInfo] = useSafeState<Partial<SysRoleVO>>({})
   const [roleList, setRoleList] = useSafeState<SysRoleVO[]>([])
 
   useEffect(() => {
@@ -83,9 +83,11 @@ const RoleDragList = forwardRef<null, RoleDragListProps>((props, ref) => {
         antdUtil.modal?.confirm({
           title: '提示',
           content: `此操作将删除角色【${record.name}】，确定删除？`,
+          okText: '确认',
+          cancelText: '取消',
           onOk: async () => {
             try {
-              await deleteSysRoleAPI({ id: record.id })
+              await deleteSysRoleAPI(record.id)
               if (record.id === selectedInfo.id) handleSelect(roleList[0])
               antdUtil.message?.success('删除成功')
               refreshRoleList()

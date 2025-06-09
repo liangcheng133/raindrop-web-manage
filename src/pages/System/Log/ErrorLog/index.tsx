@@ -1,6 +1,7 @@
+import { AuthButtons } from '@/components'
 import { useTable } from '@/hooks'
 import { queryTrackListAPI } from '@/services/track'
-import { TrackType } from '@/types/api'
+import { TrackVO } from '@/types/api'
 import { classNameBind } from '@/utils/classnamesBind'
 import { PageContainer, ProTable } from '@ant-design/pro-components'
 import { unzipRecordscreen } from '@web-tracing/core'
@@ -16,47 +17,57 @@ const cx = classNameBind(styles)
 const ErrorLogList: React.FC<React.PropsWithChildren> = (props) => {
   const [errModalVisible, { setTrue: openErrModal, setFalse: closeErrModal }] = useBoolean(false)
 
-  const tableProps = useTable<TrackType>({
+  // 查看回放
+  const viewReplay = (record: TrackVO) => {
+    openErrModal()
+    setTimeout(() => {
+      const dom = document.getElementById('recordScreen')
+      if (!record.data || !dom) return
+      const data = JSON.parse(record.data)
+      const recordscreen = unzipRecordscreen(data.recordscreen)
+      new rrwebPlayer({
+        target: dom,
+        props: {
+          width: 1000,
+          events: recordscreen as any,
+          UNSAFE_replayCanvas: true
+        }
+      })
+    }, 300)
+  }
+
+  const { config: tableProps } = useTable<TrackVO, any>({
     api: queryTrackListAPI,
-    search: { labelWidth: 'auto', layout: 'inline' },
     persistenceColumnsKey: 'sys.track.index',
     columns: [
-      { title: '应用名称', dataIndex: 'app_name', width: 140, search: false },
-      { title: '事件类型', dataIndex: 'event_type', width: 120, search: false },
-      { title: '事件来源', dataIndex: 'event_source', width: 120, search: false },
-      { title: '位置URL', dataIndex: 'url', width: 200, search: false },
-      { title: 'IP地址', dataIndex: 'ip_address', width: 140, search: false },
-      { title: '设备/平台', dataIndex: 'device', width: 100, search: false },
-      { title: '浏览器', dataIndex: 'browser', width: 100, search: false },
-      { title: '发生时间', dataIndex: 'send_time', width: 170, search: false },
+      { title: '应用名称', dataIndex: 'app_name', width: 140 },
+      { title: '事件类型', dataIndex: 'event_type', width: 120 },
+      { title: '事件来源', dataIndex: 'event_source', width: 120 },
+      { title: '位置URL', dataIndex: 'url', width: 200 },
+      { title: 'IP地址', dataIndex: 'ip_address', width: 140 },
+      { title: '设备/平台', dataIndex: 'device', width: 100 },
+      { title: '浏览器', dataIndex: 'browser', width: 100 },
+      { title: '发生时间', dataIndex: 'send_time', width: 170 },
       {
-        valueType: 'option',
-        width: 100,
-        renderOperation: (text, record) => {
-          return [
-            {
-              name: '查看回放',
-              key: 'edit',
-              hide: record.event_type !== 'error',
-              onClick: () => {
-                openErrModal()
-                setTimeout(() => {
-                  const dom = document.getElementById('recordScreen')
-                  if (!record.data || !dom) return
-                  const data = JSON.parse(record.data)
-                  const recordscreen = unzipRecordscreen(data.recordscreen)
-                  new rrwebPlayer({
-                    target: dom,
-                    props: {
-                      width: 1000,
-                      events: recordscreen as any,
-                      UNSAFE_replayCanvas: true
-                    }
-                  })
-                }, 300)
-              }
-            }
-          ]
+        title: '操作',
+        dataIndex: 'option',
+        width: 80,
+        fixed: 'right',
+        render: (_, record) => {
+          return (
+            <AuthButtons
+              items={[
+                {
+                  title: '查看回放',
+                  type: 'link',
+                  hide: record.event_type !== 'error',
+                  onClick: () => {
+                    viewReplay(record)
+                  }
+                }
+              ]}
+            />
+          )
         }
       }
     ]

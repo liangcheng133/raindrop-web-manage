@@ -1,4 +1,5 @@
 import { USER_ID_KEY, WEB_CODE, WEB_NAME } from '@/constants'
+import { TrackVO } from '@/types/api'
 import { localGet } from '@/utils/localStorage'
 import { IGNORED_WARNING_MESSAGES } from '@/utils/setupGlobalErrorHandling'
 import WebTracing from '@web-tracing/core'
@@ -19,21 +20,6 @@ const AppLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
 export default AppLayout
 
-interface TrackType {
-  event_type: string
-  event_source: string
-  url: string
-  app_code: string
-  app_name: string
-  user_id?: string
-  ip_address?: string
-  device?: string
-  browser?: string
-  send_time: number
-  data: string
-  err_message: string
-}
-
 /** 前端监控上报 */
 WebTracing.init({
   dsn: '/api/public/track',
@@ -52,7 +38,7 @@ WebTracing.init({
   tracesSampleRate: 0.5,
   beforeSendData(data) {
     const { eventInfo, baseInfo }: any = cloneDeep(data)
-    const trackList: TrackType[] = []
+    const trackList: TrackVO[] = []
     // react 有报错上抛第一次错误的机制，这里给它规避掉
     eventInfo.forEach((item: any) => {
       if (['error', 'custom'].includes(item.eventType)) {

@@ -1,6 +1,7 @@
 import { CardExtraOptions, IconFont } from '@/components'
-import { OrgTreeItem } from '@/models/org'
+import { ORG_ID_MAIN } from '@/constants'
 import { deleteSysOrgAPI, sortSysOrgOrderAPI } from '@/services/org'
+import { SysOrgTreeVO, SysOrgVO } from '@/types/api'
 import { antdUtil } from '@/utils/antdUtil'
 import { classNameBind } from '@/utils/classnamesBind'
 import { useModel } from '@umijs/max'
@@ -11,11 +12,15 @@ import { isEmpty } from 'es-toolkit/compat'
 import React, { useEffect, useRef } from 'react'
 import styles from '../index.less'
 import EditOrgModal, { EditOrgModalRefType } from './EditOrgModal'
-import { ORG_ID_MAIN } from '@/constants'
 
+interface OrgTreeNode extends Omit<SysOrgTreeVO, 'children'> {
+  /** 数据不需要写入key，Tree组件会自己写入一个uuid */
+  key: string
+  children?: OrgTreeNode[]
+}
 export type OrgTreePropsType = React.PropsWithChildren & {
   /** 选中树节点回调 */
-  onSelect?: (node?: OrgTreeItem) => void
+  onSelect?: (node?: SysOrgTreeVO) => void
 }
 export type OrgUpdateOrderParamType = {
   id?: string
@@ -37,12 +42,12 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
 
   const [isOrgTreeDrop, setIsOrgTreeDrop] = useSafeState<boolean>(false) // 是否使用组织树拖曳
   const [selectOrgId, setSelectOrgId] = useSafeState<string>() // 选中的组织id
-  const [orgTreeListCopy, setOrgTreeListCopy] = useSafeState<OrgTreeItem[]>([]) // 组织树数据
+  const [orgTreeListCopy, setOrgTreeListCopy] = useSafeState<OrgTreeNode[]>([]) // 组织树数据
 
   const editOrgModalRef = useRef<EditOrgModalRefType>(null)
 
   useEffect(() => {
-    setOrgTreeListCopy(orgTreeList)
+    setOrgTreeListCopy(orgTreeList as OrgTreeNode[])
   }, [orgTreeList])
 
   /** 处理树形拖曳结束回调 */
@@ -54,9 +59,9 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
     const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
 
     const loop = (
-      data: OrgTreeItem[],
+      data: SysOrgTreeVO[],
       key: React.Key,
-      callback: (node: OrgTreeItem, i: number, data: OrgTreeItem[]) => void
+      callback: (node: SysOrgTreeVO, i: number, data: SysOrgTreeVO[]) => void
     ) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i].id === key) {
@@ -68,9 +73,9 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
       }
     }
 
-    const data = cloneDeep(orgTreeListCopy) as OrgTreeItem[]
+    const data = cloneDeep(orgTreeListCopy)
 
-    let dragObj: OrgTreeItem
+    let dragObj: SysOrgTreeVO
     loop(data, dragKey, (item, index, arr) => {
       arr.splice(index, 1)
       dragObj = item
@@ -81,7 +86,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
         item.children.unshift(dragObj)
       })
     } else {
-      let ar: OrgTreeItem[] = []
+      let ar: SysOrgTreeVO[] = []
       let i: number
       loop(data, dropKey, (_item, index, arr) => {
         ar = arr
@@ -97,13 +102,14 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
   }
 
   /** 处理节点设置是否可拖动 */
-  const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData: OrgTreeItem) => {
-    if (nodeData.id === ORG_ID_MAIN) return false // 根节点不允许拖动
+  const handleOrgTreeDraggable: TreeProps['draggable'] = (nodeData: any) => {
+    const data = nodeData as SysOrgTreeVO
+    if (data.id === ORG_ID_MAIN) return false // 根节点不允许拖动
     return isOrgTreeDrop
   }
 
   /** 设置选中的组织id并回调 */
-  const setSelectOrgIdAndCallback = (node?: OrgTreeItem) => {
+  const setSelectOrgIdAndCallback = (node?: SysOrgTreeVO) => {
     setSelectOrgId(node?.id)
     onSelect?.(node)
   }
@@ -111,7 +117,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
   /** 处理树形选中回调 */
   const onOrgTreeSelect: TreeProps['onSelect'] = (selectedKeys, { node, selected }) => {
     if (isOrgTreeDrop) return
-    setSelectOrgIdAndCallback(selected ? node : undefined)
+    setSelectOrgIdAndCallback(selected ? (node as any) : undefined)
   }
 
   /** 处理编辑组织成功回调 */
@@ -119,8 +125,37 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
     refreshOrgList(true)
   }
 
+  /** 保存组织树排序 */
+  const saveOrgTreeOrder = async () => {
+    try {
+      const data: OrgUpdateOrderParamType[] = []
+      // 递归树，并且更新排序
+      const loop = (orgList: SysOrgTreeVO[], parent_id: string) => {
+        orgList.forEach((item, index) => {
+          data.push({
+            id: item.id,
+            parent_id: parent_id,
+            sort: index + 1
+          })
+          if (item.children?.length) {
+            loop(item.children, item.id!)
+          }
+        })
+      }
+      loop(orgTreeListCopy, '0')
+
+      await sortSysOrgOrderAPI(data)
+
+      antdUtil.message?.success('排序成功')
+      setIsOrgTreeDrop(false)
+      refreshOrgList(true)
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
   /** 处理节点设置下拉菜单点击回调 */
-  const onOrgTreeTitleClick = ({ key }: { key: string }, record: OrgTreeItem) => {
+  const onOrgTreeTitleClick = ({ key }: { key: string }, record: SysOrgTreeVO) => {
     switch (key) {
       case 'createChildOrg':
         setSelectOrgId(record.id)
@@ -149,7 +184,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
 
   /** 处理节点标题渲染 */
   const handleOrgTreeTitleRender: TreeProps['titleRender'] = (nodeData) => {
-    const data = nodeData as OrgTreeItem
+    const data = nodeData as unknown as SysOrgVO
     return (
       <div className={cx('tree-title')}>
         <span className={cx('tree-title-txt')}> {data.name}</span>
@@ -188,31 +223,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
           title: '确认',
           hide: !isOrgTreeDrop,
           onClick: async () => {
-            try {
-              const data: OrgUpdateOrderParamType[] = []
-              // 递归树，并且更新排序
-              const loop = (orgList: OrgTreeItem[], parent_id: string) => {
-                orgList.forEach((item, index) => {
-                  data.push({
-                    id: item.id,
-                    parent_id: parent_id,
-                    sort: index + 1
-                  })
-                  if (item.children?.length) {
-                    loop(item.children, item.id!)
-                  }
-                })
-              }
-              loop(orgTreeListCopy, '0')
-
-              await sortSysOrgOrderAPI(data)
-
-              antdUtil.message?.success('排序成功')
-              setIsOrgTreeDrop(false)
-              refreshOrgList(true)
-            } catch (error) {
-              console.log('error', error)
-            }
+            saveOrgTreeOrder()
           }
         },
         {
@@ -262,7 +273,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
           <Spin spinning={refreshOrgLoading}>
             {/* 配合defaultExpandAll，刷新之后展开全部 */}
             {!refreshOrgLoading && (
-              <Tree
+              <Tree<OrgTreeNode>
                 defaultExpandAll
                 showIcon
                 blockNode
@@ -270,7 +281,7 @@ const OrgTree: React.FC<OrgTreePropsType> = ({ onSelect }) => {
                 draggable={handleOrgTreeDraggable}
                 titleRender={handleOrgTreeTitleRender}
                 selectedKeys={[selectOrgId || '']}
-                treeData={orgTreeListCopy as TreeProps['treeData']}
+                treeData={orgTreeListCopy}
                 fieldNames={{ key: 'id', title: 'name' }}
                 onSelect={onOrgTreeSelect}
                 onDrop={onOrgDrop}

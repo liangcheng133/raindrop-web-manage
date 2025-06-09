@@ -22,7 +22,7 @@ export type UserTableProps<T, U> = {
 }
 
 export type HandleParams<U> = (
-  params: Record<string, any>,
+  params: U,
   sort: Record<string, SortOrder>,
   filter: Record<string, (string | number)[] | null>
 ) => any
@@ -113,7 +113,7 @@ const handleRequest = <T, U>(config: ProTableProps<T, U>, initialConfig: UseTabl
       filter: RequestFunctionParams<T, U>[2]
     ) => {
       const { current, pageSize, ...rest } = params
-      let requestParams = { ...rest, current: current, count: pageSize }
+      let requestParams = { ...rest, current: current, count: pageSize } as U
       if (handleParams) {
         requestParams = handleParams(requestParams, sort, filter)
       }

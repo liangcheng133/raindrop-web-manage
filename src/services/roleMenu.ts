@@ -1,9 +1,9 @@
-import { ResponseType, SysRoleMenuSaveDTOType } from '@/types/api'
+import { ResponseVO, SysRoleMenuSaveDTO } from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 保存角色权限 */
-export function saveRoleMenuAPI(data: SysRoleMenuSaveDTOType): Promise<ResponseType<Boolean>> {
-  return request('/sys/roleMenu/save', {
+export function saveRoleMenuAPI(data: SysRoleMenuSaveDTO) {
+  return request<ResponseVO<null>>('/sys/roleMenu/save', {
     method: 'post',
     data
   })

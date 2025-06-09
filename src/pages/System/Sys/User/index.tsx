@@ -118,6 +118,7 @@ const UserPageIndex: React.FC = () => {
       if (selectedRows.some((item) => item.is_admin === 1)) {
         return null
       }
+      const ids = selectedRows.map((item) => item.id)
       return (
         <AuthButtons
           items={[
@@ -125,20 +126,14 @@ const UserPageIndex: React.FC = () => {
               title: '启用',
               auth: 'sys.user.status',
               onClick: () => {
-                changeUsersStatusConfirm(
-                  selectedRows.map((item) => item.id),
-                  0
-                )
+                changeUsersStatusConfirm(ids, 0)
               }
             }),
             itemsRender({
               title: '禁用',
               auth: 'sys.user.status',
               onClick: () => {
-                changeUsersStatusConfirm(
-                  selectedRows.map((item) => item.id),
-                  1
-                )
+                changeUsersStatusConfirm(ids, 1)
               }
             }),
             itemsRender({
