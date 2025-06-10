@@ -4,7 +4,7 @@ import { ProTableProps } from '@ant-design/pro-table'
 import { useSafeState } from 'ahooks'
 import { TableProps } from 'antd'
 import { SortOrder } from 'antd/es/table/interface'
-import { cloneDeep, throttle } from 'es-toolkit'
+import { throttle } from 'es-toolkit'
 import { useEffect, useRef } from 'react'
 
 export type ColumnsType<T> = ProColumns<T>
@@ -157,11 +157,10 @@ const handleInitialConfig = <T, U>(initialConfig?: UseTableConfigType<T, U>) => 
     }
   }
   if (initialConfig) {
-    const { clearEmptyParams = true, calcTableHeightThreshold = 100, ...rest } = cloneDeep(initialConfig)
+    const { clearEmptyParams = true, calcTableHeightThreshold = 100, ...rest } = initialConfig
     Object.assign(config, { ...rest, clearEmptyParams, calcTableHeightThreshold })
   }
 
-  console.log('[ handleInitialConfig config ] >', config)
   return config
 }
 

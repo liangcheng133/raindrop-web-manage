@@ -1,6 +1,7 @@
-import { saveSysUserAPI } from '@/services/user'
-import { SysUserVO } from '@/types/api'
+import { updateSysUserOrgAPI, updateSysUserRoleAPI } from '@/services/user'
+import { SysUserUpdateOrgDTO, SysUserUpdateRoleDTO, SysUserVO } from '@/types/api'
 import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/type'
+import { handleError } from '@/utils'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ProFormSelect, ProFormTreeSelect } from '@ant-design/pro-components'
 import { useModel } from '@umijs/max'
@@ -30,6 +31,7 @@ export type FormType = {
   org_id: string
   role_ids: string[]
 }
+export type RequestParams = SysUserUpdateRoleDTO & SysUserUpdateOrgDTO
 
 /** 编辑用户的组织或角色弹框 */
 const EditOrgOrRoleModal = forwardRef<EditOrgOrRoleModalRefType, EditOrgOrRoleModalPropsType>(({ onSuccess }, ref) => {
@@ -63,20 +65,28 @@ const EditOrgOrRoleModal = forwardRef<EditOrgOrRoleModalRefType, EditOrgOrRoleMo
 
   const onFinish: ModalFormOnFinishType = async (values) => {
     try {
-      const params: SysUserVO = {
-        ...action?.data,
-        ...values
+      if (!action) {
+        throw new Error('操作数据不存在')
+      }
+      const params: RequestParams = {
+        id: action?.data.id,
+        role_ids: '',
+        org_id: ''
       }
       if (action?.type === 'role') {
         params.role_ids = values.role_ids?.join(',')
+        await updateSysUserRoleAPI(params)
+      } else if (action?.type === 'org') {
+        params.org_id = values.org_id
+        await updateSysUserOrgAPI(params)
       }
 
-      await saveSysUserAPI(params)
       antdUtil.message?.success('保存成功')
       onSuccess?.()
       return true
     } catch (error) {
-      console.log(error)
+      handleError(error)
+      console.log('[ 编辑用户角色/组织 error ] >', error)
       return false
     }
   }

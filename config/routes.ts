@@ -27,15 +27,14 @@ export default [
         name: '首页',
         path: '/home',
         component: './Home',
-        hideInBreadcrumb: true, // 在面包屑隐藏
+        hideInBreadcrumb: true // 在面包屑隐藏
         // wrappers: ['@/wrappers/auth']
       },
       {
         name: '个人信息',
         path: '/personalCenter',
         component: './PersonalCenter',
-        hideInMenu: true, // 在菜单隐藏
-        // wrappers: ['@/wrappers/auth']
+        hideInMenu: true // 在菜单隐藏
       },
       {
         name: '成员',
@@ -48,8 +47,7 @@ export default [
           {
             name: '成员管理',
             path: '/member/members',
-            component: './Member/Members',
-            // wrappers: ['@/wrappers/auth']
+            component: './Member/Members'
           }
         ]
       },
@@ -66,15 +64,13 @@ export default [
                 name: '用户管理',
                 path: '/system/sys/user',
                 component: './System/Sys/User',
-                access: 'canSeeSysUser' // 访问权限控制，在 src\access.ts 里处理。
-                // wrappers: ['@/wrappers/auth']
+                access: 'sys.user.index' // 访问权限控制，在 src\access.ts 里处理。
               },
               {
                 name: '角色管理',
                 path: '/system/sys/role',
                 component: './System/Sys/Role',
-                access: 'canSeeSysRole'
-                // wrappers: ['@/wrappers/auth']
+                access: 'sys.role.index'
               }
             ]
           },
@@ -84,26 +80,22 @@ export default [
             icon: 'icon-log',
             routes: [
               {
-                path: '/system/log',
-                redirect: '/system/log/loginLog'
-              },
-              {
                 name: '登陆日志',
                 path: '/system/log/loginLog',
                 component: './System/Log/LoginLog',
-                // wrappers: ['@/wrappers/auth']
+                access: 'sys.loginLog.index'
               },
               {
                 name: '操作日志',
                 path: '/system/log/operationLog',
                 component: './System/Log/OperationLog',
-                // wrappers: ['@/wrappers/auth']
+                access: 'sys.operationLog.index'
               },
               {
-                name: '错误日志',
+                name: '异常日志',
                 path: '/system/log/errorLog',
                 component: './System/Log/ErrorLog',
-                // wrappers: ['@/wrappers/auth']
+                access: 'sys.errorLog.index'
               }
             ]
           }

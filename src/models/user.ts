@@ -1,6 +1,6 @@
 /*
  * @Date: 2025-04-01 16:40:20
- * @LastEditTime: 2025-06-09 15:24:12
+ * @LastEditTime: 2025-06-10 17:31:50
  * @Author: CLX
  * @LastEditors: CLX
  * @Description: 用户、权限信息
@@ -39,7 +39,10 @@ export default () => {
   }
 
   useEffect(() => {
-    WebTracing.setUserUuid(userId)
+    console.log('[ userId ] >', userId, WebTracing.getUserUuid())
+    if (userId) {
+      WebTracing.setUserUuid(userId)
+    }
   }, [userId])
 
   return {

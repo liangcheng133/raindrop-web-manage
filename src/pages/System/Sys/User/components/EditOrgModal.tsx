@@ -1,5 +1,5 @@
 import { saveSysOrgAPI } from '@/services/org'
-import { SysOrgVOType } from '@/types/api'
+import { SysOrgVO } from '@/types/api'
 import { ModalFormOnFinishType, ModalFormOnOpenChangeType } from '@/types/type'
 import { antdUtil } from '@/utils/antdUtil'
 import { ModalForm, ProFormText, ProFormTreeSelect } from '@ant-design/pro-components'
@@ -19,7 +19,7 @@ export type EditOrgModalRefType = {
    * 打开弹框
    * @param {*} data 编辑数据，传递时则为编辑模式
    */
-  open: (data?: SysOrgVOType) => void
+  open: (data?: SysOrgVO) => void
   close: () => void
 }
 
@@ -29,10 +29,10 @@ const EditOrgModal = forwardRef<EditOrgModalRefType, EditOrgModalPropsType>(({ o
   const { treeList: orgTreeList } = useModel('org')
 
   const [visible, setVisible] = useSafeState(false)
-  const [baseFormData, setBaseFormData] = useSafeState<SysOrgVOType>()
+  const [baseFormData, setBaseFormData] = useSafeState<SysOrgVO>()
   const isEdit = !!baseFormData?.id
 
-  const open = (data?: SysOrgVOType) => {
+  const open = (data?: SysOrgVO) => {
     form.setFieldsValue(data)
     setBaseFormData(data)
     setVisible(true)
@@ -71,7 +71,6 @@ const EditOrgModal = forwardRef<EditOrgModalRefType, EditOrgModalPropsType>(({ o
       title={isEdit ? '编辑组织' : '新建组织'}
       width={500}
       form={form}
-      // trigger={trigger}
       open={visible}
       onFinish={onFinish}
       onOpenChange={onOpenChange}

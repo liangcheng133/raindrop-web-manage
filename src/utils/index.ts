@@ -1,9 +1,9 @@
+import { HandleErrorConfigType, SendErrorToServerConfigType } from '@/types/type'
 import { traceError } from '@web-tracing/core'
 import { isError, isNil, isPlainObject } from 'es-toolkit'
 import { isObject } from 'es-toolkit/compat'
 import { antdUtil } from './antdUtil'
 import { isAxiosError } from './validate'
-import { HandleErrorConfigType, SendErrorToServerConfigType } from '@/types/type'
 
 /**
  * 将对象拼接到URL的查询字符串中
@@ -151,7 +151,8 @@ export function handleError(error: any, config?: HandleErrorConfigType) {
  * @param config 可选的配置对象，包含是否显示错误消息、是否将错误发送到服务器以及自定义错误消息
  */
 export function sendErrorToServer(error: any, config?: SendErrorToServerConfigType) {
-  const { showMessage = true, sentToServer = true, message } = config || {}
+  const { showMessage = true, sentToServer = true, message = '程序异常，请稍后重试' } = config || {}
+  console.log('[ sentToServer ] >', sentToServer)
   if (sentToServer) {
     traceError(
       {
@@ -163,6 +164,6 @@ export function sendErrorToServer(error: any, config?: SendErrorToServerConfigTy
     )
   }
   if (showMessage) {
-    antdUtil?.message?.error(message || '程序异常，请稍后重试')
+    antdUtil?.message?.error(message)
   }
 }

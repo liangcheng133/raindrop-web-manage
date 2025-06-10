@@ -37,3 +37,21 @@ export function format(val: Date | string | number | dayjs.Dayjs, formatStr?: st
 export function getCurrentTime(formatStr?: string): string {
   return format(dayjs(), formatStr)
 }
+
+/**
+ * 获取本月的第一天
+ * @param {string} formatStr 日期格式
+ * @return {string}
+ */
+export function getFirstDayOfMonth(formatStr?: string): string {
+  return format(dayjs().startOf('month'), formatStr)
+}
+
+/**
+ * 获取本月的最后一天
+ * @param {string} formatStr 日期格式
+ * @return {string}
+ */
+export function getLastDayOfMonth(formatStr?: string): string {
+  return format(dayjs().endOf('month'), formatStr)
+}

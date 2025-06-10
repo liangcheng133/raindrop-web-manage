@@ -47,10 +47,10 @@ WebTracing.init({
         if (IGNORED_WARNING_MESSAGES.some((warningMsg) => item.errMessage.includes(warningMsg))) {
           return
         }
-        // 接口异常不上报
-        if (item.eventId === 'server') return
+        // 接口异常 不上报
+        if (['server'].includes(item.eventId)) return
         // 相同错误信息不上报
-        if (trackList.find((fItem) => fItem.event_source === item.eventId && fItem.err_message === item.errMessage)) {
+        if (trackList.find((fItem) => fItem.event_source === item.eventId && fItem.message === item.errMessage)) {
           return
         }
         trackList.push({
@@ -63,9 +63,9 @@ WebTracing.init({
           ip_address: baseInfo.ip,
           device: baseInfo.platform,
           browser: baseInfo.vendor,
-          send_time: baseInfo.sendTime,
-          data: JSON.stringify(item),
-          err_message: item.errMessage
+          send_time: item.triggerTime,
+          record_screen: item.recordscreen,
+          message: item.errMessage
         })
       }
     })

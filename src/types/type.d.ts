@@ -25,17 +25,11 @@ export type InitialStateType = {
 }
 
 export interface HandleErrorConfigType {
-  /**
-   * 是否显示提示弹窗，默认为true
-   */
+  /** 是否显示提示弹窗，默认为true */
   showMessage?: boolean
-  /**
-   * 提示错误信息
-   */
+  /** 提示错误信息 */
   message?: string
-  /**
-   * 是否发送到服务器，默认为true
-   */
+  /** 是否发送到服务器，默认为true */
   sentToServer?: boolean
 }
 

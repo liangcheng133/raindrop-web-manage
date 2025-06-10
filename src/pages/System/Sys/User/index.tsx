@@ -14,6 +14,7 @@ import EditOrgOrRoleModal, { EditOrgOrRoleModalRefType } from './components/Edit
 import EditUserModal, { EditUserModalRefType } from './components/EditUserModal'
 import OrgTree from './components/OrgTree'
 import styles from './index.less'
+import { handleError } from '@/utils'
 
 const cx = classNameBind(styles)
 
@@ -35,6 +36,8 @@ const UserPageIndex: React.FC = () => {
     }[status]
     antdUtil.modal?.confirm({
       title: '提示',
+      okText: '确定',
+      cancelText: '取消',
       content: modalData.content,
       onOk: async () => {
         await updateSysUserStatusAPI({ ids, status })
@@ -58,6 +61,7 @@ const UserPageIndex: React.FC = () => {
   /** 表格配置 */
   const { config: tableProps } = useTable<SysUserVO, any>({
     api: querySysUserListAPI,
+    actionRef: tableRef,
     persistenceColumnsKey: 'sys.user.index',
     rowSelection: {},
     columns: [
@@ -93,7 +97,9 @@ const UserPageIndex: React.FC = () => {
                   type: 'link',
                   auth: 'sys.user.edit',
                   hide: record.is_admin === 1,
-                  onClick: () => editUserRef.current?.open(record)
+                  onClick: () => {
+                    editUserRef.current?.open(record)
+                  }
                 }
               ]}
             />
@@ -176,13 +182,16 @@ const UserPageIndex: React.FC = () => {
               type: 'primary',
               icon: <PlusOutlined />
             },
-            onClick: () => editUserRef.current?.open()
+            onClick: () => {
+              editUserRef.current?.open()
+            }
           }
         ]}
       />
     ]
   })
 
+  console.log('[ tableProps ] >', tableProps)
   return (
     <PageContainer ghost className={cx('user-list-container')}>
       <Flex gap={16}>

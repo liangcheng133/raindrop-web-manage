@@ -1,4 +1,12 @@
-import { AccountLoginDTO, AccountLoginVO, ResponseVO, SysLoginUserVO, SysUserVO } from '@/types/api'
+import {
+  AccountLoginDTO,
+  AccountLoginVO,
+  ResponseVO,
+  SysLoginUserVO,
+  SysUserUpdateOrgDTO,
+  SysUserUpdateRoleDTO,
+  SysUserVO
+} from '@/types/api'
 import { request } from '@umijs/max'
 
 /** 查询用户列表 */
@@ -28,6 +36,22 @@ export function deleteSysUserAPI(data: Record<string, any>) {
 /** 修改用户状态 */
 export function updateSysUserStatusAPI(data: Record<string, any>) {
   return request<ResponseVO<null>>('/sys/user/updateStatus', {
+    method: 'post',
+    data
+  })
+}
+
+/** 修改用户角色 */
+export function updateSysUserRoleAPI(data: SysUserUpdateRoleDTO) {
+  return request<ResponseVO<null>>('/sys/user/updateRole', {
+    method: 'post',
+    data
+  })
+}
+
+/** 修改用户组织 */
+export function updateSysUserOrgAPI(data: SysUserUpdateOrgDTO) {
+  return request<ResponseVO<null>>('/sys/user/updateOrg', {
     method: 'post',
     data
   })

@@ -53,6 +53,18 @@ export interface SysUserSaveDTO {
   status: number
 }
 
+/** 保存用户角色类型 */
+export interface SysUserUpdateRoleDTO {
+  id: string
+  role_ids: string
+}
+
+/** 保存用户组织类型 */
+export interface SysUserUpdateOrgDTO {
+  id: string
+  org_id: string
+}
+
 /** 系统组织类型 */
 export interface SysOrgVO extends BasicField {
   id: string
@@ -112,11 +124,11 @@ export interface TrackVO {
   url: string
   app_code: string
   app_name: string
+  record_screen: string
   user_id?: string
   ip_address?: string
   device?: string
   browser?: string
   send_time: number
-  data: string
-  err_message: string
+  message: string
 }
